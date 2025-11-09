@@ -1656,6 +1656,11 @@ export default function Index() {
                   </Link>
                 </li>
                 <li>
+                  <Link to="/team" className="text-muted-foreground hover:text-primary transition-colors">
+                    Team
+                  </Link>
+                </li>
+                <li>
                   <a 
                     href="https://github.com/SQADIRKVM/prepzy-pyq" 
                     target="_blank" 

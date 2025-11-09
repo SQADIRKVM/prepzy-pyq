@@ -526,11 +526,10 @@ const Team = () => {
                 />
                 <div>
                   <p className="font-semibold text-base sm:text-lg">Prepzy PYQ</p>
-                  <p className="text-xs sm:text-sm text-muted-foreground">AI-Powered Question Analyzer</p>
                 </div>
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground">
-                Empowering students with AI-driven exam preparation tools.
+                AI-powered platform for analyzing previous year questions. Privacy-first, fast, and efficient.
               </p>
             </div>
 
@@ -586,8 +585,28 @@ const Team = () => {
                   </Link>
                 </li>
                 <li>
+                  <Link to="/#features" className="text-muted-foreground hover:text-primary transition-colors">
+                    Features
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/#roadmap" className="text-muted-foreground hover:text-primary transition-colors">
+                    Roadmap
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/#faq" className="text-muted-foreground hover:text-primary transition-colors">
+                    FAQ
+                  </Link>
+                </li>
+                <li>
                   <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">
                     About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/team" className="text-muted-foreground hover:text-primary transition-colors">
+                    Team
                   </Link>
                 </li>
                 <li>
@@ -607,6 +626,16 @@ const Team = () => {
             <div className="space-y-4">
               <h3 className="font-semibold text-sm sm:text-base">Resources</h3>
               <ul className="space-y-2 text-xs sm:text-sm">
+                <li>
+                  <a 
+                    href="https://aistudio.google.com/app/apikey" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Gemini API
+                  </a>
+                </li>
                 <li>
                   <a 
                     href="https://platform.deepseek.com" 

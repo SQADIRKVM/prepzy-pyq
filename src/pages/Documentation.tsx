@@ -1008,8 +1008,28 @@ export default function Documentation() {
                   </Link>
                 </li>
                 <li>
+                  <Link to="/#features" className="text-muted-foreground hover:text-primary transition-colors">
+                    Features
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/#roadmap" className="text-muted-foreground hover:text-primary transition-colors">
+                    Roadmap
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/#faq" className="text-muted-foreground hover:text-primary transition-colors">
+                    FAQ
+                  </Link>
+                </li>
+                <li>
                   <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">
                     About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/team" className="text-muted-foreground hover:text-primary transition-colors">
+                    Team
                   </Link>
                 </li>
                 <li>
