@@ -48,8 +48,11 @@ export async function processWithDeepSeek(
     // Handle Gemini API
     if (useGemini) {
       const genAI = new GoogleGenerativeAI(geminiApiKey!);
+      // Get saved model from localStorage, or use options.model, or default to gemini-1.5-flash
+      const savedModel = localStorage.getItem('geminiModel') || 'gemini-1.5-flash';
+      const selectedModel = options.model || savedModel;
       const model = genAI.getGenerativeModel({ 
-        model: options.model || "gemini-1.5-flash",
+        model: selectedModel,
         generationConfig: {
           temperature: options.temperature ?? 0.2,
           maxOutputTokens: options.max_tokens ?? 4000,

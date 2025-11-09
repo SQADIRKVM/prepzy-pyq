@@ -12,6 +12,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Settings, Trash2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { recentResultsService } from '@/services/recentResultsService';
@@ -32,6 +39,7 @@ const ApiKeySettings = () => {
   const [deepseekApiKey, setDeepseekApiKey] = useState('');
   const [openRouterApiKey, setOpenRouterApiKey] = useState('');
   const [geminiApiKey, setGeminiApiKey] = useState('');
+  const [geminiModel, setGeminiModel] = useState('gemini-1.5-flash');
   const [apiProvider, setApiProvider] = useState<'gemini' | 'deepseek' | 'openrouter'>('gemini');
   const [open, setOpen] = useState(false);
 
@@ -41,10 +49,12 @@ const ApiKeySettings = () => {
     const savedDeepseekKey = localStorage.getItem('deepseekApiKey') || '';
     const savedOpenRouterKey = localStorage.getItem('openRouterApiKey') || '';
     const savedGeminiKey = localStorage.getItem('geminiApiKey') || '';
+    const savedGeminiModel = localStorage.getItem('geminiModel') || 'gemini-1.5-flash';
     setYoutubeApiKey(savedYoutubeKey);
     setDeepseekApiKey(savedDeepseekKey);
     setOpenRouterApiKey(savedOpenRouterKey);
     setGeminiApiKey(savedGeminiKey);
+    setGeminiModel(savedGeminiModel);
     
     // Determine which provider to use based on existing keys (priority: Gemini > OpenRouter > DeepSeek)
     if (savedGeminiKey) {
@@ -72,8 +82,10 @@ const ApiKeySettings = () => {
     
     if (geminiApiKey) {
       localStorage.setItem('geminiApiKey', geminiApiKey);
+      localStorage.setItem('geminiModel', geminiModel);
     } else {
       localStorage.removeItem('geminiApiKey');
+      localStorage.removeItem('geminiModel');
     }
     
     if (deepseekApiKey) {
@@ -180,9 +192,38 @@ const ApiKeySettings = () => {
                   Get your API key from Google AI Studio →
                 </a>
               </p>
-              <p className="text-xs text-muted-foreground">
-                Uses the model: <code className="text-xs bg-muted px-1 rounded">gemini-1.5-flash</code> (fast and efficient)
-              </p>
+              {/* Gemini Model Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="gemini-model">Gemini Model</Label>
+                <Select
+                  value={geminiModel}
+                  onValueChange={setGeminiModel}
+                >
+                  <SelectTrigger id="gemini-model" className="w-full">
+                    <SelectValue placeholder="Select a model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="gemini-1.5-flash">
+                      Gemini 1.5 Flash (Fast & Efficient)
+                    </SelectItem>
+                    <SelectItem value="gemini-2.5-flash">
+                      Gemini 2.5 Flash (Latest Flash)
+                    </SelectItem>
+                    <SelectItem value="gemini-flash-latest">
+                      Gemini Flash Latest (Auto-updated)
+                    </SelectItem>
+                    <SelectItem value="gemini-2.5-pro">
+                      Gemini 2.5 Pro (Most Capable)
+                    </SelectItem>
+                    <SelectItem value="gemini-1.5-pro">
+                      Gemini 1.5 Pro (High Quality)
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Choose the Gemini model. Flash models are faster, Pro models offer higher quality.
+                </p>
+              </div>
             </div>
           )}
 

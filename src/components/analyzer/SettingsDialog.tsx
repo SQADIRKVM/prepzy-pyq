@@ -12,6 +12,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   Settings, 
   Trash2, 
@@ -54,6 +61,7 @@ const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogPro
   const [open, setOpen] = useState(false);
   const [youtubeApiKey, setYoutubeApiKey] = useState('');
   const [geminiApiKey, setGeminiApiKey] = useState('');
+  const [geminiModel, setGeminiModel] = useState('gemini-1.5-flash');
   const [deepseekApiKey, setDeepseekApiKey] = useState('');
   const [openRouterApiKey, setOpenRouterApiKey] = useState('');
   const [apiProvider, setApiProvider] = useState<'gemini' | 'deepseek' | 'openrouter'>('gemini');
@@ -76,10 +84,12 @@ const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogPro
     if (open) {
       const savedYoutubeKey = localStorage.getItem('youtubeApiKey') || '';
       const savedGeminiKey = localStorage.getItem('geminiApiKey') || '';
+      const savedGeminiModel = localStorage.getItem('geminiModel') || 'gemini-1.5-flash';
       const savedDeepseekKey = localStorage.getItem('deepseekApiKey') || '';
       const savedOpenRouterKey = localStorage.getItem('openRouterApiKey') || '';
       setYoutubeApiKey(savedYoutubeKey);
       setGeminiApiKey(savedGeminiKey);
+      setGeminiModel(savedGeminiModel);
       setDeepseekApiKey(savedDeepseekKey);
       setOpenRouterApiKey(savedOpenRouterKey);
       
@@ -131,8 +141,10 @@ const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogPro
     
     if (geminiApiKey) {
       localStorage.setItem('geminiApiKey', geminiApiKey);
+      localStorage.setItem('geminiModel', geminiModel);
     } else {
       localStorage.removeItem('geminiApiKey');
+      localStorage.removeItem('geminiModel');
     }
     
     if (deepseekApiKey) {
@@ -880,9 +892,45 @@ const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogPro
                             Get your API key from Google AI Studio →
                           </a>
                         </p>
-                        <p className="text-xs text-muted-foreground leading-relaxed break-words">
-                          Uses the model: <code className="text-xs bg-muted px-1 rounded">gemini-1.5-flash</code> (fast and efficient)
-                        </p>
+                        
+                        {/* Gemini Model Selection */}
+                        <div className="space-y-2">
+                          <Label htmlFor="gemini-model" className="text-xs sm:text-sm font-semibold">
+                            Gemini Model
+                          </Label>
+                          <Select
+                            value={geminiModel}
+                            onValueChange={setGeminiModel}
+                            disabled={!session}
+                          >
+                            <SelectTrigger 
+                              id="gemini-model"
+                              className="h-10 sm:h-11 w-full"
+                            >
+                              <SelectValue placeholder="Select a model" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="gemini-1.5-flash">
+                                Gemini 1.5 Flash (Fast & Efficient)
+                              </SelectItem>
+                              <SelectItem value="gemini-2.5-flash">
+                                Gemini 2.5 Flash (Latest Flash)
+                              </SelectItem>
+                              <SelectItem value="gemini-flash-latest">
+                                Gemini Flash Latest (Auto-updated)
+                              </SelectItem>
+                              <SelectItem value="gemini-2.5-pro">
+                                Gemini 2.5 Pro (Most Capable)
+                              </SelectItem>
+                              <SelectItem value="gemini-1.5-pro">
+                                Gemini 1.5 Pro (High Quality)
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-muted-foreground leading-relaxed break-words">
+                            Choose the Gemini model for analysis. Flash models are faster, Pro models offer higher quality.
+                          </p>
+                        </div>
                       </div>
                     )}
 

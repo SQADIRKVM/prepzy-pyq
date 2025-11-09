@@ -11,6 +11,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Key, ExternalLink, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -22,6 +29,7 @@ interface ApiKeySetupDialogProps {
 
 const ApiKeySetupDialog = ({ open, onOpenChange, onSave }: ApiKeySetupDialogProps) => {
   const [geminiApiKey, setGeminiApiKey] = useState('');
+  const [geminiModel, setGeminiModel] = useState('gemini-1.5-flash');
   const [deepseekApiKey, setDeepseekApiKey] = useState('');
   const [openRouterApiKey, setOpenRouterApiKey] = useState('');
   const [youtubeApiKey, setYoutubeApiKey] = useState('');
@@ -31,10 +39,12 @@ const ApiKeySetupDialog = ({ open, onOpenChange, onSave }: ApiKeySetupDialogProp
     if (open) {
       // Load existing keys if any
       const savedGeminiKey = localStorage.getItem('geminiApiKey') || '';
+      const savedGeminiModel = localStorage.getItem('geminiModel') || 'gemini-1.5-flash';
       const savedDeepseekKey = localStorage.getItem('deepseekApiKey') || '';
       const savedOpenRouterKey = localStorage.getItem('openRouterApiKey') || '';
       const savedYoutubeKey = localStorage.getItem('youtubeApiKey') || '';
       setGeminiApiKey(savedGeminiKey);
+      setGeminiModel(savedGeminiModel);
       setDeepseekApiKey(savedDeepseekKey);
       setOpenRouterApiKey(savedOpenRouterKey);
       setYoutubeApiKey(savedYoutubeKey);
@@ -60,8 +70,10 @@ const ApiKeySetupDialog = ({ open, onOpenChange, onSave }: ApiKeySetupDialogProp
     // Save API keys
     if (geminiApiKey.trim()) {
       localStorage.setItem('geminiApiKey', geminiApiKey);
+      localStorage.setItem('geminiModel', geminiModel);
     } else {
       localStorage.removeItem('geminiApiKey');
+      localStorage.removeItem('geminiModel');
     }
     
     if (deepseekApiKey.trim()) {
@@ -176,9 +188,43 @@ const ApiKeySetupDialog = ({ open, onOpenChange, onSave }: ApiKeySetupDialogProp
                   <ExternalLink className="h-3 w-3" />
                 </a>
               </div>
-              <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
-                Uses the model: <code className="text-[10px] sm:text-xs bg-muted px-1 py-0.5 rounded">gemini-1.5-flash</code> (fast and efficient)
-              </p>
+              {/* Gemini Model Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="gemini-model" className="text-[11px] sm:text-xs font-semibold">
+                  Gemini Model
+                </Label>
+                <Select
+                  value={geminiModel}
+                  onValueChange={setGeminiModel}
+                >
+                  <SelectTrigger 
+                    id="gemini-model"
+                    className="h-9 sm:h-10 w-full text-xs sm:text-sm"
+                  >
+                    <SelectValue placeholder="Select a model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="gemini-1.5-flash">
+                      Gemini 1.5 Flash (Fast & Efficient)
+                    </SelectItem>
+                    <SelectItem value="gemini-2.5-flash">
+                      Gemini 2.5 Flash (Latest Flash)
+                    </SelectItem>
+                    <SelectItem value="gemini-flash-latest">
+                      Gemini Flash Latest (Auto-updated)
+                    </SelectItem>
+                    <SelectItem value="gemini-2.5-pro">
+                      Gemini 2.5 Pro (Most Capable)
+                    </SelectItem>
+                    <SelectItem value="gemini-1.5-pro">
+                      Gemini 1.5 Pro (High Quality)
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
+                  Choose the Gemini model. Flash models are faster, Pro models offer higher quality.
+                </p>
+              </div>
             </div>
           )}
 
