@@ -41,9 +41,10 @@ const UploadSection = ({
 
   useEffect(() => {
     const checkApiKey = () => {
+      const geminiKey = localStorage.getItem('geminiApiKey');
       const deepseekKey = localStorage.getItem('deepseekApiKey');
       const openRouterKey = localStorage.getItem('openRouterApiKey');
-      setHasApiKey(!!deepseekKey || !!openRouterKey);
+      setHasApiKey(!!geminiKey || !!deepseekKey || !!openRouterKey);
     };
 
     checkApiKey();
@@ -60,7 +61,7 @@ const UploadSection = ({
           <div className="flex-1">
             <AlertTitle className="text-amber-400 font-semibold">API Key Required</AlertTitle>
             <AlertDescription className="text-amber-300/80 mt-1">
-              Please configure your DeepSeek or OpenRouter API key in settings to enable AI-powered analysis.
+              Please configure your Gemini, DeepSeek, or OpenRouter API key in settings to enable AI-powered analysis.
             </AlertDescription>
             {onAddApiKey && (
               <div className="mt-3">

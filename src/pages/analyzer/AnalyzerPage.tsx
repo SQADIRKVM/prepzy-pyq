@@ -75,9 +75,10 @@ const AnalyzerPage = () => {
   // Priority order: Onboarding > API Key
   useEffect(() => {
     const onboardingCompleted = localStorage.getItem('onboardingCompleted');
+    const geminiApiKey = localStorage.getItem('geminiApiKey');
     const deepseekApiKey = localStorage.getItem('deepseekApiKey');
     const openRouterApiKey = localStorage.getItem('openRouterApiKey');
-    const hasApiKey = !!deepseekApiKey || !!openRouterApiKey;
+    const hasApiKey = !!geminiApiKey || !!deepseekApiKey || !!openRouterApiKey;
     const setupCompleted = localStorage.getItem('apiKeySetupCompleted');
     const setupDismissed = localStorage.getItem('apiKeySetupDismissed');
     const currentSession = sessionService.getCurrentSession();
@@ -216,11 +217,12 @@ const AnalyzerPage = () => {
     if (files.length === 0) return;
     
     // Check if API key exists
+    const geminiApiKey = localStorage.getItem('geminiApiKey');
     const deepseekApiKey = localStorage.getItem('deepseekApiKey');
     const openRouterApiKey = localStorage.getItem('openRouterApiKey');
-    if (!deepseekApiKey && !openRouterApiKey) {
+    if (!geminiApiKey && !deepseekApiKey && !openRouterApiKey) {
       setShowApiKeySetup(true);
-      toast.error("Please configure your API key (DeepSeek or OpenRouter) first");
+      toast.error("Please configure your API key (Gemini, DeepSeek, or OpenRouter) first");
       return;
     }
     
@@ -263,11 +265,12 @@ const AnalyzerPage = () => {
     if (files.length === 0) return;
     
     // Check if API key exists
+    const geminiApiKey = localStorage.getItem('geminiApiKey');
     const deepseekApiKey = localStorage.getItem('deepseekApiKey');
     const openRouterApiKey = localStorage.getItem('openRouterApiKey');
-    if (!deepseekApiKey && !openRouterApiKey) {
+    if (!geminiApiKey && !deepseekApiKey && !openRouterApiKey) {
       setShowApiKeySetup(true);
-      toast.error("Please configure your API key (DeepSeek or OpenRouter) first");
+      toast.error("Please configure your API key (Gemini, DeepSeek, or OpenRouter) first");
       return;
     }
     
@@ -307,11 +310,12 @@ const AnalyzerPage = () => {
     if (files.length === 0) return;
     
     // Check if API key exists
+    const geminiApiKey = localStorage.getItem('geminiApiKey');
     const deepseekApiKey = localStorage.getItem('deepseekApiKey');
     const openRouterApiKey = localStorage.getItem('openRouterApiKey');
-    if (!deepseekApiKey && !openRouterApiKey) {
+    if (!geminiApiKey && !deepseekApiKey && !openRouterApiKey) {
       setShowApiKeySetup(true);
-      toast.error("Please configure your API key (DeepSeek or OpenRouter) first");
+      toast.error("Please configure your API key (Gemini, DeepSeek, or OpenRouter) first");
       return;
     }
     
@@ -405,8 +409,10 @@ const AnalyzerPage = () => {
       if (error.message) {
         const errorStr = error.message;
         // Check for rate limit errors
-        if (errorStr.includes("429") || errorStr.includes("rate limit") || errorStr.includes("rate-limited")) {
-          if (errorStr.includes("OpenRouter")) {
+        if (errorStr.includes("429") || errorStr.includes("rate limit") || errorStr.includes("rate-limited") || errorStr.includes("RESOURCE_EXHAUSTED")) {
+          if (errorStr.includes("Gemini")) {
+            userMessage = "Gemini API rate limit exceeded. Please wait a few minutes and try again, or add your own API key in Settings for higher rate limits.";
+          } else if (errorStr.includes("OpenRouter")) {
             userMessage = "OpenRouter API rate limit exceeded. The free model is temporarily rate-limited. Please wait a few minutes and try again, or add your own API key in Settings for higher rate limits.";
           } else {
             userMessage = "API rate limit exceeded. Please wait a few minutes and try again, or add your own API key in Settings.";
@@ -508,8 +514,10 @@ const AnalyzerPage = () => {
       if (error.message) {
         const errorStr = error.message;
         // Check for rate limit errors
-        if (errorStr.includes("429") || errorStr.includes("rate limit") || errorStr.includes("rate-limited")) {
-          if (errorStr.includes("OpenRouter")) {
+        if (errorStr.includes("429") || errorStr.includes("rate limit") || errorStr.includes("rate-limited") || errorStr.includes("RESOURCE_EXHAUSTED")) {
+          if (errorStr.includes("Gemini")) {
+            userMessage = "Gemini API rate limit exceeded. Please wait a few minutes and try again, or add your own API key in Settings for higher rate limits.";
+          } else if (errorStr.includes("OpenRouter")) {
             userMessage = "OpenRouter API rate limit exceeded. The free model is temporarily rate-limited. Please wait a few minutes and try again, or add your own API key in Settings for higher rate limits.";
           } else {
             userMessage = "API rate limit exceeded. Please wait a few minutes and try again, or add your own API key in Settings.";
@@ -876,9 +884,10 @@ const AnalyzerPage = () => {
           setShowOnboarding(open);
           // After onboarding closes, check for API key setup
           if (!open) {
+            const geminiApiKey = localStorage.getItem('geminiApiKey');
             const deepseekApiKey = localStorage.getItem('deepseekApiKey');
             const openRouterApiKey = localStorage.getItem('openRouterApiKey');
-            const hasApiKey = !!deepseekApiKey || !!openRouterApiKey;
+            const hasApiKey = !!geminiApiKey || !!deepseekApiKey || !!openRouterApiKey;
             const setupCompleted = localStorage.getItem('apiKeySetupCompleted');
             const setupDismissed = localStorage.getItem('apiKeySetupDismissed');
             if (!hasApiKey && !setupCompleted && !setupDismissed) {

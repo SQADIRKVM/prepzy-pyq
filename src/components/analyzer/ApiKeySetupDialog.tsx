@@ -21,23 +21,28 @@ interface ApiKeySetupDialogProps {
 }
 
 const ApiKeySetupDialog = ({ open, onOpenChange, onSave }: ApiKeySetupDialogProps) => {
+  const [geminiApiKey, setGeminiApiKey] = useState('');
   const [deepseekApiKey, setDeepseekApiKey] = useState('');
   const [openRouterApiKey, setOpenRouterApiKey] = useState('');
   const [youtubeApiKey, setYoutubeApiKey] = useState('');
-  const [apiProvider, setApiProvider] = useState<'deepseek' | 'openrouter'>('deepseek');
+  const [apiProvider, setApiProvider] = useState<'gemini' | 'deepseek' | 'openrouter'>('gemini');
 
   useEffect(() => {
     if (open) {
       // Load existing keys if any
+      const savedGeminiKey = localStorage.getItem('geminiApiKey') || '';
       const savedDeepseekKey = localStorage.getItem('deepseekApiKey') || '';
       const savedOpenRouterKey = localStorage.getItem('openRouterApiKey') || '';
       const savedYoutubeKey = localStorage.getItem('youtubeApiKey') || '';
+      setGeminiApiKey(savedGeminiKey);
       setDeepseekApiKey(savedDeepseekKey);
       setOpenRouterApiKey(savedOpenRouterKey);
       setYoutubeApiKey(savedYoutubeKey);
       
-      // Determine which provider to use based on existing keys
-      if (savedOpenRouterKey) {
+      // Determine which provider to use based on existing keys (priority: Gemini > OpenRouter > DeepSeek)
+      if (savedGeminiKey) {
+        setApiProvider('gemini');
+      } else if (savedOpenRouterKey) {
         setApiProvider('openrouter');
       } else if (savedDeepseekKey) {
         setApiProvider('deepseek');
@@ -46,13 +51,19 @@ const ApiKeySetupDialog = ({ open, onOpenChange, onSave }: ApiKeySetupDialogProp
   }, [open]);
 
   const handleSave = () => {
-    // At least one AI API key (DeepSeek or OpenRouter) is required
-    if (!deepseekApiKey.trim() && !openRouterApiKey.trim()) {
-      toast.error("Either DeepSeek or OpenRouter API key is required");
+    // At least one AI API key (Gemini, DeepSeek, or OpenRouter) is required
+    if (!geminiApiKey.trim() && !deepseekApiKey.trim() && !openRouterApiKey.trim()) {
+      toast.error("At least one AI API key (Gemini, DeepSeek, or OpenRouter) is required");
       return;
     }
 
     // Save API keys
+    if (geminiApiKey.trim()) {
+      localStorage.setItem('geminiApiKey', geminiApiKey);
+    } else {
+      localStorage.removeItem('geminiApiKey');
+    }
+    
     if (deepseekApiKey.trim()) {
       localStorage.setItem('deepseekApiKey', deepseekApiKey);
     } else {
@@ -92,7 +103,7 @@ const ApiKeySetupDialog = ({ open, onOpenChange, onSave }: ApiKeySetupDialogProp
             API Key Setup Required
           </DialogTitle>
           <DialogDescription>
-            To use Prepzy PYQ, you need to configure your API keys. Either DeepSeek or OpenRouter API key is required for processing documents.
+            To use Prepzy PYQ, you need to configure your API keys. At least one AI API key (Gemini, DeepSeek, or OpenRouter) is required for processing documents.
           </DialogDescription>
         </DialogHeader>
         
@@ -101,7 +112,7 @@ const ApiKeySetupDialog = ({ open, onOpenChange, onSave }: ApiKeySetupDialogProp
             <div className="flex items-start gap-2">
               <AlertCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
               <p className="text-[11px] sm:text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
-                <strong>Required:</strong> Either DeepSeek or OpenRouter API key is mandatory for document processing and question analysis.
+                <strong>Required:</strong> At least one AI API key (Gemini, DeepSeek, or OpenRouter) is mandatory for document processing and question analysis.
               </p>
             </div>
           </div>
@@ -110,6 +121,15 @@ const ApiKeySetupDialog = ({ open, onOpenChange, onSave }: ApiKeySetupDialogProp
           <div className="space-y-2">
             <Label className="text-xs sm:text-sm">AI API Provider</Label>
             <div className="flex gap-2">
+              <Button
+                type="button"
+                variant={apiProvider === 'gemini' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setApiProvider('gemini')}
+                className="flex-1 text-xs sm:text-sm h-9 sm:h-10"
+              >
+                Gemini
+              </Button>
               <Button
                 type="button"
                 variant={apiProvider === 'deepseek' ? 'default' : 'outline'}
@@ -131,6 +151,37 @@ const ApiKeySetupDialog = ({ open, onOpenChange, onSave }: ApiKeySetupDialogProp
             </div>
           </div>
 
+          {/* Gemini API Key */}
+          {apiProvider === 'gemini' && (
+            <div className="space-y-2">
+              <Label htmlFor="setup-gemini-api-key" className="flex items-center gap-2 text-xs sm:text-sm">
+                Gemini API Key <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="setup-gemini-api-key"
+                type="password"
+                value={geminiApiKey}
+                onChange={(e) => setGeminiApiKey(e.target.value)}
+                placeholder="Enter your Gemini API key"
+                className={`text-sm h-9 sm:h-10 ${!geminiApiKey && !deepseekApiKey && !openRouterApiKey ? "border-amber-500" : ""}`}
+              />
+              <div className="flex items-center gap-1">
+                <a 
+                  href="https://aistudio.google.com/app/apikey" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-[11px] sm:text-xs text-primary hover:underline flex items-center gap-1"
+                >
+                  Get your API key from Google AI Studio
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+              <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
+                Uses the model: <code className="text-[10px] sm:text-xs bg-muted px-1 py-0.5 rounded">gemini-1.5-flash</code> (fast and efficient)
+              </p>
+            </div>
+          )}
+
           {/* DeepSeek API Key */}
           {apiProvider === 'deepseek' && (
             <div className="space-y-2">
@@ -143,7 +194,7 @@ const ApiKeySetupDialog = ({ open, onOpenChange, onSave }: ApiKeySetupDialogProp
                 value={deepseekApiKey}
                 onChange={(e) => setDeepseekApiKey(e.target.value)}
                 placeholder="Enter your DeepSeek API key"
-                className={`text-sm h-9 sm:h-10 ${!deepseekApiKey && !openRouterApiKey ? "border-amber-500" : ""}`}
+                className={`text-sm h-9 sm:h-10 ${!geminiApiKey && !deepseekApiKey && !openRouterApiKey ? "border-amber-500" : ""}`}
               />
               <div className="flex items-center gap-1">
                 <a 
@@ -171,7 +222,7 @@ const ApiKeySetupDialog = ({ open, onOpenChange, onSave }: ApiKeySetupDialogProp
                 value={openRouterApiKey}
                 onChange={(e) => setOpenRouterApiKey(e.target.value)}
                 placeholder="Enter your OpenRouter API key"
-                className={`text-sm h-9 sm:h-10 ${!deepseekApiKey && !openRouterApiKey ? "border-amber-500" : ""}`}
+                className={`text-sm h-9 sm:h-10 ${!geminiApiKey && !deepseekApiKey && !openRouterApiKey ? "border-amber-500" : ""}`}
               />
               <div className="flex items-center gap-1">
                 <a 

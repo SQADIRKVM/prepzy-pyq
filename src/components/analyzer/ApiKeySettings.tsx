@@ -31,7 +31,8 @@ const ApiKeySettings = () => {
   const [youtubeApiKey, setYoutubeApiKey] = useState('');
   const [deepseekApiKey, setDeepseekApiKey] = useState('');
   const [openRouterApiKey, setOpenRouterApiKey] = useState('');
-  const [apiProvider, setApiProvider] = useState<'deepseek' | 'openrouter'>('deepseek');
+  const [geminiApiKey, setGeminiApiKey] = useState('');
+  const [apiProvider, setApiProvider] = useState<'gemini' | 'deepseek' | 'openrouter'>('gemini');
   const [open, setOpen] = useState(false);
 
   // Load saved API keys on component mount
@@ -39,12 +40,16 @@ const ApiKeySettings = () => {
     const savedYoutubeKey = localStorage.getItem('youtubeApiKey') || '';
     const savedDeepseekKey = localStorage.getItem('deepseekApiKey') || '';
     const savedOpenRouterKey = localStorage.getItem('openRouterApiKey') || '';
+    const savedGeminiKey = localStorage.getItem('geminiApiKey') || '';
     setYoutubeApiKey(savedYoutubeKey);
     setDeepseekApiKey(savedDeepseekKey);
     setOpenRouterApiKey(savedOpenRouterKey);
+    setGeminiApiKey(savedGeminiKey);
     
-    // Determine which provider to use based on existing keys
-    if (savedOpenRouterKey) {
+    // Determine which provider to use based on existing keys (priority: Gemini > OpenRouter > DeepSeek)
+    if (savedGeminiKey) {
+      setApiProvider('gemini');
+    } else if (savedOpenRouterKey) {
       setApiProvider('openrouter');
     } else if (savedDeepseekKey) {
       setApiProvider('deepseek');
@@ -52,9 +57,9 @@ const ApiKeySettings = () => {
   }, []);
 
   const handleSave = () => {
-    // At least one AI API key (DeepSeek or OpenRouter) should be present
-    if (!deepseekApiKey.trim() && !openRouterApiKey.trim()) {
-      toast.error("Either DeepSeek or OpenRouter API key is required");
+    // At least one AI API key (Gemini, DeepSeek, or OpenRouter) should be present
+    if (!geminiApiKey.trim() && !deepseekApiKey.trim() && !openRouterApiKey.trim()) {
+      toast.error("At least one AI API key (Gemini, DeepSeek, or OpenRouter) is required");
       return;
     }
     
@@ -63,6 +68,12 @@ const ApiKeySettings = () => {
       localStorage.setItem('youtubeApiKey', youtubeApiKey);
     } else {
       localStorage.removeItem('youtubeApiKey');
+    }
+    
+    if (geminiApiKey) {
+      localStorage.setItem('geminiApiKey', geminiApiKey);
+    } else {
+      localStorage.removeItem('geminiApiKey');
     }
     
     if (deepseekApiKey) {
@@ -93,7 +104,7 @@ const ApiKeySettings = () => {
         <DialogHeader>
           <DialogTitle>API Settings</DialogTitle>
           <DialogDescription>
-            Configure your API keys to enable AI-powered features. Either DeepSeek or OpenRouter API key is required for processing documents.
+            Configure your API keys to enable AI-powered features. At least one AI API key (Gemini, DeepSeek, or OpenRouter) is required for processing documents.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
@@ -116,6 +127,15 @@ const ApiKeySettings = () => {
             <div className="flex gap-2">
               <Button
                 type="button"
+                variant={apiProvider === 'gemini' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setApiProvider('gemini')}
+                className="flex-1"
+              >
+                Gemini
+              </Button>
+              <Button
+                type="button"
                 variant={apiProvider === 'deepseek' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setApiProvider('deepseek')}
@@ -135,6 +155,37 @@ const ApiKeySettings = () => {
             </div>
           </div>
 
+          {/* Gemini API Key */}
+          {apiProvider === 'gemini' && (
+            <div className="space-y-2">
+              <Label htmlFor="gemini-api-key">
+                Gemini API Key <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="gemini-api-key"
+                type="password"
+                value={geminiApiKey}
+                onChange={(e) => setGeminiApiKey(e.target.value)}
+                placeholder="Enter your Gemini API key"
+                className={!geminiApiKey && !deepseekApiKey && !openRouterApiKey ? "border-amber-500" : ""}
+              />
+              <p className="text-xs text-muted-foreground">
+                <strong>Required</strong> for AI text processing and question analysis.{" "}
+                <a 
+                  href="https://aistudio.google.com/app/apikey" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  Get your API key from Google AI Studio →
+                </a>
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Uses the model: <code className="text-xs bg-muted px-1 rounded">gemini-1.5-flash</code> (fast and efficient)
+              </p>
+            </div>
+          )}
+
           {/* DeepSeek API Key */}
           {apiProvider === 'deepseek' && (
             <div className="space-y-2">
@@ -147,7 +198,7 @@ const ApiKeySettings = () => {
               value={deepseekApiKey}
               onChange={(e) => setDeepseekApiKey(e.target.value)}
               placeholder="Enter your DeepSeek API key"
-                className={!deepseekApiKey && !openRouterApiKey ? "border-amber-500" : ""}
+                className={!geminiApiKey && !deepseekApiKey && !openRouterApiKey ? "border-amber-500" : ""}
               />
               <p className="text-xs text-muted-foreground">
                 <strong>Required</strong> for AI text processing and question analysis.{" "}
@@ -175,7 +226,7 @@ const ApiKeySettings = () => {
                 value={openRouterApiKey}
                 onChange={(e) => setOpenRouterApiKey(e.target.value)}
                 placeholder="Enter your OpenRouter API key"
-                className={!deepseekApiKey && !openRouterApiKey ? "border-amber-500" : ""}
+                className={!geminiApiKey && !deepseekApiKey && !openRouterApiKey ? "border-amber-500" : ""}
             />
             <p className="text-xs text-muted-foreground">
                 <strong>Required</strong> for AI text processing and question analysis.{" "}

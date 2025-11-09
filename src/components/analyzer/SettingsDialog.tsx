@@ -53,9 +53,10 @@ interface SettingsDialogProps {
 const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogProps) => {
   const [open, setOpen] = useState(false);
   const [youtubeApiKey, setYoutubeApiKey] = useState('');
+  const [geminiApiKey, setGeminiApiKey] = useState('');
   const [deepseekApiKey, setDeepseekApiKey] = useState('');
   const [openRouterApiKey, setOpenRouterApiKey] = useState('');
-  const [apiProvider, setApiProvider] = useState<'deepseek' | 'openrouter'>('deepseek');
+  const [apiProvider, setApiProvider] = useState<'gemini' | 'deepseek' | 'openrouter'>('gemini');
   const [recentResults, setRecentResults] = useState<RecentResult[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
@@ -74,14 +75,18 @@ const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogPro
   useEffect(() => {
     if (open) {
       const savedYoutubeKey = localStorage.getItem('youtubeApiKey') || '';
+      const savedGeminiKey = localStorage.getItem('geminiApiKey') || '';
       const savedDeepseekKey = localStorage.getItem('deepseekApiKey') || '';
       const savedOpenRouterKey = localStorage.getItem('openRouterApiKey') || '';
       setYoutubeApiKey(savedYoutubeKey);
+      setGeminiApiKey(savedGeminiKey);
       setDeepseekApiKey(savedDeepseekKey);
       setOpenRouterApiKey(savedOpenRouterKey);
       
-      // Determine which provider to use based on existing keys
-      if (savedOpenRouterKey) {
+      // Determine which provider to use based on existing keys (priority: Gemini > OpenRouter > DeepSeek)
+      if (savedGeminiKey) {
+        setApiProvider('gemini');
+      } else if (savedOpenRouterKey) {
         setApiProvider('openrouter');
       } else if (savedDeepseekKey) {
         setApiProvider('deepseek');
@@ -111,9 +116,9 @@ const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogPro
   }, [session]);
 
   const handleSaveApiKeys = () => {
-    // At least one AI API key (DeepSeek or OpenRouter) should be present
-    if (!deepseekApiKey.trim() && !openRouterApiKey.trim()) {
-      toast.error("Either DeepSeek or OpenRouter API key is required");
+    // At least one AI API key (Gemini, DeepSeek, or OpenRouter) should be present
+    if (!geminiApiKey.trim() && !deepseekApiKey.trim() && !openRouterApiKey.trim()) {
+      toast.error("At least one AI API key (Gemini, DeepSeek, or OpenRouter) is required");
       return;
     }
     
@@ -122,6 +127,12 @@ const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogPro
       localStorage.setItem('youtubeApiKey', youtubeApiKey);
     } else {
       localStorage.removeItem('youtubeApiKey');
+    }
+    
+    if (geminiApiKey) {
+      localStorage.setItem('geminiApiKey', geminiApiKey);
+    } else {
+      localStorage.removeItem('geminiApiKey');
     }
     
     if (deepseekApiKey) {
@@ -804,6 +815,16 @@ const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogPro
                       <div className="flex gap-2">
                         <Button
                           type="button"
+                          variant={apiProvider === 'gemini' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setApiProvider('gemini')}
+                          disabled={!session}
+                          className="flex-1"
+                        >
+                          Gemini
+                        </Button>
+                        <Button
+                          type="button"
                           variant={apiProvider === 'deepseek' ? 'default' : 'outline'}
                           size="sm"
                           onClick={() => setApiProvider('deepseek')}
@@ -824,6 +845,46 @@ const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogPro
                         </Button>
                       </div>
                     </div>
+
+                    {/* Gemini API Key */}
+                    {apiProvider === 'gemini' && (
+                      <div className="space-y-3 sm:space-y-4 w-full">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 w-full">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <Key className="h-4 w-4 text-primary flex-shrink-0" />
+                            <Label htmlFor="gemini-api-key" className="text-xs sm:text-sm font-semibold truncate">
+                              Gemini API Key <span className="text-red-500">*</span>
+                            </Label>
+                          </div>
+                          {!session && (
+                            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded self-start sm:self-auto flex-shrink-0">Read-only</span>
+                          )}
+                        </div>
+                        <Input
+                          id="gemini-api-key"
+                          type="password"
+                          value={geminiApiKey}
+                          onChange={(e) => setGeminiApiKey(e.target.value)}
+                          placeholder="Enter your Gemini API key"
+                          disabled={!session}
+                          className={!geminiApiKey && !deepseekApiKey && !openRouterApiKey ? "border-amber-500 h-10 sm:h-11 w-full" : "h-10 sm:h-11 w-full"}
+                        />
+                        <p className="text-xs text-muted-foreground leading-relaxed break-words">
+                          <strong>Required</strong> for AI text processing and question analysis.{" "}
+                          <a 
+                            href="https://aistudio.google.com/app/apikey" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline font-medium break-all"
+                          >
+                            Get your API key from Google AI Studio →
+                          </a>
+                        </p>
+                        <p className="text-xs text-muted-foreground leading-relaxed break-words">
+                          Uses the model: <code className="text-xs bg-muted px-1 rounded">gemini-1.5-flash</code> (fast and efficient)
+                        </p>
+                      </div>
+                    )}
 
                     {/* DeepSeek API Key */}
                     {apiProvider === 'deepseek' && (
@@ -846,7 +907,7 @@ const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogPro
                           onChange={(e) => setDeepseekApiKey(e.target.value)}
                           placeholder="Enter your DeepSeek API key"
                           disabled={!session}
-                          className={!deepseekApiKey && !openRouterApiKey ? "border-amber-500 h-10 sm:h-11 w-full" : "h-10 sm:h-11 w-full"}
+                          className={!geminiApiKey && !deepseekApiKey && !openRouterApiKey ? "border-amber-500 h-10 sm:h-11 w-full" : "h-10 sm:h-11 w-full"}
                         />
                         <p className="text-xs text-muted-foreground leading-relaxed break-words">
                           <strong>Required</strong> for AI text processing and question analysis.{" "}
@@ -883,7 +944,7 @@ const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogPro
                           onChange={(e) => setOpenRouterApiKey(e.target.value)}
                           placeholder="Enter your OpenRouter API key"
                           disabled={!session}
-                          className={!deepseekApiKey && !openRouterApiKey ? "border-amber-500 h-10 sm:h-11 w-full" : "h-10 sm:h-11 w-full"}
+                          className={!geminiApiKey && !deepseekApiKey && !openRouterApiKey ? "border-amber-500 h-10 sm:h-11 w-full" : "h-10 sm:h-11 w-full"}
                         />
                         <p className="text-xs text-muted-foreground leading-relaxed break-words">
                           <strong>Required</strong> for AI text processing and question analysis.{" "}

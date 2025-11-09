@@ -1,4 +1,5 @@
 import { toast } from 'sonner';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 interface DeepSeekOptions {
   model?: string;
@@ -29,17 +30,65 @@ export async function processWithDeepSeek(
     // Get API keys from localStorage
     const deepseekApiKey = localStorage.getItem('deepseekApiKey');
     const openRouterApiKey = localStorage.getItem('openRouterApiKey');
+    const geminiApiKey = localStorage.getItem('geminiApiKey');
     
-    // Determine which API to use (OpenRouter takes priority if both are present)
-    const useOpenRouter = !!openRouterApiKey;
-    const apiKey = useOpenRouter ? openRouterApiKey : deepseekApiKey;
+    // Determine which API to use (priority: Gemini > OpenRouter > DeepSeek)
+    const useGemini = !!geminiApiKey;
+    const useOpenRouter = !!openRouterApiKey && !useGemini;
+    const useDeepSeek = !!deepseekApiKey && !useGemini && !useOpenRouter;
     
-    if (!apiKey) {
+    if (!useGemini && !useOpenRouter && !useDeepSeek) {
       console.log("No API key found");
-      throw new Error("Either DeepSeek or OpenRouter API key is required");
+      throw new Error("Either Gemini, DeepSeek, or OpenRouter API key is required");
     }
 
-    console.log(`Making request using ${useOpenRouter ? 'OpenRouter' : 'DeepSeek'} API`);
+    const providerName = useGemini ? 'Gemini' : useOpenRouter ? 'OpenRouter' : 'DeepSeek';
+    console.log(`Making request using ${providerName} API`);
+
+    // Handle Gemini API
+    if (useGemini) {
+      const genAI = new GoogleGenerativeAI(geminiApiKey!);
+      const model = genAI.getGenerativeModel({ 
+        model: options.model || "gemini-1.5-flash",
+        generationConfig: {
+          temperature: options.temperature ?? 0.2,
+          maxOutputTokens: options.max_tokens ?? 4000,
+        }
+      });
+
+      // Combine system prompt and user text
+      const fullPrompt = `${prompt}\n\nUser content:\n${text}`;
+
+      try {
+        const result = await model.generateContent(fullPrompt);
+        const response = await result.response;
+        const generatedText = response.text();
+        
+        if (!generatedText) {
+          throw new Error("Gemini API returned empty response");
+        }
+        
+        return generatedText;
+      } catch (error: any) {
+        console.error("Gemini API error:", error);
+        
+        // Handle Gemini-specific errors
+        if (error.message?.includes("API_KEY_INVALID") || error.message?.includes("401")) {
+          toast.error("Invalid Gemini API key. Please check your settings.");
+          throw new Error("API error: 401 - Invalid Gemini API key");
+        } else if (error.message?.includes("429") || error.message?.includes("RESOURCE_EXHAUSTED")) {
+          toast.error("Gemini API rate limit exceeded. Please wait a few minutes and try again.", {
+            duration: 8000,
+          });
+          throw new Error("API error: 429 - Gemini API rate limit exceeded");
+        } else if (error.message?.includes("500") || error.message?.includes("503")) {
+          toast.error("Gemini API server error. Please try again later.");
+          throw new Error(`API error: ${error.status || 500} - Gemini API server error`);
+        }
+        
+        throw error;
+      }
+    }
 
     // Define default options
     const defaultOptions = {
@@ -113,11 +162,9 @@ export async function processWithDeepSeek(
       
       // Handle specific error cases
       if (response.status === 401 || response.status === 403) {
-        const providerName = useOpenRouter ? 'OpenRouter' : 'DeepSeek';
         toast.error(`Invalid ${providerName} API key. Please check your settings.`);
       } else if (response.status === 429) {
         // Rate limit error
-        const providerName = useOpenRouter ? 'OpenRouter' : 'DeepSeek';
         let errorMessage = `${providerName} API rate limit exceeded. `;
         
         if (useOpenRouter && errorData?.error?.metadata?.raw) {
@@ -135,7 +182,6 @@ export async function processWithDeepSeek(
           duration: 8000,
         });
       } else if (response.status >= 500) {
-        const providerName = useOpenRouter ? 'OpenRouter' : 'DeepSeek';
         toast.error(`${providerName} API server error. Please try again later.`);
       }
       
@@ -153,7 +199,6 @@ export async function processWithDeepSeek(
       
       // If we got an error message from the API, show it
       if (data.error || data.error_msg) {
-        const providerName = useOpenRouter ? 'OpenRouter' : 'DeepSeek';
         toast.error(`${providerName} API error: ${data.error || data.error_msg}`);
       } else {
         toast.error("Unexpected API response format");
