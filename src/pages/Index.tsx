@@ -417,7 +417,7 @@ export default function Index() {
                 className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4"
               >
                 Upload your PYQ papers and let AI extract, analyze, and help you understand every question with personalized insights and curated video resources.
-              </p>
+                </p>
               <div 
                 className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center pt-4 px-4"
               >
@@ -1536,7 +1536,7 @@ export default function Index() {
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 sm:pt-8 mt-6 sm:mt-8 border-t border-border/40">
               <p className="text-xs sm:text-sm text-muted-foreground text-center">
                 © {new Date().getFullYear()} Prepzy PYQ. All rights reserved.
-              </p>
+          </p>
               <p className="text-xs sm:text-sm text-muted-foreground text-center">
                 Made with ❤️ for students and educators
               </p>

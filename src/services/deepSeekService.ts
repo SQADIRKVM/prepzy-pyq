@@ -98,7 +98,7 @@ export async function processWithDeepSeek(
     const defaultOptions = {
       model: useOpenRouter ? openRouterModel : "deepseek-chat",
       temperature: 0.2,
-      max_tokens: 4000,
+      max_tokens: 16000, // Increased from 4000 to handle large question papers
       ...options
     };
 
@@ -167,6 +167,34 @@ export async function processWithDeepSeek(
       // Handle specific error cases
       if (response.status === 401 || response.status === 403) {
         toast.error(`Invalid ${providerName} API key. Please check your settings.`);
+      } else if (response.status === 404) {
+        // 404 errors from OpenRouter often indicate privacy/data policy issues
+        let errorMessage = `${providerName} API error: `;
+        
+        if (useOpenRouter) {
+          const errorMsg = errorData?.error?.message || JSON.stringify(errorData);
+          if (errorMsg.includes("data policy") || errorMsg.includes("Free model publication")) {
+            errorMessage = "OpenRouter data policy configuration required. ";
+            errorMessage += "Please configure your privacy settings at https://openrouter.ai/settings/privacy to allow free model usage, or try a different model in Settings.";
+            toast.error(errorMessage, {
+              duration: 10000,
+            });
+          } else if (errorMsg.includes("model") || errorMsg.includes("endpoint")) {
+            errorMessage = "The selected OpenRouter model is not available. ";
+            errorMessage += "Please try a different model in Settings, or configure your OpenRouter account settings.";
+            toast.error(errorMessage, {
+              duration: 8000,
+            });
+          } else {
+            errorMessage += errorMsg || "Model or endpoint not found. Please check your model selection in Settings.";
+            toast.error(errorMessage, {
+              duration: 8000,
+            });
+          }
+        } else {
+          errorMessage += "Endpoint not found. Please check your API configuration.";
+          toast.error(errorMessage);
+        }
       } else if (response.status === 429) {
         // Rate limit error
         let errorMessage = `${providerName} API rate limit exceeded. `;
@@ -187,6 +215,12 @@ export async function processWithDeepSeek(
         });
       } else if (response.status >= 500) {
         toast.error(`${providerName} API server error. Please try again later.`);
+      } else {
+        // Generic error for other status codes
+        const errorMsg = errorData?.error?.message || JSON.stringify(errorData);
+        toast.error(`${providerName} API error: ${errorMsg}`, {
+          duration: 8000,
+        });
       }
       
       throw new Error(`API error: ${response.status} - ${JSON.stringify(errorData)}`);
@@ -209,6 +243,13 @@ export async function processWithDeepSeek(
       }
       
       throw new Error("Invalid API response structure");
+    }
+
+    // Check if response was truncated
+    const finishReason = data.choices[0].finish_reason;
+    if (finishReason === "length") {
+      console.warn("API response was truncated due to token limit");
+      toast.warning("Response was truncated. Some questions may be missing. Consider processing smaller batches.");
     }
 
     return data.choices[0].message.content;
@@ -312,15 +353,34 @@ export async function analyzeQuestions(text: string): Promise<any> {
   
   try {
     const analysisText = await processWithDeepSeek(text, prompt, {
-      temperature: 0.1 // Lower temperature for more consistent results
+      temperature: 0.1, // Lower temperature for more consistent results
+      max_tokens: 16000 // Increased token limit for large question papers
     });
     
     // Remove code block markers if present
     const cleanedAnalysisText = analysisText.replace(/```json|```/g, '').trim();
     
+    // Check if the response looks truncated (incomplete JSON)
+    if (cleanedAnalysisText.trim().endsWith(',') || 
+        (cleanedAnalysisText.includes('[') && !cleanedAnalysisText.trim().endsWith(']'))) {
+      console.warn("Response appears to be truncated");
+      toast.warning("Response was truncated. Attempting to parse partial data...");
+    }
+    
     let analysis;
     try {
-      analysis = JSON.parse(cleanedAnalysisText);
+      // Try to fix incomplete JSON if it's truncated
+      let jsonText = cleanedAnalysisText;
+      if (!jsonText.trim().endsWith(']') && jsonText.includes('[')) {
+        // Find the last complete object and close the array
+        const lastCompleteObject = jsonText.lastIndexOf('}');
+        if (lastCompleteObject > 0) {
+          jsonText = jsonText.substring(0, lastCompleteObject + 1) + '\n]';
+          console.log("Attempting to fix truncated JSON");
+        }
+      }
+      
+      analysis = JSON.parse(jsonText);
       if (!Array.isArray(analysis)) {
         throw new Error("Response is not an array");
       }
@@ -353,9 +413,16 @@ export async function analyzeQuestions(text: string): Promise<any> {
       toast.success("Question analysis complete");
       return analysis;
     } catch (jsonError) {
-      console.error("JSON parsing error:", jsonError, "Raw text:", cleanedAnalysisText);
-      toast.error("Failed to parse question analysis");
-      throw jsonError;
+      console.error("JSON parsing error:", jsonError, "Raw text:", cleanedAnalysisText.substring(0, 500));
+      
+      // Provide more helpful error message
+      if (jsonError instanceof SyntaxError && jsonError.message.includes("Unexpected end")) {
+        toast.error("Response was truncated. The question paper is too large. Please try processing a smaller section or increase the API token limit.");
+        throw new Error("Response truncated: Question paper too large for current token limit. Please process smaller batches.");
+      } else {
+        toast.error("Failed to parse question analysis. The AI response format was invalid.");
+        throw jsonError;
+      }
     }
   } catch (error) {
     console.error("Question analysis error:", error);
