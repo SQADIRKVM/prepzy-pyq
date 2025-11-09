@@ -169,7 +169,7 @@ export default function Documentation() {
                     <div className="flex-1">
                       <h4 className="font-semibold mb-2">Set Up API Keys</h4>
                       <p className="text-sm text-muted-foreground">
-                        If you haven't configured API keys yet, you'll be prompted to set up your AI API key (DeepSeek or OpenRouter). This is required for AI analysis. Basic text extraction works without API keys, but AI features require them.
+                        If you haven't configured API keys yet, you'll be prompted to set up your AI API key (Gemini, DeepSeek, or OpenRouter - choose one). This is required for AI analysis. Basic text extraction works without API keys, but AI features require them.
                       </p>
                     </div>
                   </div>
@@ -338,20 +338,29 @@ export default function Documentation() {
                   <div className="p-4 bg-primary/5 rounded-lg">
                     <h4 className="font-semibold mb-2 flex items-center gap-2">
                       <Brain className="h-4 w-4 text-primary" />
-                      AI API Key (DeepSeek or OpenRouter)
+                      AI API Key (Gemini, DeepSeek, or OpenRouter)
                     </h4>
                     <p className="text-sm text-muted-foreground mb-3">
-                      Required for AI-powered question analysis, topic classification, and keyword extraction. You can use either DeepSeek or OpenRouter API key.
+                      Required for AI-powered question analysis, topic classification, and keyword extraction. You can use Gemini, DeepSeek, or OpenRouter API key (choose one).
                     </p>
                     <div className="space-y-2 mb-2">
                       <div className="p-3 bg-background rounded border border-primary/20">
-                        <p className="text-xs font-semibold mb-1">Option A: DeepSeek API Key</p>
+                        <p className="text-xs font-semibold mb-1">Option A: Gemini API Key (Recommended)</p>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          Get your API key from: <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Google AI Studio</a>
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Uses the model: <code className="text-xs bg-muted px-1 rounded">gemini-1.5-flash</code> (fast and efficient)
+                        </p>
+                      </div>
+                      <div className="p-3 bg-background rounded border border-primary/20">
+                        <p className="text-xs font-semibold mb-1">Option B: DeepSeek API Key</p>
                         <p className="text-xs text-muted-foreground mb-2">
                           Get your API key from: <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">platform.deepseek.com</a>
                         </p>
                       </div>
                       <div className="p-3 bg-background rounded border border-primary/20">
-                        <p className="text-xs font-semibold mb-1">Option B: OpenRouter API Key</p>
+                        <p className="text-xs font-semibold mb-1">Option C: OpenRouter API Key</p>
                         <p className="text-xs text-muted-foreground mb-2">
                           Get your API key from: <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">openrouter.ai/keys</a>
                         </p>
@@ -361,7 +370,7 @@ export default function Documentation() {
                       </div>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      <strong>Note:</strong> You only need one AI API key (either DeepSeek or OpenRouter), not both.
+                      <strong>Note:</strong> You only need one AI API key (Gemini, DeepSeek, or OpenRouter), not all three.
                     </p>
                   </div>
                   <div className="p-4 bg-primary/5 rounded-lg">
@@ -400,13 +409,13 @@ export default function Documentation() {
                     <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
                       3
                     </div>
-                    <p className="text-sm">Select your AI provider (DeepSeek or OpenRouter)</p>
+                    <p className="text-sm">Select your AI provider (Gemini, DeepSeek, or OpenRouter)</p>
                   </div>
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
                       4
                     </div>
-                    <p className="text-sm">Enter your AI API key (either DeepSeek or OpenRouter) and optional YouTube API key</p>
+                    <p className="text-sm">Enter your AI API key (choose one: Gemini, DeepSeek, or OpenRouter) and optional YouTube API key</p>
                   </div>
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
@@ -861,7 +870,7 @@ export default function Documentation() {
                     Do I need API keys to use the service?
                   </AccordionTrigger>
                   <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
-                    API keys are optional but recommended for full functionality. You can add either a DeepSeek or OpenRouter API key for AI analysis, and a YouTube API key for video resources. Basic text extraction works without API keys, but advanced features require them.
+                    API keys are optional but recommended for full functionality. You can add a Gemini, DeepSeek, or OpenRouter API key for AI analysis (choose one), and a YouTube API key for video resources. Basic text extraction works without API keys, but advanced features require them.
                   </AccordionContent>
                 </AccordionItem>
 
@@ -1020,6 +1029,16 @@ export default function Documentation() {
             <div className="space-y-4">
               <h3 className="font-semibold text-sm sm:text-base">Resources</h3>
               <ul className="space-y-2 text-xs sm:text-sm">
+                <li>
+                  <a 
+                    href="https://aistudio.google.com/app/apikey" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Gemini API
+                  </a>
+                </li>
                 <li>
                   <a 
                     href="https://platform.deepseek.com" 

@@ -44,7 +44,7 @@ Prepzy PYQ is an open-source, AI-powered web application designed to help studen
   - Automatic question extraction
   - Topic and subject classification
   - Keyword extraction and pattern recognition
-  - Integration with DeepSeek or OpenRouter API for advanced analysis
+  - Integration with Gemini, DeepSeek, or OpenRouter API for advanced analysis
 
 - **📊 Smart Organization**
   - Filter questions by year, topic, subject, or keywords
@@ -140,9 +140,18 @@ Prepzy PYQ requires API keys for full functionality:
 
 #### 1. AI API Key (Required for AI Analysis)
 
-You can use either **DeepSeek** or **OpenRouter** API key:
+You can use **Gemini**, **DeepSeek**, or **OpenRouter** API key (choose one):
 
-##### Option A: DeepSeek API Key
+##### Option A: Gemini API Key (Recommended)
+
+1. Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Sign in with your Google account
+3. Create a new API key
+4. Copy the key
+
+> **Note**: Gemini uses the `gemini-1.5-flash` model, which is fast and efficient.
+
+##### Option B: DeepSeek API Key
 
 1. Visit [DeepSeek Platform](https://platform.deepseek.com)
 2. Sign up or log in
@@ -150,7 +159,7 @@ You can use either **DeepSeek** or **OpenRouter** API key:
 4. Create a new API key
 5. Copy the key
 
-##### Option B: OpenRouter API Key (Alternative)
+##### Option C: OpenRouter API Key (Alternative)
 
 1. Visit [OpenRouter](https://openrouter.ai)
 2. Sign up or log in
@@ -173,12 +182,12 @@ You can use either **DeepSeek** or **OpenRouter** API key:
 1. Open the application
 2. Click on **Settings** (gear icon) in the sidebar
 3. Navigate to **API Keys** section
-4. Select your preferred AI provider (DeepSeek or OpenRouter)
-5. Enter your AI API key (required - either DeepSeek or OpenRouter)
+4. Select your preferred AI provider (Gemini, DeepSeek, or OpenRouter)
+5. Enter your AI API key (required - choose one: Gemini, DeepSeek, or OpenRouter)
 6. Enter your YouTube API key (optional)
 7. Click **Save**
 
-> **Note**: Basic text extraction works without API keys, but AI analysis and video resources require them. You only need **one** AI API key (either DeepSeek or OpenRouter), not both.
+> **Note**: Basic text extraction works without API keys, but AI analysis and video resources require them. You only need **one** AI API key (Gemini, DeepSeek, or OpenRouter), not all three.
 
 ---
 
@@ -247,7 +256,7 @@ You can use either **DeepSeek** or **OpenRouter** API key:
 
 ### APIs
 
-- **DeepSeek API** or **OpenRouter API** - AI-powered question analysis
+- **Gemini API**, **DeepSeek API**, or **OpenRouter API** - AI-powered question analysis
 - **YouTube Data API v3** - Video resource recommendations
 
 ---
@@ -333,7 +342,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- [DeepSeek](https://www.deepseek.com/) and [OpenRouter](https://openrouter.ai/) for AI analysis capabilities
+- [Google Gemini](https://ai.google.dev/), [DeepSeek](https://www.deepseek.com/), and [OpenRouter](https://openrouter.ai/) for AI analysis capabilities
 - [Tesseract.js](https://tesseract.projectnaptha.com/) for OCR functionality
 - [shadcn/ui](https://ui.shadcn.com/) for beautiful UI components
 - All contributors and users of Prepzy PYQ
