@@ -164,8 +164,9 @@ const Sidebar = ({ stats, onNewUpload, onLoadResult, onLogout, onLogin, onCreate
           </div>
         </div>
 
-        <ScrollArea className="flex-1 min-h-0 overflow-y-auto">
-          <div className="p-3 sm:p-4 space-y-4 sm:space-y-5 pb-4">
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+          <ScrollArea className="flex-1 min-h-0">
+            <div className="p-3 sm:p-4 space-y-4 sm:space-y-5 pb-4">
             {/* Main Action */}
             <Button 
               className="w-full justify-start bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 text-sm h-9 sm:h-10"
@@ -317,14 +318,15 @@ const Sidebar = ({ stats, onNewUpload, onLoadResult, onLogout, onLogin, onCreate
             </div>
             </div>
           </ScrollArea>
+        </div>
 
-          {/* User Section at Bottom */}
-          <div 
-            className="border-t border-border p-2.5 sm:p-3 md:p-4 flex-shrink-0 bg-[#0f0f0f]"
-            style={{
-              paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom, 0.625rem))'
-            }}
-          >
+        {/* User Section at Bottom */}
+        <div 
+          className="border-t border-border p-2 sm:p-2.5 md:p-3 flex-shrink-0 bg-[#0f0f0f]"
+          style={{
+            paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))'
+          }}
+        >
             {session ? (
               <div className="space-y-2 sm:space-y-3">
                 <div className="bg-card/50 border border-border/50 rounded-lg p-2 sm:p-2.5 md:p-3">
@@ -354,29 +356,29 @@ const Sidebar = ({ stats, onNewUpload, onLoadResult, onLogout, onLogin, onCreate
                 </Button>
               </div>
             ) : (
-              <div className="space-y-1.5 sm:space-y-2">
+              <div className="space-y-1 sm:space-y-1.5">
                 <Button
                   variant="default"
-                  className="w-full text-xs sm:text-sm h-8 sm:h-9 md:h-10"
+                  className="w-full text-xs sm:text-sm h-7 sm:h-8 md:h-9"
                   onClick={() => {
                     if (onLogin) {
                       onLogin();
                     }
                   }}
                 >
-                  <LogIn className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 mr-1.5 sm:mr-2 flex-shrink-0" />
+                  <LogIn className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 mr-1 sm:mr-1.5 flex-shrink-0" />
                   <span className="truncate">Login</span>
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full text-xs sm:text-sm h-8 sm:h-9 md:h-10"
+                  className="w-full text-xs sm:text-sm h-7 sm:h-8 md:h-9"
                   onClick={() => {
                     if (onCreateAccount) {
                       onCreateAccount();
                     }
                   }}
                 >
-                  <UserPlus className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 mr-1.5 sm:mr-2 flex-shrink-0" />
+                  <UserPlus className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 mr-1 sm:mr-1.5 flex-shrink-0" />
                   <span className="truncate">Create Account</span>
                 </Button>
               </div>

@@ -206,7 +206,8 @@ const Chatbot = () => {
       <Button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-lg",
+          "fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50",
+          "h-12 w-12 sm:h-14 sm:w-14 rounded-full shadow-lg",
           "bg-primary hover:bg-primary/90 text-primary-foreground",
           "flex items-center justify-center p-0",
           "transition-all duration-300",
@@ -215,28 +216,30 @@ const Chatbot = () => {
         aria-label="Open chatbot"
       >
         {isOpen ? (
-          <X className="h-6 w-6" />
+          <X className="h-5 w-5 sm:h-6 sm:w-6" />
         ) : (
-          <MessageCircle className="h-6 w-6" />
+          <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
         )}
       </Button>
 
       {/* Chat Window */}
       {isOpen && (
         <Card className={cn(
-          "fixed bottom-24 right-6 z-50 w-[90vw] sm:w-96 h-[600px]",
+          "fixed bottom-20 sm:bottom-24 left-4 right-4 sm:left-auto sm:right-6 z-50",
+          "w-[calc(100%-2rem)] sm:w-96",
+          "h-[calc(100vh-6rem)] sm:h-[600px] max-h-[600px]",
           "glass-card border-primary/30 shadow-2xl",
           "flex flex-col overflow-hidden",
           "animate-in slide-in-from-bottom-4 duration-300"
         )}>
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border/50 bg-primary/5">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border-2 border-primary/30">
+          <div className="flex items-center justify-between p-3 sm:p-4 border-b border-border/50 bg-primary/5 flex-shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border-2 border-primary/30 flex-shrink-0">
                 <img 
                   src="/prepzy_logo.svg" 
                   alt="Prepzy PYQ Logo" 
-                  className="h-full w-full object-contain p-1.5"
+                  className="h-full w-full object-contain p-1 sm:p-1.5"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     if (target.src !== '/logo.png') {
@@ -245,14 +248,14 @@ const Chatbot = () => {
                   }}
                 />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-sm sm:text-base">Prepzy AI Assistant</h3>
-                  <Sparkles className="h-3 w-3 text-primary animate-pulse" />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <h3 className="font-semibold text-xs sm:text-sm md:text-base truncate">Prepzy AI Assistant</h3>
+                  <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary animate-pulse flex-shrink-0" />
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                  <p className="text-xs text-muted-foreground">AI Online • Ready to help</p>
+                <div className="flex items-center gap-1 sm:gap-1.5">
+                  <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
+                  <p className="text-[10px] sm:text-xs text-muted-foreground truncate">AI Online • Ready to help</p>
                 </div>
               </div>
             </div>
@@ -260,28 +263,28 @@ const Chatbot = () => {
               variant="ghost"
               size="icon"
               onClick={() => setIsOpen(false)}
-              className="h-8 w-8"
+              className="h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0 ml-2"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background/50">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-background/50 min-h-0">
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={cn(
-                  "flex gap-3",
+                  "flex gap-2 sm:gap-3",
                   message.sender === 'user' ? 'justify-end' : 'justify-start'
                 )}
               >
                 {message.sender === 'bot' && (
-                  <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 overflow-hidden border border-primary/30">
+                  <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 overflow-hidden border border-primary/30">
                     <img 
                       src="/prepzy_logo.svg" 
                       alt="Prepzy AI" 
-                      className="h-full w-full object-contain p-1"
+                      className="h-full w-full object-contain p-0.5 sm:p-1"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         if (target.src !== '/logo.png') {
@@ -293,31 +296,31 @@ const Chatbot = () => {
                 )}
                 <div
                   className={cn(
-                    "max-w-[80%] rounded-lg p-3 text-sm",
+                    "max-w-[75%] sm:max-w-[80%] rounded-lg p-2.5 sm:p-3 text-xs sm:text-sm",
                     message.sender === 'user'
                       ? "bg-primary text-primary-foreground"
                       : "glass-card border border-primary/20"
                   )}
                 >
-                  <p className="whitespace-pre-line">{message.text}</p>
-                  <p className="text-xs opacity-70 mt-1">
+                  <p className="whitespace-pre-line break-words">{message.text}</p>
+                  <p className="text-[10px] sm:text-xs opacity-70 mt-1">
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
                 {message.sender === 'user' && (
-                  <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                    <User className="h-4 w-4 text-primary" />
+                  <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                   </div>
                 )}
               </div>
             ))}
             {isTyping && (
-              <div className="flex gap-3 justify-start">
-                <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 overflow-hidden border border-primary/30">
+              <div className="flex gap-2 sm:gap-3 justify-start">
+                <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 overflow-hidden border border-primary/30">
                   <img 
                     src="/prepzy_logo.svg" 
                     alt="Prepzy AI" 
-                    className="h-full w-full object-contain p-1.5"
+                    className="h-full w-full object-contain p-1 sm:p-1.5"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       if (target.src !== '/logo.png') {
@@ -326,14 +329,14 @@ const Chatbot = () => {
                     }}
                   />
                 </div>
-                <div className="glass-card border border-primary/20 rounded-lg p-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex gap-1">
-                      <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="glass-card border border-primary/20 rounded-lg p-2 sm:p-3">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <div className="flex gap-0.5 sm:gap-1">
+                      <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
-                    <span className="text-xs text-muted-foreground ml-1">AI is thinking...</span>
+                    <span className="text-[10px] sm:text-xs text-muted-foreground ml-0.5 sm:ml-1">AI is thinking...</span>
                   </div>
                 </div>
               </div>
@@ -343,12 +346,12 @@ const Chatbot = () => {
 
           {/* Quick Suggestions */}
           {suggestions.length > 0 && messages.length > 1 && !isTyping && (
-            <div className="px-4 pb-2 border-t border-border/30 bg-background/50">
-              <div className="flex items-center gap-2 mb-2 pt-2">
-                <Lightbulb className="h-3 w-3 text-primary" />
-                <p className="text-xs text-muted-foreground">Quick suggestions:</p>
+            <div className="px-3 sm:px-4 pb-2 border-t border-border/30 bg-background/50 flex-shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2 pt-2">
+                <Lightbulb className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary flex-shrink-0" />
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Quick suggestions:</p>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {suggestions.map((suggestion, index) => (
                   <Button
                     key={index}
@@ -358,7 +361,7 @@ const Chatbot = () => {
                       setInput(suggestion);
                       inputRef.current?.focus();
                     }}
-                    className="text-xs h-7 px-2 bg-background/50 hover:bg-primary/10 border-primary/20"
+                    className="text-[10px] sm:text-xs h-6 sm:h-7 px-1.5 sm:px-2 bg-background/50 hover:bg-primary/10 border-primary/20"
                   >
                     {suggestion}
                   </Button>
@@ -368,30 +371,30 @@ const Chatbot = () => {
           )}
 
           {/* Input */}
-          <div className="p-4 border-t border-border/50 bg-background/80">
-            <div className="flex gap-2">
+          <div className="p-3 sm:p-4 border-t border-border/50 bg-background/80 flex-shrink-0">
+            <div className="flex gap-1.5 sm:gap-2">
               <Input
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask me anything about Prepzy PYQ..."
-                className="flex-1 text-sm"
+                placeholder="Ask me anything..."
+                className="flex-1 text-xs sm:text-sm h-9 sm:h-10"
                 disabled={isTyping}
               />
               <Button
                 onClick={handleSend}
                 disabled={!input.trim() || isTyping}
-                className="bg-primary hover:bg-primary/90 shrink-0"
+                className="bg-primary hover:bg-primary/90 shrink-0 h-9 w-9 sm:h-10 sm:w-10"
                 size="icon"
                 aria-label="Send message"
               >
-                <Send className="h-4 w-4" />
+                <Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
             </div>
-            <div className="flex items-center justify-center gap-1 mt-2">
-              <Sparkles className="h-3 w-3 text-primary/60" />
-              <p className="text-xs text-muted-foreground">
+            <div className="flex items-center justify-center gap-1 mt-1.5 sm:mt-2">
+              <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary/60 flex-shrink-0" />
+              <p className="text-[10px] sm:text-xs text-muted-foreground text-center">
                 Powered by AI • Ask anything about Prepzy PYQ
               </p>
             </div>
