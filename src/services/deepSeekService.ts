@@ -85,15 +85,19 @@ export async function processWithDeepSeek(
         body: JSON.stringify(requestBody)
       });
     } else {
-      // Use DeepSeek API via proxy server
-      response = await fetch("http://localhost:3001/api/deepseek", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+      // Use DeepSeek API via proxy server (Vercel serverless function in production)
+      const proxyUrl = import.meta.env.PROD 
+        ? "/api/deepseek"  // Vercel serverless function
+        : "http://localhost:3001/api/deepseek";  // Local development
+      
+      response = await fetch(proxyUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
           "X-DeepSeek-API-Key": deepseekApiKey!
-      },
-      body: JSON.stringify(requestBody)
-    });
+        },
+        body: JSON.stringify(requestBody)
+      });
     }
 
     console.log("API response status:", response.status);
