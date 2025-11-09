@@ -234,10 +234,10 @@ const ProcessingStatus = ({
       )}
       
       {status === "error" && errorMessage && (
-        <Alert variant="destructive" className="border-2">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle className="font-semibold">Processing Error</AlertTitle>
-          <AlertDescription className="text-sm mt-1">
+        <Alert variant="destructive" className="border-2 border-red-500/50 bg-red-500/10">
+          <AlertCircle className="h-5 w-5 text-red-500" />
+          <AlertTitle className="font-semibold text-red-500">Error Details</AlertTitle>
+          <AlertDescription className="text-sm mt-2 text-red-400/90 whitespace-pre-line">
             {errorMessage}
           </AlertDescription>
         </Alert>

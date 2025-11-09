@@ -399,9 +399,43 @@ const AnalyzerPage = () => {
       }
       console.error("Error processing file:", error);
       setStatus("error");
-      setErrorMessage("Failed to process the file. Please try a different PDF.");
+      
+      // Extract user-friendly error message
+      let userMessage = "Something went wrong during processing";
+      if (error.message) {
+        const errorStr = error.message;
+        // Check for rate limit errors
+        if (errorStr.includes("429") || errorStr.includes("rate limit") || errorStr.includes("rate-limited")) {
+          if (errorStr.includes("OpenRouter")) {
+            userMessage = "OpenRouter API rate limit exceeded. The free model is temporarily rate-limited. Please wait a few minutes and try again, or add your own API key in Settings for higher rate limits.";
+          } else {
+            userMessage = "API rate limit exceeded. Please wait a few minutes and try again, or add your own API key in Settings.";
+          }
+        } else if (errorStr.includes("401") || errorStr.includes("403") || errorStr.includes("Invalid")) {
+          userMessage = "Invalid API key. Please check your API key settings and try again.";
+        } else if (errorStr.includes("500") || errorStr.includes("server error")) {
+          userMessage = "API server error. Please try again later.";
+        } else if (errorStr.includes("Failed to process PDF")) {
+          // Extract the actual error from the nested message
+          const match = errorStr.match(/Failed to process PDF: (.+)/);
+          if (match && match[1]) {
+            const innerError = match[1];
+            if (innerError.includes("429") || innerError.includes("rate limit")) {
+              if (innerError.includes("OpenRouter")) {
+                userMessage = "OpenRouter API rate limit exceeded. The free model is temporarily rate-limited. Please wait a few minutes and try again, or add your own API key in Settings for higher rate limits.";
+              } else {
+                userMessage = "API rate limit exceeded. Please wait a few minutes and try again.";
+              }
+            } else {
+              userMessage = innerError;
+            }
+          }
+        }
+      }
+      
+      setErrorMessage(userMessage);
       setAbortController(null);
-      toast.error("Failed to process the file");
+      toast.error(userMessage, { duration: 6000 });
     }
   };
 
@@ -468,9 +502,30 @@ const AnalyzerPage = () => {
       setStatus("error");
       setCurrentFile(undefined);
       setTotalFiles(undefined);
-      setErrorMessage(`Failed to process some files. ${error instanceof Error ? error.message : 'Please try again.'}`);
+      
+      // Extract user-friendly error message
+      let userMessage = "Something went wrong during processing";
+      if (error.message) {
+        const errorStr = error.message;
+        // Check for rate limit errors
+        if (errorStr.includes("429") || errorStr.includes("rate limit") || errorStr.includes("rate-limited")) {
+          if (errorStr.includes("OpenRouter")) {
+            userMessage = "OpenRouter API rate limit exceeded. The free model is temporarily rate-limited. Please wait a few minutes and try again, or add your own API key in Settings for higher rate limits.";
+          } else {
+            userMessage = "API rate limit exceeded. Please wait a few minutes and try again, or add your own API key in Settings.";
+          }
+        } else if (errorStr.includes("401") || errorStr.includes("403") || errorStr.includes("Invalid")) {
+          userMessage = "Invalid API key. Please check your API key settings and try again.";
+        } else if (errorStr.includes("500") || errorStr.includes("server error")) {
+          userMessage = "API server error. Please try again later.";
+        } else {
+          userMessage = `Failed to process some files. ${error instanceof Error ? error.message : 'Please try again.'}`;
+        }
+      }
+      
+      setErrorMessage(userMessage);
       setAbortController(null);
-      toast.error("Failed to process some files");
+      toast.error(userMessage, { duration: 6000 });
     }
   };
 
@@ -503,11 +558,29 @@ const AnalyzerPage = () => {
         }, 2000);
       }
       
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error processing file with OCR:", error);
       setStatus("error");
-      setErrorMessage("Failed to process the file with OCR. Please try a different approach.");
-      toast.error("Failed to process the file with OCR");
+      
+      // Extract user-friendly error message
+      let userMessage = "Something went wrong during processing";
+      if (error.message) {
+        const errorStr = error.message;
+        if (errorStr.includes("429") || errorStr.includes("rate limit") || errorStr.includes("rate-limited")) {
+          if (errorStr.includes("OpenRouter")) {
+            userMessage = "OpenRouter API rate limit exceeded. The free model is temporarily rate-limited. Please wait a few minutes and try again, or add your own API key in Settings for higher rate limits.";
+          } else {
+            userMessage = "API rate limit exceeded. Please wait a few minutes and try again.";
+          }
+        } else if (errorStr.includes("401") || errorStr.includes("403") || errorStr.includes("Invalid")) {
+          userMessage = "Invalid API key. Please check your API key settings and try again.";
+        } else {
+          userMessage = "Failed to process the file with OCR. Please try a different approach.";
+        }
+      }
+      
+      setErrorMessage(userMessage);
+      toast.error(userMessage, { duration: 6000 });
     }
   };
 
@@ -542,11 +615,29 @@ const AnalyzerPage = () => {
         }, 2000);
       }
       
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error processing image:", error);
       setStatus("error");
-      setErrorMessage("Failed to process the image. Please try a different image with clearer text.");
-      toast.error("Failed to process the image");
+      
+      // Extract user-friendly error message
+      let userMessage = "Something went wrong during processing";
+      if (error.message) {
+        const errorStr = error.message;
+        if (errorStr.includes("429") || errorStr.includes("rate limit") || errorStr.includes("rate-limited")) {
+          if (errorStr.includes("OpenRouter")) {
+            userMessage = "OpenRouter API rate limit exceeded. The free model is temporarily rate-limited. Please wait a few minutes and try again, or add your own API key in Settings for higher rate limits.";
+          } else {
+            userMessage = "API rate limit exceeded. Please wait a few minutes and try again.";
+          }
+        } else if (errorStr.includes("401") || errorStr.includes("403") || errorStr.includes("Invalid")) {
+          userMessage = "Invalid API key. Please check your API key settings and try again.";
+        } else {
+          userMessage = "Failed to process the image. Please try a different image with clearer text.";
+        }
+      }
+      
+      setErrorMessage(userMessage);
+      toast.error(userMessage, { duration: 6000 });
     }
   };
 

@@ -520,7 +520,7 @@ export default function Index() {
                       <span className="break-words">Local Session Login Only</span>
                       </div>
                   </CardTitle>
-                  <CardDescription className="text-xs sm:text-sm md:text-base space-y-2 sm:space-y-3">
+                  <div className="text-xs sm:text-sm md:text-base space-y-2 sm:space-y-3 text-muted-foreground">
                     <p>
                       <strong>No Server-Side Authentication:</strong> Prepzy PYQ uses local session management only. 
                       Your account credentials are stored securely in your browser's local storage. 
@@ -540,7 +540,7 @@ export default function Index() {
                         you'll need to create a new session. Sessions are device and browser-specific for maximum privacy.
                       </p>
                     </div>
-                  </CardDescription>
+                  </div>
                 </div>
               </div>
             </Card>

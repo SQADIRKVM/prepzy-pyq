@@ -111,10 +111,32 @@ export async function processWithDeepSeek(
       }
       console.error("API error response:", errorData);
       
-      // Check if it's an API key issue
+      // Handle specific error cases
       if (response.status === 401 || response.status === 403) {
         const providerName = useOpenRouter ? 'OpenRouter' : 'DeepSeek';
         toast.error(`Invalid ${providerName} API key. Please check your settings.`);
+      } else if (response.status === 429) {
+        // Rate limit error
+        const providerName = useOpenRouter ? 'OpenRouter' : 'DeepSeek';
+        let errorMessage = `${providerName} API rate limit exceeded. `;
+        
+        if (useOpenRouter && errorData?.error?.metadata?.raw) {
+          const rawError = errorData.error.metadata.raw;
+          if (rawError.includes('rate-limited upstream')) {
+            errorMessage += "The free model is temporarily rate-limited. Please wait a few minutes and try again, or add your own API key in Settings for higher rate limits.";
+          } else {
+            errorMessage += "Please wait a few minutes and try again, or add your own API key in Settings.";
+          }
+        } else {
+          errorMessage += "Please wait a few minutes and try again.";
+        }
+        
+        toast.error(errorMessage, {
+          duration: 8000,
+        });
+      } else if (response.status >= 500) {
+        const providerName = useOpenRouter ? 'OpenRouter' : 'DeepSeek';
+        toast.error(`${providerName} API server error. Please try again later.`);
       }
       
       throw new Error(`API error: ${response.status} - ${JSON.stringify(errorData)}`);
