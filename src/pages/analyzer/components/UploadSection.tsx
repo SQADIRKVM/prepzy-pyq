@@ -74,7 +74,7 @@ const UploadSection = ({
                 </Button>
               </div>
             )}
-          </div>
+      </div>
         </Alert>
       )}
       

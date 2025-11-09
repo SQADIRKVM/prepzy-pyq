@@ -87,13 +87,13 @@ export async function processWithDeepSeek(
     } else {
       // Use DeepSeek API via proxy server
       response = await fetch("http://localhost:3001/api/deepseek", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
           "X-DeepSeek-API-Key": deepseekApiKey!
-        },
-        body: JSON.stringify(requestBody)
-      });
+      },
+      body: JSON.stringify(requestBody)
+    });
     }
 
     console.log("API response status:", response.status);

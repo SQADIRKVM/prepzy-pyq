@@ -141,12 +141,12 @@ const ApiKeySettings = () => {
               <Label htmlFor="deepseek-api-key">
                 DeepSeek API Key <span className="text-red-500">*</span>
               </Label>
-              <Input
-                id="deepseek-api-key"
+            <Input
+              id="deepseek-api-key"
                 type="password"
-                value={deepseekApiKey}
-                onChange={(e) => setDeepseekApiKey(e.target.value)}
-                placeholder="Enter your DeepSeek API key"
+              value={deepseekApiKey}
+              onChange={(e) => setDeepseekApiKey(e.target.value)}
+              placeholder="Enter your DeepSeek API key"
                 className={!deepseekApiKey && !openRouterApiKey ? "border-amber-500" : ""}
               />
               <p className="text-xs text-muted-foreground">
@@ -176,8 +176,8 @@ const ApiKeySettings = () => {
                 onChange={(e) => setOpenRouterApiKey(e.target.value)}
                 placeholder="Enter your OpenRouter API key"
                 className={!deepseekApiKey && !openRouterApiKey ? "border-amber-500" : ""}
-              />
-              <p className="text-xs text-muted-foreground">
+            />
+            <p className="text-xs text-muted-foreground">
                 <strong>Required</strong> for AI text processing and question analysis.{" "}
                 <a 
                   href="https://openrouter.ai/keys" 
@@ -190,8 +190,8 @@ const ApiKeySettings = () => {
               </p>
               <p className="text-xs text-muted-foreground">
                 OpenRouter provides access to DeepSeek models and other AI models. Uses the model: <code className="text-xs bg-muted px-1 rounded">deepseek/deepseek-chat-v3-0324:free</code>
-              </p>
-            </div>
+            </p>
+          </div>
           )}
         </div>
         <DialogFooter className="flex-col sm:flex-row gap-2">
