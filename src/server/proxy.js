@@ -3,11 +3,13 @@ const cors = require('cors');
 const fetch = require('node-fetch');
 
 const app = express();
-const port = 3000;
+const port = 3001;
 
 // Enable CORS for your frontend origin
 app.use(cors({
-  origin: 'http://localhost:8080'
+  origin: ['http://localhost:8080', 'http://172.20.10.2:8080'],  // Allow both origins
+  methods: 'GET,POST,PUT,DELETE,OPTIONS',
+  allowedHeaders: 'Content-Type,Authorization,X-DeepSeek-API-Key'
 }));
 
 app.use(express.json());
@@ -60,7 +62,6 @@ app.post('/api/deepseek', async (req, res) => {
 
     console.log('Making request to DeepSeek API with body:', JSON.stringify(req.body, null, 2));
 
-    // Update to use the correct API endpoint
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -70,52 +71,27 @@ app.post('/api/deepseek', async (req, res) => {
       },
       body: JSON.stringify({
         ...req.body,
-        // Ensure we're using the correct model name
-        model: 'deepseek-chat'
+        model: 'deepseek-chat' // Ensure the correct model name
       })
     });
 
-    let data;
-    try {
-      const textResponse = await response.text();
-      console.log('Raw API Response:', textResponse);
-      data = JSON.parse(textResponse);
-    } catch (parseError) {
-      console.error('Failed to parse API response:', parseError);
-      return res.status(500).json({
-        error: 'Invalid JSON response from API',
-        raw_response: await response.text()
-      });
+    if (!response.ok) {
+      const errorText = await response.text(); // Read response once
+      console.error('DeepSeek API error:', errorText);
+      return res.status(response.status).json({ error: 'DeepSeek API error', details: errorText });
     }
-    
+
+    const data = await response.json(); // Read response once
+
     // Log the response for debugging
     console.log('DeepSeek API Response:', JSON.stringify(data, null, 2));
-
-    // Check if we got an error response
-    if (data.error || data.error_msg) {
-      console.error('DeepSeek API error:', data.error || data.error_msg);
-      return res.status(400).json({
-        error: data.error || data.error_msg,
-        details: data
-      });
-    }
-
-    // Check if the response has the expected structure
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      console.error('Unexpected API response structure:', data);
-      return res.status(500).json({
-        error: 'Invalid API response structure',
-        details: data
-      });
-    }
 
     res.json(data);
   } catch (error) {
     console.error('Proxy error:', error);
     res.status(500).json({ 
       error: 'Failed to proxy request to DeepSeek API',
-      details: error.message,
-      stack: error.stack
+      details: error.message
     });
   }
 });
@@ -125,12 +101,11 @@ app.use((err, req, res, next) => {
   console.error('Server error:', err);
   res.status(500).json({
     error: 'Internal server error',
-    details: err.message,
-    stack: err.stack
+    details: err.message
   });
 });
 
 app.listen(port, () => {
   console.log(`Proxy server running on port ${port}`);
   console.log(`Test the server at: http://localhost:${port}/test`);
-}); 
+});

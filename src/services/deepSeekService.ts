@@ -26,19 +26,24 @@ export async function processWithDeepSeek(
   options: DeepSeekOptions = {}
 ): Promise<string> {
   try {
-    // Get the API key from localStorage
+    // Get API keys from localStorage
     const deepseekApiKey = localStorage.getItem('deepseekApiKey');
+    const openRouterApiKey = localStorage.getItem('openRouterApiKey');
     
-    if (!deepseekApiKey) {
-      console.log("No DeepSeek API key found");
-      throw new Error("DeepSeek API key is required");
+    // Determine which API to use (OpenRouter takes priority if both are present)
+    const useOpenRouter = !!openRouterApiKey;
+    const apiKey = useOpenRouter ? openRouterApiKey : deepseekApiKey;
+    
+    if (!apiKey) {
+      console.log("No API key found");
+      throw new Error("Either DeepSeek or OpenRouter API key is required");
     }
 
-    console.log("Making request to proxy server with API key:", deepseekApiKey.substring(0, 5) + "...");
+    console.log(`Making request using ${useOpenRouter ? 'OpenRouter' : 'DeepSeek'} API`);
 
     // Define default options
     const defaultOptions = {
-      model: "deepseek-chat",
+      model: useOpenRouter ? "deepseek/deepseek-chat-v3-0324:free" : "deepseek-chat",
       temperature: 0.2,
       max_tokens: 4000,
       ...options
@@ -62,17 +67,36 @@ export async function processWithDeepSeek(
 
     console.log("Request body:", JSON.stringify(requestBody, null, 2));
 
-    // Make request to our proxy server instead of DeepSeek API directly
-    const response = await fetch("http://localhost:3001/api/deepseek", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-DeepSeek-API-Key": deepseekApiKey
-      },
-      body: JSON.stringify(requestBody)
-    });
+    let response;
+    
+    if (useOpenRouter) {
+      // Use OpenRouter API directly
+      const siteUrl = window.location.origin;
+      const siteName = "Prepzy PYQ";
+      
+      response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${openRouterApiKey}`,
+          "HTTP-Referer": siteUrl,
+          "X-Title": siteName,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(requestBody)
+      });
+    } else {
+      // Use DeepSeek API via proxy server
+      response = await fetch("http://localhost:3001/api/deepseek", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-DeepSeek-API-Key": deepseekApiKey!
+        },
+        body: JSON.stringify(requestBody)
+      });
+    }
 
-    console.log("Proxy server response status:", response.status);
+    console.log("API response status:", response.status);
 
     if (!response.ok) {
       let errorData;
@@ -81,20 +105,21 @@ export async function processWithDeepSeek(
       } catch (e) {
         errorData = await response.text();
       }
-      console.error("DeepSeek API error response:", errorData);
+      console.error("API error response:", errorData);
       
       // Check if it's an API key issue
       if (response.status === 401 || response.status === 403) {
-        toast.error("Invalid DeepSeek API key. Please check your settings.");
+        const providerName = useOpenRouter ? 'OpenRouter' : 'DeepSeek';
+        toast.error(`Invalid ${providerName} API key. Please check your settings.`);
       }
       
-      throw new Error(`DeepSeek API error: ${response.status} - ${JSON.stringify(errorData)}`);
+      throw new Error(`API error: ${response.status} - ${JSON.stringify(errorData)}`);
     }
 
     const data = await response.json();
     
     // Log the response for debugging
-    console.log("DeepSeek API response data:", JSON.stringify(data, null, 2));
+    console.log("API response data:", JSON.stringify(data, null, 2));
 
     // Validate response structure
     if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
@@ -102,7 +127,8 @@ export async function processWithDeepSeek(
       
       // If we got an error message from the API, show it
       if (data.error || data.error_msg) {
-        toast.error(`DeepSeek API error: ${data.error || data.error_msg}`);
+        const providerName = useOpenRouter ? 'OpenRouter' : 'DeepSeek';
+        toast.error(`${providerName} API error: ${data.error || data.error_msg}`);
       } else {
         toast.error("Unexpected API response format");
       }
@@ -112,7 +138,7 @@ export async function processWithDeepSeek(
 
     return data.choices[0].message.content;
   } catch (error) {
-    console.error("DeepSeek API error:", error);
+    console.error("API error:", error);
     toast.error("AI text processing failed");
     throw error;
   }

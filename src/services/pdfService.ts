@@ -40,7 +40,10 @@ export async function extractTextFromPDF(file: File): Promise<ExtractedText[]> {
 export async function extractQuestionsFromText(extractedPages: ExtractedText[]): Promise<Question[]> {
   const questions: Question[] = [];
   const subjects = ["Programming", "Operating Systems", "Database", "Networking", "Computer Science"];
-  const currentYear = new Date().getFullYear();
+  
+  // Extract year from the first page (question paper header usually on first page)
+  const firstPageText = extractedPages[0]?.text || '';
+  const extractedYear = extractYearFromText(firstPageText);
   
   // Process each page to identify questions
   for (const page of extractedPages) {
@@ -76,9 +79,8 @@ export async function extractQuestionsFromText(extractedPages: ExtractedText[]):
           // Determine subject based on keywords
           const subject = determineSubject(cleanedText, keywords, subjects);
           
-          // Assign a random year from the last 5 years
-          const yearOffset = Math.floor(Math.random() * 5);
-          const year = String(currentYear - yearOffset);
+          // Use extracted year or "Unknown" if not found
+          const year = extractedYear || "Unknown";
           
           questions.push({
             id: `q-${Date.now()}-${questions.length}`,
@@ -118,6 +120,32 @@ function extractKeywords(text: string): string[] {
   
   // Return top 5 keywords or less if there aren't enough
   return sortedWords.slice(0, 5);
+}
+
+// Helper function to extract year from text
+function extractYearFromText(text: string): string | null {
+  // Common year patterns
+  const yearPatterns = [
+    /\b20\d{2}\b/, // Regular year like 2021
+    /\b20\d{2}-\d{2,4}\b/, // Year range like 2021-22 or 2021-2022
+    /\b20\d{2}\/\d{2,4}\b/, // Year range with slash like 2021/22
+    /\b20\d{2}\s*\(\s*\d{2,4}\s*\)/, // Year with bracket like 2021(22)
+    /\b20\d{2}\s*batch\b/i, // Year with batch like 2021 Batch
+    /\b20\d{2}\s*scheme\b/i // Year with scheme like 2021 Scheme
+  ];
+
+  for (const pattern of yearPatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      // Extract just the first 4-digit year
+      const yearMatch = match[0].match(/\b20\d{2}\b/);
+      if (yearMatch) {
+        return yearMatch[0];
+      }
+    }
+  }
+
+  return null;
 }
 
 function determineSubject(text: string, keywords: string[], subjects: string[]): string {

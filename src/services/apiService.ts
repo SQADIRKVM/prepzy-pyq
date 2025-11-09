@@ -6,11 +6,125 @@ import { Question, AnalysisResult, QuestionTopic } from '@/pages/analyzer/types'
 import { enhanceText, analyzeQuestions } from './deepSeekService';
 import { toast } from 'sonner';
 
+// Helper function to extract year from text
+function extractYearFromText(text: string): string | null {
+  // Common year patterns
+  const yearPatterns = [
+    /\b20\d{2}\b/, // Regular year like 2021
+    /\b20\d{2}-\d{2,4}\b/, // Year range like 2021-22 or 2021-2022
+    /\b20\d{2}\/\d{2,4}\b/, // Year range with slash like 2021/22
+    /\b20\d{2}\s*\(\s*\d{2,4}\s*\)/, // Year with bracket like 2021(22)
+    /\b20\d{2}\s*batch\b/i, // Year with batch like 2021 Batch
+    /\b20\d{2}\s*scheme\b/i // Year with scheme like 2021 Scheme
+  ];
+
+  for (const pattern of yearPatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      // Extract just the first 4-digit year
+      const yearMatch = match[0].match(/\b20\d{2}\b/);
+      if (yearMatch) {
+        return yearMatch[0];
+      }
+    }
+  }
+
+  return null;
+}
+
 /**
  * API service for processing documents and managing questions
  * In a real app, this would call backend API endpoints
  */
 export const apiService = {
+  /**
+   * Process multiple PDF files to extract questions
+   */
+  processMultiplePdfFiles: async (
+    files: File[],
+    onProgress: (progress: number, step: string, currentFile?: number, totalFiles?: number) => void
+  ): Promise<AnalysisResult> => {
+    const allQuestions: Question[] = [];
+    const allTopicsMap = new Map<string, { count: number, questions: string[] }>();
+    
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileProgress = (i / files.length) * 100;
+      const fileProgressRange = 100 / files.length;
+      
+      onProgress(
+        fileProgress,
+        `Processing file ${i + 1} of ${files.length}: ${file.name}`,
+        i + 1,
+        files.length
+      );
+      
+      try {
+        // Process each file with adjusted progress callback
+        const result = await apiService.processPdfFile(
+          file,
+          (progress, step) => {
+            // Scale progress to fit within this file's range
+            const scaledProgress = fileProgress + (progress * fileProgressRange / 100);
+            onProgress(
+              scaledProgress,
+              `[File ${i + 1}/${files.length}] ${step}`,
+              i + 1,
+              files.length
+            );
+          }
+        );
+        
+        // Aggregate questions
+        allQuestions.push(...result.questions);
+        
+        // Aggregate topics
+        result.topics.forEach(topic => {
+          if (!allTopicsMap.has(topic.name)) {
+            allTopicsMap.set(topic.name, { count: 0, questions: [] });
+          }
+          const topicData = allTopicsMap.get(topic.name)!;
+          topicData.count += topic.count;
+          topicData.questions.push(...topic.questions);
+        });
+        
+      } catch (error) {
+        console.error(`Error processing file ${file.name}:`, error);
+        // Continue with other files even if one fails
+        onProgress(
+          fileProgress + fileProgressRange,
+          `Failed to process ${file.name}, continuing with other files...`,
+          i + 1,
+          files.length
+        );
+      }
+    }
+    
+    // Convert topics map to array
+    const topicsArray: QuestionTopic[] = Array.from(allTopicsMap.entries())
+      .map(([name, data]) => ({
+        name,
+        count: data.count,
+        questions: Array.from(new Set(data.questions)) // Remove duplicates
+      }))
+      .filter(topic => topic.count > 1)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+    
+    const result: AnalysisResult = {
+      questions: allQuestions,
+      topics: topicsArray
+    };
+    
+    // Save aggregated results (use first file name or combined name)
+    const combinedFilename = files.length > 1 
+      ? `${files.length} files (${files.map(f => f.name).join(', ')})`
+      : files[0]?.name || 'Multiple Files';
+    await databaseService.saveQuestions(result, combinedFilename);
+    
+    return result;
+  },
+
   /**
    * Process a PDF file to extract questions
    */
@@ -39,15 +153,16 @@ export const apiService = {
       
       if (Array.isArray(analysisResult) && analysisResult.length > 0) {
         // Use AI-analyzed questions
-        const currentYear = new Date().getFullYear();
+        // Extract year from the first question's year field or from text (all questions from same paper should have same year)
+        const extractedYear = analysisResult[0]?.year || extractYearFromText(combinedText) || "Unknown";
         
         analysisResult.forEach((item, index) => {
-          if (item.questionText && item.subject) {
+          if (item.questionText) {
             extractedQuestions.push({
               id: `q-${Date.now()}-${index}`,
               text: item.questionText,
-              year: String(currentYear - Math.floor(Math.random() * 5)),
-              subject: item.subject,
+              year: item.year || extractedYear, // Use year from AI analysis or extracted year
+              subject: item.subject || "General",
               topics: Array.isArray(item.topics) ? item.topics : [],
               keywords: Array.isArray(item.keywords) ? item.keywords : [],
             });
@@ -89,7 +204,7 @@ export const apiService = {
         topics
       };
       
-      await databaseService.saveQuestions(result);
+      await databaseService.saveQuestions(result, file.name);
       
       return result;
     } catch (error) {
@@ -125,15 +240,16 @@ export const apiService = {
       
       if (Array.isArray(analysisResult) && analysisResult.length > 0) {
         // Use AI-analyzed questions
-        const currentYear = new Date().getFullYear();
+        // Extract year from the first question's year field or from text (all questions from same paper should have same year)
+        const extractedYear = analysisResult[0]?.year || extractYearFromText(enhancedText) || "Unknown";
         
         analysisResult.forEach((item, index) => {
-          if (item.questionText && item.subject) {
+          if (item.questionText) {
             extractedQuestions.push({
               id: `q-${Date.now()}-${index}`,
               text: item.questionText,
-              year: String(currentYear - Math.floor(Math.random() * 5)),
-              subject: item.subject,
+              year: item.year || extractedYear, // Use year from AI analysis or extracted year
+              subject: item.subject || "General",
               topics: Array.isArray(item.topics) ? item.topics : [],
               keywords: Array.isArray(item.keywords) ? item.keywords : [],
             });
@@ -174,7 +290,7 @@ export const apiService = {
         topics
       };
       
-      await databaseService.saveQuestions(result);
+      await databaseService.saveQuestions(result, file.name);
       
       return result;
     } catch (error) {
@@ -205,15 +321,16 @@ export const apiService = {
       
       if (Array.isArray(analysisResult) && analysisResult.length > 0) {
         // Use AI-analyzed questions
-        const currentYear = new Date().getFullYear();
+        // Extract year from the first question's year field or from text (all questions from same paper should have same year)
+        const extractedYear = analysisResult[0]?.year || extractYearFromText(extractedText) || "Unknown";
         
         analysisResult.forEach((item, index) => {
-          if (item.questionText && item.subject) {
+          if (item.questionText) {
             extractedQuestions.push({
               id: `q-${Date.now()}-${index}`,
               text: item.questionText,
-              year: String(currentYear - Math.floor(Math.random() * 5)),
-              subject: item.subject,
+              year: item.year || extractedYear, // Use year from AI analysis or extracted year
+              subject: item.subject || "General",
               topics: Array.isArray(item.topics) ? item.topics : [],
               keywords: Array.isArray(item.keywords) ? item.keywords : [],
             });
@@ -254,7 +371,7 @@ export const apiService = {
         topics
       };
       
-      await databaseService.saveQuestions(result);
+      await databaseService.saveQuestions(result, file.name);
       
       return result;
     } catch (error) {
@@ -275,12 +392,12 @@ export const apiService = {
    */
   getFilteredQuestions: async (
     yearFilter: string,
-    subjectFilter: string,
+    topicFilter: string,
     keywordFilter: string
   ): Promise<AnalysisResult> => {
     return await databaseService.getQuestionsByFilter(
       yearFilter,
-      subjectFilter,
+      topicFilter,
       keywordFilter
     );
   }

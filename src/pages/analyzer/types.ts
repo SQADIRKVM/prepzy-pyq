@@ -1,5 +1,5 @@
 
-export type ProcessStatus = "idle" | "uploading" | "processing" | "completed" | "error";
+export type ProcessStatus = "idle" | "uploading" | "processing" | "paused" | "completed" | "error";
 
 export interface Question {
   id: string;
