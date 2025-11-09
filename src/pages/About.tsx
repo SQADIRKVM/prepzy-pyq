@@ -192,7 +192,7 @@ const About = () => {
             </p>
             <div className="pt-4">
               <a 
-                href="https://github.com" 
+                href="https://github.com/SQADIRKVM/prepzy-pyq" 
                 target="_blank" 
                 rel="noopener noreferrer"
               >
@@ -312,7 +312,7 @@ const About = () => {
                 </li>
                 <li>
                   <a 
-                    href="https://github.com" 
+                    href="https://github.com/SQADIRKVM/prepzy-pyq" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-muted-foreground hover:text-primary transition-colors"

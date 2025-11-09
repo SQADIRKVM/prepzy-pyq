@@ -225,7 +225,7 @@ export default function Index() {
                 </Button>
             </Link>
               <a 
-                href="https://github.com" 
+                href="https://github.com/SQADIRKVM/prepzy-pyq" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center"
@@ -352,7 +352,7 @@ export default function Index() {
                       </SheetClose>
                       <SheetClose asChild>
                         <a 
-                          href="https://github.com" 
+                          href="https://github.com/SQADIRKVM/prepzy-pyq" 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="w-full"
@@ -1376,7 +1376,7 @@ export default function Index() {
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                     <a 
-                      href="https://github.com/issues" 
+                      href="https://github.com/SQADIRKVM/prepzy-pyq/issues" 
                       target="_blank" 
                       rel="noopener noreferrer"
                     >
@@ -1643,7 +1643,7 @@ export default function Index() {
                 </li>
                 <li>
                   <a 
-                    href="https://github.com" 
+                    href="https://github.com/SQADIRKVM/prepzy-pyq" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-muted-foreground hover:text-primary transition-colors"

@@ -279,7 +279,7 @@ const Privacy = () => {
                 </li>
                 <li>
                   <a 
-                    href="https://github.com" 
+                    href="https://github.com/SQADIRKVM/prepzy-pyq" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-muted-foreground hover:text-primary transition-colors"

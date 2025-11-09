@@ -87,7 +87,7 @@ Prepzy PYQ is an open-source, AI-powered web application designed to help studen
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/prepzy-pyq.git
+git clone https://github.com/SQADIRKVM/prepzy-pyq.git
 cd prepzy-pyq
 ```
 
@@ -335,8 +335,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 - **Documentation**: Check out our [Documentation Page](./src/pages/Documentation.tsx) in the app
-- **Issues**: Report bugs or request features on [GitHub Issues](https://github.com/yourusername/prepzy-pyq/issues)
-- **Discussions**: Join discussions on [GitHub Discussions](https://github.com/yourusername/prepzy-pyq/discussions)
+- **Issues**: Report bugs or request features on [GitHub Issues](https://github.com/SQADIRKVM/prepzy-pyq/issues)
+- **Discussions**: Join discussions on [GitHub Discussions](https://github.com/SQADIRKVM/prepzy-pyq/discussions)
 
 ---
 
