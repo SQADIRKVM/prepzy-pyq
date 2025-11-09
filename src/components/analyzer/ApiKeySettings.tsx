@@ -40,6 +40,7 @@ const ApiKeySettings = () => {
   const [openRouterApiKey, setOpenRouterApiKey] = useState('');
   const [geminiApiKey, setGeminiApiKey] = useState('');
   const [geminiModel, setGeminiModel] = useState('gemini-1.5-flash');
+  const [openRouterModel, setOpenRouterModel] = useState('deepseek/deepseek-chat-v3-0324:free');
   const [apiProvider, setApiProvider] = useState<'gemini' | 'deepseek' | 'openrouter'>('gemini');
   const [open, setOpen] = useState(false);
 
@@ -50,11 +51,13 @@ const ApiKeySettings = () => {
     const savedOpenRouterKey = localStorage.getItem('openRouterApiKey') || '';
     const savedGeminiKey = localStorage.getItem('geminiApiKey') || '';
     const savedGeminiModel = localStorage.getItem('geminiModel') || 'gemini-1.5-flash';
+    const savedOpenRouterModel = localStorage.getItem('openRouterModel') || 'deepseek/deepseek-chat-v3-0324:free';
     setYoutubeApiKey(savedYoutubeKey);
     setDeepseekApiKey(savedDeepseekKey);
     setOpenRouterApiKey(savedOpenRouterKey);
     setGeminiApiKey(savedGeminiKey);
     setGeminiModel(savedGeminiModel);
+    setOpenRouterModel(savedOpenRouterModel);
     
     // Determine which provider to use based on existing keys (priority: Gemini > OpenRouter > DeepSeek)
     if (savedGeminiKey) {
@@ -96,8 +99,10 @@ const ApiKeySettings = () => {
     
     if (openRouterApiKey) {
       localStorage.setItem('openRouterApiKey', openRouterApiKey);
+      localStorage.setItem('openRouterModel', openRouterModel);
     } else {
       localStorage.removeItem('openRouterApiKey');
+      localStorage.removeItem('openRouterModel');
     }
     
     toast.success('API settings saved');
@@ -280,9 +285,47 @@ const ApiKeySettings = () => {
                   Get your API key from OpenRouter →
                 </a>
               </p>
-              <p className="text-xs text-muted-foreground">
-                OpenRouter provides access to DeepSeek models and other AI models. Uses the model: <code className="text-xs bg-muted px-1 rounded">deepseek/deepseek-chat-v3-0324:free</code>
-            </p>
+              {/* OpenRouter Model Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="openrouter-model">OpenRouter Model (Free Models)</Label>
+                <Select
+                  value={openRouterModel}
+                  onValueChange={setOpenRouterModel}
+                >
+                  <SelectTrigger id="openrouter-model" className="w-full">
+                    <SelectValue placeholder="Select a model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="deepseek/deepseek-chat-v3-0324:free">
+                      DeepSeek Chat V3 (Free) - Recommended
+                    </SelectItem>
+                    <SelectItem value="z-ai/glm-4.5-air:free">
+                      Z-AI GLM 4.5 Air (Free)
+                    </SelectItem>
+                    <SelectItem value="moonshotai/kimi-k2:free">
+                      Moonshot AI Kimi K2 (Free)
+                    </SelectItem>
+                    <SelectItem value="qwen/qwen3-30b-a3b:free">
+                      Qwen 3 30B A3B (Free)
+                    </SelectItem>
+                    <SelectItem value="google/gemini-2.0-flash-exp:free">
+                      Google Gemini 2.0 Flash (Free)
+                    </SelectItem>
+                    <SelectItem value="meta-llama/llama-3.2-3b-instruct:free">
+                      Meta Llama 3.2 3B (Free)
+                    </SelectItem>
+                    <SelectItem value="microsoft/phi-3-mini-128k-instruct:free">
+                      Microsoft Phi-3 Mini (Free)
+                    </SelectItem>
+                    <SelectItem value="mistralai/mistral-7b-instruct:free">
+                      Mistral 7B Instruct (Free)
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Choose a free model from OpenRouter. DeepSeek Chat V3 is recommended for best performance.
+                </p>
+              </div>
           </div>
           )}
         </div>

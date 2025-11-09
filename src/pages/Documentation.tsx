@@ -364,8 +364,21 @@ export default function Documentation() {
                         <p className="text-xs text-muted-foreground mb-2">
                           Get your API key from: <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">openrouter.ai/keys</a>
                         </p>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          OpenRouter provides access to multiple free AI models. You can select from:
+                        </p>
+                        <ul className="text-xs text-muted-foreground list-disc list-inside space-y-1 mb-2">
+                          <li>DeepSeek Chat V3 (Free) - Recommended (default)</li>
+                          <li>Z-AI GLM 4.5 Air (Free)</li>
+                          <li>Moonshot AI Kimi K2 (Free)</li>
+                          <li>Qwen 3 30B A3B (Free)</li>
+                          <li>Google Gemini 2.0 Flash (Free)</li>
+                          <li>Meta Llama 3.2 3B (Free)</li>
+                          <li>Microsoft Phi-3 Mini (Free)</li>
+                          <li>Mistral 7B Instruct (Free)</li>
+                        </ul>
                         <p className="text-xs text-muted-foreground">
-                          OpenRouter provides access to DeepSeek models. Uses: <code className="text-xs bg-muted px-1 rounded">deepseek/deepseek-chat-v3-0324:free</code>
+                          Select your preferred model from the dropdown in the API settings.
                         </p>
                       </div>
                     </div>
@@ -415,13 +428,25 @@ export default function Documentation() {
                     <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
                       4
                     </div>
-                    <p className="text-sm">Enter your AI API key (choose one: Gemini, DeepSeek, or OpenRouter) and optional YouTube API key</p>
+                    <p className="text-sm">Enter your AI API key (choose one: Gemini, DeepSeek, or OpenRouter)</p>
                   </div>
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
                       5
                     </div>
-                    <p className="text-sm">Click "Save" to store your keys securely</p>
+                    <p className="text-sm">For OpenRouter: Select your preferred free model from the dropdown. For Gemini: Select your preferred Gemini model from the dropdown.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
+                      6
+                    </div>
+                    <p className="text-sm">Enter your optional YouTube API key (for video resources)</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
+                      7
+                    </div>
+                    <p className="text-sm">Click "Save" to store your API keys</p>
                   </div>
                 </CardContent>
               </Card>

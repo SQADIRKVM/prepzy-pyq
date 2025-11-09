@@ -30,6 +30,7 @@ export async function processWithDeepSeek(
     // Get API keys from localStorage
     const deepseekApiKey = localStorage.getItem('deepseekApiKey');
     const openRouterApiKey = localStorage.getItem('openRouterApiKey');
+    const openRouterModel = localStorage.getItem('openRouterModel') || 'deepseek/deepseek-chat-v3-0324:free';
     const geminiApiKey = localStorage.getItem('geminiApiKey');
     
     // Determine which API to use (priority: Gemini > OpenRouter > DeepSeek)
@@ -95,7 +96,7 @@ export async function processWithDeepSeek(
 
     // Define default options
     const defaultOptions = {
-      model: useOpenRouter ? "deepseek/deepseek-chat-v3-0324:free" : "deepseek-chat",
+      model: useOpenRouter ? openRouterModel : "deepseek-chat",
       temperature: 0.2,
       max_tokens: 4000,
       ...options

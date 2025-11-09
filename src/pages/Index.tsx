@@ -9,37 +9,26 @@ import {
   Sparkles,
   BarChart3,
   Video,
-  Search,
   Shield,
   Clock,
   Users,
   TrendingUp,
   Brain,
-  Target,
-  Award,
-  Download,
   Upload,
   Filter,
   Star,
   GraduationCap,
-  Rocket,
-  Globe,
-  Layers,
-  Code,
-  Database,
   Lock,
-  Infinity,
-  Lightbulb,
   LineChart,
   HelpCircle,
-  Info,
   ArrowDown,
   Map,
   Calendar,
   CheckCircle,
   Circle,
   Menu,
-  X
+  X,
+  Code
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -499,49 +488,21 @@ export default function Index() {
           </div>
         </section>
 
-        {/* Session Login Info Section */}
-        <section className="py-12 sm:py-16 px-4 sm:px-6 bg-primary/5 relative overflow-hidden">
-          <div
-            className="absolute inset-0 opacity-10"
-          >
-            <div className="absolute top-0 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-primary/20 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-56 sm:w-80 h-56 sm:h-80 bg-primary/20 rounded-full blur-3xl" />
-          </div>
-          <div className="container mx-auto max-w-4xl relative z-10">
-            <Card className="glass-card border-primary/30 p-4 sm:p-6 md:p-8">
-              <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
-                <div className="bg-primary/10 p-2 sm:p-3 rounded-xl flex-shrink-0">
-                  <Info className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+        {/* Session Login Info Section - Simplified */}
+        <section className="py-8 sm:py-10 px-4 sm:px-6">
+          <div className="container mx-auto max-w-4xl">
+            <Card className="glass-card border-primary/20 p-4 sm:p-5">
+              <div className="flex items-start gap-3">
+                <div className="bg-primary/10 p-2 rounded-lg flex-shrink-0">
+                  <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <CardTitle className="text-base sm:text-lg md:text-xl lg:text-2xl mb-2 sm:mb-3 flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                    <div className="flex items-center gap-2">
-                      <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
-                      <span className="break-words">Local Session Login Only</span>
-                      </div>
-                  </CardTitle>
-                  <div className="text-xs sm:text-sm md:text-base space-y-2 sm:space-y-3 text-muted-foreground">
-                    <p>
-                      <strong>No Server-Side Authentication:</strong> Prepzy PYQ uses local session management only. 
-                      Your account credentials are stored securely in your browser's local storage. 
-                      We don't use any server-side authentication or third-party login services.
+                <div className="flex-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    <strong className="text-foreground">Privacy-First:</strong> Prepzy PYQ uses local session management only. 
+                    Your data stays on your device—no server authentication or third-party logins. 
+                    Sessions are browser-specific for maximum privacy.
                     </p>
-                    <p>
-                      <strong>Privacy First:</strong> All your data, including login credentials and analysis results, 
-                      remain on your device. We never send your login information to any server or third-party service.
-                    </p>
-                    <p>
-                      <strong>Session-Based:</strong> Create a local session to save and manage your analysis results. 
-                      Your sessions are stored locally and can only be accessed from the same browser where you created them.
-                    </p>
-                    <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-primary/5 rounded-lg border border-primary/20">
-                      <p className="text-xs sm:text-sm text-muted-foreground">
-                        <strong>Note:</strong> If you clear your browser data or use a different browser, 
-                        you'll need to create a new session. Sessions are device and browser-specific for maximum privacy.
-                      </p>
-                    </div>
                   </div>
-                </div>
               </div>
             </Card>
           </div>
@@ -558,12 +519,12 @@ export default function Index() {
               <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
                 Everything you need to analyze and master previous year questions
                     </p>
-                  </div>
+                      </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <Card className="glass-card rounded-xl sm:rounded-2xl p-6 sm:p-8 space-y-3 sm:space-y-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-primary/10">
                 <div className="bg-primary/10 p-2 sm:p-3 rounded-xl w-fit">
                   <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                </div>
+                    </div>
                 <CardHeader className="p-0">
                   <CardTitle className="text-lg sm:text-xl">Smart Extraction</CardTitle>
                 </CardHeader>
@@ -591,7 +552,7 @@ export default function Index() {
               <Card className="glass-card rounded-xl sm:rounded-2xl p-6 sm:p-8 space-y-3 sm:space-y-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-primary/10">
                 <div className="bg-primary/10 p-2 sm:p-3 rounded-xl w-fit">
                   <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                      </div>
+                  </div>
                 <CardHeader className="p-0">
                   <CardTitle className="text-lg sm:text-xl">AI Analysis</CardTitle>
                 </CardHeader>
@@ -619,7 +580,7 @@ export default function Index() {
               <Card className="glass-card rounded-xl sm:rounded-2xl p-6 sm:p-8 space-y-3 sm:space-y-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-primary/10">
                 <div className="bg-primary/10 p-2 sm:p-3 rounded-xl w-fit">
                   <Video className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                    </div>
+                      </div>
                 <CardHeader className="p-0">
                   <CardTitle className="text-lg sm:text-xl">Video Resources</CardTitle>
                 </CardHeader>
@@ -647,7 +608,7 @@ export default function Index() {
               <Card className="glass-card rounded-xl sm:rounded-2xl p-6 sm:p-8 space-y-3 sm:space-y-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-primary/10">
                 <div className="bg-primary/10 p-2 sm:p-3 rounded-xl w-fit">
                   <Filter className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                  </div>
+                    </div>
                 <CardHeader className="p-0">
                   <CardTitle className="text-lg sm:text-xl">Smart Filtering</CardTitle>
                 </CardHeader>
@@ -675,7 +636,7 @@ export default function Index() {
               <Card className="glass-card rounded-xl sm:rounded-2xl p-6 sm:p-8 space-y-3 sm:space-y-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-primary/10">
                 <div className="bg-primary/10 p-2 sm:p-3 rounded-xl w-fit">
                   <LineChart className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                </div>
+                  </div>
                 <CardHeader className="p-0">
                   <CardTitle className="text-lg sm:text-xl">Analytics Dashboard</CardTitle>
                 </CardHeader>
@@ -703,7 +664,7 @@ export default function Index() {
               <Card className="glass-card rounded-xl sm:rounded-2xl p-6 sm:p-8 space-y-3 sm:space-y-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-primary/10">
                 <div className="bg-primary/10 p-2 sm:p-3 rounded-xl w-fit">
                   <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-              </div>
+                </div>
                 <CardHeader className="p-0">
                   <CardTitle className="text-lg sm:text-xl">Session Management</CardTitle>
                 </CardHeader>
@@ -727,71 +688,10 @@ export default function Index() {
                   </ul>
                 </CardContent>
               </Card>
+              </div>
             </div>
-          </div>
         </section>
 
-        {/* Detailed Features Section */}
-        <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-primary/5 relative overflow-hidden">
-          <div 
-            className="absolute top-0 left-0 w-full h-full opacity-20"
-          >
-            <div className="absolute top-10 left-5 sm:top-20 sm:left-20 w-40 h-40 sm:w-48 sm:h-48 md:w-64 md:h-64 bg-primary/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-10 right-5 sm:bottom-20 sm:right-20 w-48 h-48 sm:w-56 sm:h-56 md:w-80 md:h-80 bg-primary/10 rounded-full blur-3xl" />
-          </div>
-          <div className="container mx-auto max-w-6xl relative z-10">
-            <div className="text-center mb-10 sm:mb-12 md:mb-16 px-2">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">Advanced Capabilities</h2>
-              <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
-                Built with cutting-edge technology for the best experience
-              </p>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              <Card className="glass-card p-4 sm:p-6 hover:shadow-lg transition-all">
-                <Layers className="h-6 w-6 sm:h-8 sm:w-8 text-primary mb-3 sm:mb-4" />
-                <CardTitle className="text-base sm:text-lg mb-2">Multi-Format Support</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">
-                  Supports PDF, images, and scanned documents with automatic format detection.
-                </CardDescription>
-              </Card>
-              <Card className="glass-card p-4 sm:p-6 hover:shadow-lg transition-all">
-                <Database className="h-6 w-6 sm:h-8 sm:w-8 text-primary mb-3 sm:mb-4" />
-                <CardTitle className="text-base sm:text-lg mb-2">Smart Storage</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">
-                  Save and organize your analysis sessions for easy access anytime.
-                </CardDescription>
-              </Card>
-              <Card className="glass-card p-4 sm:p-6 hover:shadow-lg transition-all">
-                <Code className="h-6 w-6 sm:h-8 sm:w-8 text-primary mb-3 sm:mb-4" />
-                <CardTitle className="text-base sm:text-lg mb-2">Dual API Support</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">
-                  Choose between DeepSeek or OpenRouter APIs for flexible AI analysis.
-                </CardDescription>
-              </Card>
-              <Card className="glass-card p-4 sm:p-6 hover:shadow-lg transition-all">
-                <LineChart className="h-6 w-6 sm:h-8 sm:w-8 text-primary mb-3 sm:mb-4" />
-                <CardTitle className="text-base sm:text-lg mb-2">Analytics Dashboard</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">
-                  Track your progress with detailed analytics and insights.
-                </CardDescription>
-              </Card>
-              <Card className="glass-card p-4 sm:p-6 hover:shadow-lg transition-all">
-                <Lock className="h-6 w-6 sm:h-8 sm:w-8 text-primary mb-3 sm:mb-4" />
-                <CardTitle className="text-base sm:text-lg mb-2">Privacy First</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">
-                  Your data is processed securely and automatically deleted after analysis.
-                </CardDescription>
-              </Card>
-              <Card className="glass-card p-4 sm:p-6 hover:shadow-lg transition-all">
-                <Download className="h-6 w-6 sm:h-8 sm:w-8 text-primary mb-3 sm:mb-4" />
-                <CardTitle className="text-base sm:text-lg mb-2">Export Results</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">
-                  Download your analysis results in JSON format for further use.
-                </CardDescription>
-              </Card>
-            </div>
-          </div>
-        </section>
 
         {/* How It Works */}
         <section 
@@ -857,121 +757,6 @@ export default function Index() {
                       </div>
         </section>
 
-        {/* Use Cases Section */}
-        <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-primary/5 relative overflow-hidden">
-          <div 
-            className="absolute inset-0 opacity-10"
-          >
-            <div className="absolute top-10 right-10 w-64 sm:w-96 h-64 sm:h-96 bg-primary/20 rounded-full blur-3xl" />
-            <div className="absolute bottom-10 left-10 w-56 sm:w-80 h-56 sm:h-80 bg-primary/20 rounded-full blur-3xl" />
-                    </div>
-          <div className="container mx-auto max-w-6xl relative z-10">
-            <div className="text-center mb-10 sm:mb-12 md:mb-16 px-2">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">Perfect For</h2>
-              <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
-                Whether you're a student or educator, we've got you covered
-              </p>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-6 sm:gap-8">
-              <Card className="glass-card p-6 sm:p-8 hover:shadow-xl transition-all">
-                <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
-                  <div className="bg-primary/10 p-2 sm:p-3 rounded-xl flex-shrink-0">
-                    <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <CardTitle className="text-lg sm:text-xl mb-2">Students</CardTitle>
-                    <CardDescription className="text-sm sm:text-base">
-                      Analyze previous year papers to identify patterns, focus on important topics, and track your preparation progress. Get instant insights on question types and difficulty levels.
-                    </CardDescription>
-                  </div>
-                </div>
-              </Card>
-              <Card className="glass-card p-8 hover:shadow-xl transition-all">
-                <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 p-3 rounded-xl">
-                    <Users className="h-6 w-6 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <CardTitle className="text-xl mb-2">Educators</CardTitle>
-                    <CardDescription className="text-base">
-                      Create comprehensive question banks, analyze exam patterns, and prepare better study materials. Understand question distribution across topics and years.
-                    </CardDescription>
-                  </div>
-                </div>
-              </Card>
-              <Card className="glass-card p-8 hover:shadow-xl transition-all">
-                <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 p-3 rounded-xl">
-                    <Rocket className="h-6 w-6 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <CardTitle className="text-xl mb-2">Coaching Institutes</CardTitle>
-                    <CardDescription className="text-base">
-                      Build comprehensive question databases, create mock tests, and provide students with detailed analysis reports. Scale your teaching with AI-powered insights.
-                    </CardDescription>
-                  </div>
-                </div>
-              </Card>
-              <Card className="glass-card p-8 hover:shadow-xl transition-all">
-                <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 p-3 rounded-xl">
-                    <Lightbulb className="h-6 w-6 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <CardTitle className="text-xl mb-2">Research & Analysis</CardTitle>
-                    <CardDescription className="text-base">
-                      Study exam trends, analyze question patterns over years, and conduct research on educational assessment methods. Export data for further analysis.
-                    </CardDescription>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* Benefits Section */}
-        <section 
-          className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 relative"
-        >
-          <div className="container mx-auto max-w-6xl">
-            <div className="text-center mb-10 sm:mb-12 md:mb-16 px-2">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">Why Choose Prepzy PYQ?</h2>
-              <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
-                Everything you need to excel in your exams
-              </p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              <Card className="glass-card p-4 sm:p-6 text-center hover:shadow-lg transition-all">
-                <Clock className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-3 sm:mb-4" />
-                <CardTitle className="text-base sm:text-lg mb-2">Fast Processing</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">
-                  Analyze papers in seconds, not hours. Get results instantly.
-                </CardDescription>
-              </Card>
-              <Card className="glass-card p-4 sm:p-6 text-center hover:shadow-lg transition-all">
-                <Target className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-3 sm:mb-4" />
-                <CardTitle className="text-base sm:text-lg mb-2">Accurate Results</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">
-                  Advanced AI ensures high accuracy in question extraction and analysis.
-                </CardDescription>
-              </Card>
-              <Card className="glass-card p-4 sm:p-6 text-center hover:shadow-lg transition-all">
-                <Filter className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-3 sm:mb-4" />
-                <CardTitle className="text-base sm:text-lg mb-2">Smart Filtering</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">
-                  Filter by year, topic, subject, or keywords to find exactly what you need.
-                </CardDescription>
-              </Card>
-              <Card className="glass-card p-4 sm:p-6 text-center hover:shadow-lg transition-all">
-                <Shield className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-3 sm:mb-4" />
-                <CardTitle className="text-base sm:text-lg mb-2">Secure & Private</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">
-                  Your data is processed securely and automatically deleted after analysis.
-                </CardDescription>
-              </Card>
-            </div>
-          </div>
-        </section>
 
         {/* Testimonials Section */}
         <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-primary/5 relative overflow-hidden">
@@ -1762,7 +1547,7 @@ export default function Index() {
       
       {/* Chatbot */}
       <Chatbot />
-      </div>
+    </div>
     </>
   );
 }

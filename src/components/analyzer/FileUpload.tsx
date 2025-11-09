@@ -382,7 +382,7 @@ const FileUpload = ({ onUploadPdf, onUploadImage, onUploadPdfOcr }: FileUploadPr
           <div className="flex items-start gap-3">
             <div className="p-2 bg-primary/10 rounded-lg flex-shrink-0">
               <Wand2 className="h-5 w-5 text-primary" />
-            </div>
+              </div>
             <div className="flex-1 min-w-0">
               <h4 className="font-semibold text-sm mb-1">PDF OCR</h4>
               <p className="text-xs text-muted-foreground">
@@ -391,7 +391,7 @@ const FileUpload = ({ onUploadPdf, onUploadImage, onUploadPdfOcr }: FileUploadPr
             </div>
           </div>
         </Card>
-      </div>
+          </div>
     </div>
   );
 };

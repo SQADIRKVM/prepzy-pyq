@@ -149,7 +149,12 @@ You can use **Gemini**, **DeepSeek**, or **OpenRouter** API key (choose one):
 3. Create a new API key
 4. Copy the key
 
-> **Note**: Gemini uses the `gemini-1.5-flash` model, which is fast and efficient.
+> **Note**: Gemini supports multiple models. You can select from:
+> - Gemini 1.5 Flash (Fast & Efficient) - Default
+> - Gemini 2.5 Flash (Latest Flash)
+> - Gemini Flash Latest (Auto-updated)
+> - Gemini 2.5 Pro (Most Capable)
+> - Gemini 1.5 Pro (High Quality)
 
 ##### Option B: DeepSeek API Key
 
@@ -167,7 +172,15 @@ You can use **Gemini**, **DeepSeek**, or **OpenRouter** API key (choose one):
 4. Create a new API key
 5. Copy the key
 
-> **Note**: OpenRouter provides access to DeepSeek models and other AI models. The app uses the model `deepseek/deepseek-chat-v3-0324:free` when using OpenRouter.
+> **Note**: OpenRouter provides access to multiple free AI models. You can select from the following free models in the settings:
+> - **DeepSeek Chat V3 (Free)** - Recommended (default)
+> - Z-AI GLM 4.5 Air (Free)
+> - Moonshot AI Kimi K2 (Free)
+> - Qwen 3 30B A3B (Free)
+> - Google Gemini 2.0 Flash (Free)
+> - Meta Llama 3.2 3B (Free)
+> - Microsoft Phi-3 Mini (Free)
+> - Mistral 7B Instruct (Free)
 
 #### 2. YouTube API Key (Optional, for Video Resources)
 
@@ -184,8 +197,10 @@ You can use **Gemini**, **DeepSeek**, or **OpenRouter** API key (choose one):
 3. Navigate to **API Keys** section
 4. Select your preferred AI provider (Gemini, DeepSeek, or OpenRouter)
 5. Enter your AI API key (required - choose one: Gemini, DeepSeek, or OpenRouter)
-6. Enter your YouTube API key (optional)
-7. Click **Save**
+6. **For OpenRouter**: Select your preferred free model from the dropdown (default: DeepSeek Chat V3)
+7. **For Gemini**: Select your preferred Gemini model from the dropdown (default: Gemini 1.5 Flash)
+8. Enter your YouTube API key (optional)
+9. Click **Save**
 
 > **Note**: Basic text extraction works without API keys, but AI analysis and video resources require them. You only need **one** AI API key (Gemini, DeepSeek, or OpenRouter), not all three.
 

@@ -32,6 +32,7 @@ const ApiKeySetupDialog = ({ open, onOpenChange, onSave }: ApiKeySetupDialogProp
   const [geminiModel, setGeminiModel] = useState('gemini-1.5-flash');
   const [deepseekApiKey, setDeepseekApiKey] = useState('');
   const [openRouterApiKey, setOpenRouterApiKey] = useState('');
+  const [openRouterModel, setOpenRouterModel] = useState('deepseek/deepseek-chat-v3-0324:free');
   const [youtubeApiKey, setYoutubeApiKey] = useState('');
   const [apiProvider, setApiProvider] = useState<'gemini' | 'deepseek' | 'openrouter'>('gemini');
 
@@ -42,11 +43,13 @@ const ApiKeySetupDialog = ({ open, onOpenChange, onSave }: ApiKeySetupDialogProp
       const savedGeminiModel = localStorage.getItem('geminiModel') || 'gemini-1.5-flash';
       const savedDeepseekKey = localStorage.getItem('deepseekApiKey') || '';
       const savedOpenRouterKey = localStorage.getItem('openRouterApiKey') || '';
+      const savedOpenRouterModel = localStorage.getItem('openRouterModel') || 'deepseek/deepseek-chat-v3-0324:free';
       const savedYoutubeKey = localStorage.getItem('youtubeApiKey') || '';
       setGeminiApiKey(savedGeminiKey);
       setGeminiModel(savedGeminiModel);
       setDeepseekApiKey(savedDeepseekKey);
       setOpenRouterApiKey(savedOpenRouterKey);
+      setOpenRouterModel(savedOpenRouterModel);
       setYoutubeApiKey(savedYoutubeKey);
       
       // Determine which provider to use based on existing keys (priority: Gemini > OpenRouter > DeepSeek)
@@ -84,8 +87,10 @@ const ApiKeySetupDialog = ({ open, onOpenChange, onSave }: ApiKeySetupDialogProp
     
     if (openRouterApiKey.trim()) {
       localStorage.setItem('openRouterApiKey', openRouterApiKey);
+      localStorage.setItem('openRouterModel', openRouterModel);
     } else {
       localStorage.removeItem('openRouterApiKey');
+      localStorage.removeItem('openRouterModel');
     }
     
     if (youtubeApiKey) {
@@ -281,9 +286,52 @@ const ApiKeySetupDialog = ({ open, onOpenChange, onSave }: ApiKeySetupDialogProp
                   <ExternalLink className="h-3 w-3" />
                 </a>
               </div>
-              <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
-                OpenRouter provides access to DeepSeek models and other AI models. Uses the model: <code className="text-[10px] sm:text-xs bg-muted px-1 py-0.5 rounded">deepseek/deepseek-chat-v3-0324:free</code>
-              </p>
+              {/* OpenRouter Model Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="openrouter-model" className="text-[11px] sm:text-xs font-semibold">
+                  OpenRouter Model (Free Models)
+                </Label>
+                <Select
+                  value={openRouterModel}
+                  onValueChange={setOpenRouterModel}
+                >
+                  <SelectTrigger 
+                    id="openrouter-model"
+                    className="h-9 sm:h-10 w-full text-xs sm:text-sm"
+                  >
+                    <SelectValue placeholder="Select a model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="deepseek/deepseek-chat-v3-0324:free">
+                      DeepSeek Chat V3 (Free) - Recommended
+                    </SelectItem>
+                    <SelectItem value="z-ai/glm-4.5-air:free">
+                      Z-AI GLM 4.5 Air (Free)
+                    </SelectItem>
+                    <SelectItem value="moonshotai/kimi-k2:free">
+                      Moonshot AI Kimi K2 (Free)
+                    </SelectItem>
+                    <SelectItem value="qwen/qwen3-30b-a3b:free">
+                      Qwen 3 30B A3B (Free)
+                    </SelectItem>
+                    <SelectItem value="google/gemini-2.0-flash-exp:free">
+                      Google Gemini 2.0 Flash (Free)
+                    </SelectItem>
+                    <SelectItem value="meta-llama/llama-3.2-3b-instruct:free">
+                      Meta Llama 3.2 3B (Free)
+                    </SelectItem>
+                    <SelectItem value="microsoft/phi-3-mini-128k-instruct:free">
+                      Microsoft Phi-3 Mini (Free)
+                    </SelectItem>
+                    <SelectItem value="mistralai/mistral-7b-instruct:free">
+                      Mistral 7B Instruct (Free)
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
+                  Choose a free model from OpenRouter. DeepSeek Chat V3 is recommended for best performance.
+                </p>
+              </div>
             </div>
           )}
           
