@@ -53,7 +53,7 @@ const UploadSection = ({
   }, []);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8 pb-4 sm:pb-0">
       {!hasApiKey && status === "idle" && (
         <Alert className="border-amber-500/50 bg-amber-500/10">
           <AlertCircle className="h-5 w-5 text-amber-500" />

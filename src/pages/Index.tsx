@@ -46,6 +46,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
+import { SEO } from "@/components/SEO";
+import Chatbot from "@/components/Chatbot";
 
 
 // Animated Counter Component
@@ -195,8 +197,18 @@ export default function Index() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-background overflow-x-hidden">
-      {/* Navigation */}
+    <>
+      <SEO
+        title="Prepzy PYQ - AI-Powered Previous Year Question Paper Analyzer | Free Online Tool"
+        description="Analyze previous year question papers with AI-powered insights. Extract questions, classify by topics, get keyword analysis, and access educational video resources. Free, privacy-first, and fully responsive."
+        keywords="previous year questions, PYQ analyzer, question paper analysis, AI question classifier, exam preparation tool, OCR question extraction, topic classification, educational AI tool, free PYQ analyzer, question paper scanner, exam prep software, KTU question papers"
+        ogTitle="Prepzy PYQ - AI-Powered Previous Year Question Paper Analyzer"
+        ogDescription="Free AI-powered tool to analyze previous year question papers. Extract questions, classify by topics, get insights, and access educational resources."
+        ogImage="https://prepzy-pyq.vercel.app/logo.png"
+        canonical="https://prepzy-pyq.vercel.app/"
+      />
+      <div className="flex flex-col min-h-screen bg-background overflow-x-hidden">
+        {/* Navigation */}
       <header className="sticky top-0 z-50 glass border-b border-border/40 backdrop-blur-xl">
         <div className="container flex items-center justify-between py-2.5 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
@@ -1005,7 +1017,7 @@ export default function Index() {
                   content="The video integration feature is amazing! I can instantly find explanations for any question I'm stuck on. The AI-powered analysis has helped me understand my strengths and weaknesses, making my exam preparation much more targeted and effective."
                 />
                 <TestimonialCard
-                  name="Dr. Amit M."
+                  name="Anu"
                   role="Educator"
                   content="As a teacher, this tool helps me create better study materials and understand question patterns across years. The analytics and insights provided are invaluable for curriculum planning and helping students prepare more effectively."
                 />
@@ -1031,7 +1043,7 @@ export default function Index() {
                   content="The video integration feature is amazing! I can instantly find explanations for any question I'm stuck on. The AI-powered analysis has helped me understand my strengths and weaknesses, making my exam preparation much more targeted and effective."
                 />
                 <TestimonialCard
-                  name="Dr. Amit M."
+                  name="Anu"
                   role="Educator"
                   content="As a teacher, this tool helps me create better study materials and understand question patterns across years. The analytics and insights provided are invaluable for curriculum planning and helping students prepare more effectively."
                 />
@@ -1083,16 +1095,19 @@ export default function Index() {
             </div>
 
             {/* Roadmap Timeline */}
-            <div className="space-y-8 sm:space-y-12">
-              {/* Phase 1 - Foundation */}
-              <div className="relative">
-                <div className="flex items-start gap-4 sm:gap-6">
-                  <div className="flex flex-col items-center flex-shrink-0">
-                    <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-primary/20 flex items-center justify-center border-4 border-background">
-                      <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+            <div className="relative">
+              {/* Continuous vertical line */}
+              <div className="absolute left-6 sm:left-8 top-12 sm:top-16 bottom-0 w-0.5 bg-primary/20 z-0"></div>
+              
+              <div className="space-y-8 sm:space-y-12 relative z-10">
+                {/* Phase 1 - Foundation */}
+                <div className="relative">
+                  <div className="flex items-start gap-4 sm:gap-6">
+                    <div className="flex flex-col items-center flex-shrink-0">
+                      <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-primary/20 flex items-center justify-center border-4 border-background relative z-10">
+                        <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                      </div>
                     </div>
-                    <div className="w-0.5 h-full bg-primary/20 mt-2 min-h-[120px] sm:min-h-[150px]"></div>
-                  </div>
                   <div className="flex-1 pt-2">
                     <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                       <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
@@ -1141,15 +1156,14 @@ export default function Index() {
                 </div>
               </div>
 
-              {/* Phase 2 - Connect & Smart */}
-              <div className="relative">
-                <div className="flex items-start gap-4 sm:gap-6">
-                  <div className="flex flex-col items-center flex-shrink-0">
-                    <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-primary/20 flex items-center justify-center border-4 border-background">
-                      <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                {/* Phase 2 - Connect & Smart */}
+                <div className="relative">
+                  <div className="flex items-start gap-4 sm:gap-6">
+                    <div className="flex flex-col items-center flex-shrink-0">
+                      <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-primary/20 flex items-center justify-center border-4 border-background relative z-10">
+                        <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                      </div>
                     </div>
-                    <div className="w-0.5 h-full bg-primary/20 mt-2 min-h-[120px] sm:min-h-[150px]"></div>
-                  </div>
                   <div className="flex-1 pt-2">
                     <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                       <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
@@ -1216,15 +1230,14 @@ export default function Index() {
                 </div>
               </div>
 
-              {/* Phase 3 - Intelligence & Personalization */}
-              <div className="relative">
-                <div className="flex items-start gap-4 sm:gap-6">
-                  <div className="flex flex-col items-center flex-shrink-0">
-                    <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-primary/10 flex items-center justify-center border-4 border-background">
-                      <Circle className="h-6 w-6 sm:h-8 sm:w-8 text-primary/60" />
+                {/* Phase 3 - Intelligence & Personalization */}
+                <div className="relative">
+                  <div className="flex items-start gap-4 sm:gap-6">
+                    <div className="flex flex-col items-center flex-shrink-0">
+                      <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-primary/10 flex items-center justify-center border-4 border-background relative z-10">
+                        <Circle className="h-6 w-6 sm:h-8 sm:w-8 text-primary/60" />
+                      </div>
                     </div>
-                    <div className="w-0.5 h-full bg-primary/20 mt-2 min-h-[120px] sm:min-h-[150px]"></div>
-                  </div>
                   <div className="flex-1 pt-2">
                     <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                       <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-primary/60" />
@@ -1291,14 +1304,14 @@ export default function Index() {
                 </div>
               </div>
 
-              {/* Phase 4 - OS & Ecosystem */}
-              <div className="relative">
-                <div className="flex items-start gap-4 sm:gap-6">
-                  <div className="flex flex-col items-center flex-shrink-0">
-                    <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-primary/10 flex items-center justify-center border-4 border-background">
-                      <Circle className="h-6 w-6 sm:h-8 sm:w-8 text-primary/40" />
+                {/* Phase 4 - OS & Ecosystem */}
+                <div className="relative">
+                  <div className="flex items-start gap-4 sm:gap-6">
+                    <div className="flex flex-col items-center flex-shrink-0">
+                      <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-primary/10 flex items-center justify-center border-4 border-background relative z-10">
+                        <Circle className="h-6 w-6 sm:h-8 sm:w-8 text-primary/40" />
+                      </div>
                     </div>
-                  </div>
                   <div className="flex-1 pt-2">
                     <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                       <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-primary/40" />
@@ -1365,6 +1378,7 @@ export default function Index() {
                 </div>
               </div>
             </div>
+          </div>
 
             {/* Call to Action */}
             <div className="mt-12 sm:mt-16 text-center">
@@ -1707,9 +1721,29 @@ export default function Index() {
             </div>
           </div>
 
-          {/* Copyright Section */}
+          {/* Credits Section */}
           <div className="border-t border-border/40 pt-6 sm:pt-8">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col items-center gap-2 sm:gap-3 text-center">
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Developed by{" "}
+                <Link to="/team" className="text-primary hover:underline">
+                  KTU students
+                </Link>
+                {" • "}
+                Designed by{" "}
+                <a 
+                  href="https://www.edot.studio/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  EdotStudio
+                </a>
+              </p>
+            </div>
+
+            {/* Copyright Section */}
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 sm:pt-8 mt-6 sm:mt-8 border-t border-border/40">
               <p className="text-xs sm:text-sm text-muted-foreground text-center">
                 © {new Date().getFullYear()} Prepzy PYQ. All rights reserved.
               </p>
@@ -1720,6 +1754,10 @@ export default function Index() {
           </div>
         </div>
       </footer>
-    </div>
+      
+      {/* Chatbot */}
+      <Chatbot />
+      </div>
+    </>
   );
 }

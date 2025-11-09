@@ -8,6 +8,7 @@ import {
   Brain,
   Video,
   Settings,
+  Linkedin,
   Lock,
   Upload,
   Search,
@@ -117,8 +118,11 @@ export default function Documentation() {
                   <a href="#features" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
                     6. Features & Capabilities
                   </a>
+                  <a href="#chatbot" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                    7. AI Chatbot Assistant
+                  </a>
                   <a href="#faq" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                    7. Frequently Asked Questions
+                    8. Frequently Asked Questions
                   </a>
                 </nav>
               </CardContent>
@@ -154,7 +158,7 @@ export default function Documentation() {
                     <div className="flex-1">
                       <h4 className="font-semibold mb-2">Navigate to Analyzer</h4>
                       <p className="text-sm text-muted-foreground">
-                        Click the "Get Started" button on the homepage or navigate to the Analyzer page.
+                        Click the "Get Started" button on the homepage or navigate to the Analyzer page. New users will see a helpful onboarding guide.
                       </p>
                     </div>
                   </div>
@@ -163,9 +167,9 @@ export default function Documentation() {
                       2
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold mb-2">Set Up API Keys (Optional)</h4>
+                      <h4 className="font-semibold mb-2">Set Up API Keys</h4>
                       <p className="text-sm text-muted-foreground">
-                        For full functionality, add your AI API key (DeepSeek or OpenRouter) in Settings. Basic text extraction works without API keys.
+                        If you haven't configured API keys yet, you'll be prompted to set up your AI API key (DeepSeek or OpenRouter). This is required for AI analysis. Basic text extraction works without API keys, but AI features require them.
                       </p>
                     </div>
                   </div>
@@ -174,9 +178,9 @@ export default function Documentation() {
                       3
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold mb-2">Create a Session</h4>
+                      <h4 className="font-semibold mb-2">Create a Session (Optional)</h4>
                       <p className="text-sm text-muted-foreground">
-                        Create a local session to save and manage your analysis results. Sessions are stored locally in your browser.
+                        Create a local session to save and manage your analysis results. Sessions are stored locally in your browser. This step is optional but recommended for better organization.
                       </p>
                     </div>
                   </div>
@@ -187,7 +191,7 @@ export default function Documentation() {
                     <div className="flex-1">
                       <h4 className="font-semibold mb-2">Upload Your Papers</h4>
                       <p className="text-sm text-muted-foreground">
-                        Upload PDF files or images of your question papers. You can upload multiple files at once.
+                        Upload PDF files or images of your question papers. You can upload multiple files at once. The app will process them automatically.
                       </p>
                     </div>
                   </div>
@@ -721,6 +725,95 @@ export default function Documentation() {
           </div>
         </section>
 
+        {/* AI Chatbot */}
+        <section id="chatbot" className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-primary/5">
+          <div className="container mx-auto max-w-4xl">
+            <div className="space-y-6 sm:space-y-8">
+              <div>
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 flex items-center gap-2">
+                  <Brain className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                  7. AI Chatbot Assistant
+                </h2>
+                <p className="text-base sm:text-lg text-muted-foreground mb-6">
+                  Get instant help and answers from our AI-powered chatbot on the landing page.
+                </p>
+              </div>
+
+              <Card className="glass-card border-primary/30">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Brain className="h-5 w-5 text-primary" />
+                    Interactive Help Assistant
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold mb-2">What is the Chatbot?</h4>
+                    <p className="text-sm text-muted-foreground">
+                      The Prepzy AI Assistant is an interactive chatbot available on the landing page that provides instant help and answers questions about Prepzy PYQ. It's designed to help users understand features, get setup guidance, and find answers to common questions.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">How to Use</h4>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span>Look for the chat icon in the bottom-right corner of the landing page</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span>Click the icon to open the chat window</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span>Type your question or use the quick suggestion buttons</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span>The AI assistant will provide detailed, helpful responses</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">What Can It Help With?</h4>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span>Understanding Prepzy PYQ features and capabilities</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span>Getting started guide and setup instructions</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span>API key setup and configuration</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span>Privacy and security questions</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span>Roadmap and future features</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span>General troubleshooting and support</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                    <p className="text-sm text-muted-foreground">
+                      <strong>Tip:</strong> The chatbot provides context-aware suggestions after each response to help guide your conversation. Hover over the testimonial cards on the landing page to pause the scrolling animation.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
         {/* FAQ */}
         <section id="faq" className="py-12 sm:py-16 md:py-20 px-4 sm:px-6">
           <div className="container mx-auto max-w-4xl">
@@ -728,7 +821,7 @@ export default function Documentation() {
               <div>
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 flex items-center gap-2">
                   <HelpCircle className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-                  7. Frequently Asked Questions
+                  8. Frequently Asked Questions
                 </h2>
                 <p className="text-base sm:text-lg text-muted-foreground mb-6">
                   Common questions and answers about Prepzy PYQ.
@@ -912,19 +1005,6 @@ export default function Documentation() {
                 </li>
                 <li>
                   <a 
-                    href="#faq" 
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      const faqSection = document.querySelector('[id*="faq"], [id*="FAQ"]');
-                      faqSection?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                  >
-                    FAQ
-                  </a>
-                </li>
-                <li>
-                  <a 
                     href="https://github.com/SQADIRKVM/prepzy-pyq" 
                     target="_blank" 
                     rel="noopener noreferrer"
@@ -989,9 +1069,29 @@ export default function Documentation() {
             </div>
           </div>
 
-          {/* Copyright Section */}
+          {/* Credits Section */}
           <div className="border-t border-border/40 pt-6 sm:pt-8">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col items-center gap-2 sm:gap-3 text-center">
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Developed by{" "}
+                <Link to="/team" className="text-primary hover:underline">
+                  KTU students
+                </Link>
+                {" • "}
+                Designed by{" "}
+                <a 
+                  href="https://www.edot.studio/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  EdotStudio
+                </a>
+              </p>
+            </div>
+
+            {/* Copyright Section */}
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 sm:pt-8 mt-6 sm:mt-8 border-t border-border/40">
               <p className="text-xs sm:text-sm text-muted-foreground text-center">
                 © {new Date().getFullYear()} Prepzy PYQ. All rights reserved.
               </p>

@@ -277,7 +277,7 @@ const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogPro
           Settings
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[900px] max-h-[90vh] flex flex-col p-0 gap-0 w-[95vw] sm:w-full">
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] flex flex-col p-0 gap-0">
         <div className="flex flex-col sm:flex-row flex-1 min-h-0 overflow-hidden">
           {/* Sidebar Navigation */}
           <div className="w-full sm:w-64 border-b sm:border-b-0 sm:border-r border-border/50 bg-card/50 flex-shrink-0 flex flex-col">

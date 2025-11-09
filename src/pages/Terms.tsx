@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, FileText, AlertTriangle, Shield, Ban } from "lucide-react";
+import { ArrowLeft, FileText, AlertTriangle, Shield, Ban, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -368,9 +368,29 @@ const Terms = () => {
             </div>
           </div>
 
-          {/* Copyright Section */}
+          {/* Credits Section */}
           <div className="border-t border-border/40 pt-6 sm:pt-8">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col items-center gap-2 sm:gap-3 text-center">
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Developed by{" "}
+                <Link to="/team" className="text-primary hover:underline">
+                  KTU students
+                </Link>
+                {" • "}
+                Designed by{" "}
+                <a 
+                  href="https://www.edot.studio/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  EdotStudio
+                </a>
+              </p>
+            </div>
+
+            {/* Copyright Section */}
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 sm:pt-8 mt-6 sm:mt-8 border-t border-border/40">
               <p className="text-xs sm:text-sm text-muted-foreground text-center">
                 © {new Date().getFullYear()} Prepzy PYQ. All rights reserved.
               </p>

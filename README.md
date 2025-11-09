@@ -64,14 +64,17 @@ Prepzy PYQ is an open-source, AI-powered web application designed to help studen
 
 ### User Experience
 
-- **🎓 Onboarding System**: Guided tour for new users
-- **📱 Fully Responsive**: Optimized for all screen sizes (mobile, tablet, desktop)
+- **🎓 Onboarding System**: Guided tour for new users (simplified initial flow)
+- **📱 Fully Responsive**: Optimized for all screen sizes with proper mobile spacing and margins
 - **🌙 Dark Mode**: Beautiful dark theme interface
 - **⚡ Real-time Progress**: Live updates during processing
 - **💾 Session Management**: Create and manage multiple analysis sessions
 - **🎨 Modern Landing Page**: Beautiful landing page with animated testimonials, roadmap, and FAQ sections
 - **♾️ Infinite Scroll**: Seamless infinite scrolling testimonials with hover-to-pause functionality
 - **📊 Animated Statistics**: Interactive stats counter with smooth animations
+- **📱 Mobile-Optimized Dialogs**: All popups and dialogs are fully responsive with proper spacing on mobile devices
+- **🤖 AI Chatbot**: Interactive chatbot on the landing page that provides instant help and answers questions about Prepzy PYQ
+- **📱 Mobile Sidebar**: Responsive sidebar that adapts to mobile screens with proper width and spacing
 
 ---
 
@@ -183,28 +186,33 @@ You can use either **DeepSeek** or **OpenRouter** API key:
 
 ### Getting Started
 
-1. **Create a Session** (Optional but Recommended)
+1. **First Time Setup**
+   - When you first open the app, you'll see an **Onboarding** dialog that guides you through the features
+   - Next, you'll be prompted to set up your **API Keys** (if not already configured)
+   - The initial flow is streamlined - no unnecessary popups!
+
+2. **Create a Session** (Optional but Recommended)
    - Click "Create Account" in the sidebar
    - Enter your email, password, and username
    - Your session is stored locally in your browser
 
-2. **Upload Question Papers**
+3. **Upload Question Papers**
    - Drag and drop PDF files or images
    - Or click to browse and select files
    - Multiple files can be uploaded at once
 
-3. **Wait for Processing**
+4. **Wait for Processing**
    - Monitor real-time progress
    - Processing typically takes 10-20 seconds per file
    - Results appear automatically when complete
 
-4. **Analyze Results**
+5. **Analyze Results**
    - View extracted questions
    - Filter by year, topic, subject, or keywords
    - Explore statistics and analytics
    - Access video resources (if YouTube API is configured)
 
-5. **Export Data** (Optional)
+6. **Export Data** (Optional)
    - Export results as JSON
    - Save analysis for offline use
 
@@ -348,9 +356,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ✅ Smart Filtering (Filter by year, topic, subject, keywords)
 - ✅ Analytics Dashboard (Statistics and insights)
 - ✅ Video Resources Integration (YouTube API)
-- ✅ Responsive Design (Mobile, tablet, desktop)
+- ✅ Fully Responsive Design (Mobile, tablet, desktop with proper spacing)
+- ✅ Mobile-Optimized Dialogs (All popups with proper margins and spacing)
 - ✅ Modern Landing Page (Animated testimonials, roadmap, FAQ)
 - ✅ Infinite Scroll Testimonials (Seamless scrolling with hover-to-pause)
+- ✅ Simplified Initial Flow (Streamlined onboarding and setup process)
+- ✅ AI Chatbot (Interactive help assistant on landing page)
+- ✅ Mobile Sidebar Optimization (Responsive sidebar with proper mobile width and spacing)
 
 ### Phase 2 - Connect & Intelligence (In Progress)
 - [ ] Multi-language OCR support (Hindi, Spanish, etc.)

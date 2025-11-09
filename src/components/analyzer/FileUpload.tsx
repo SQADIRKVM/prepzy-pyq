@@ -349,13 +349,13 @@ const FileUpload = ({ onUploadPdf, onUploadImage, onUploadPdfOcr }: FileUploadPr
       </Card>
 
       {/* Info Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 pb-6 sm:pb-8 md:pb-0">
         <Card className="bg-card/50 border-l-4 border-l-primary p-4">
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
+            <div className="p-2 bg-primary/10 rounded-lg flex-shrink-0">
               <FileText className="h-5 w-5 text-primary" />
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <h4 className="font-semibold text-sm mb-1">PDF Extract</h4>
               <p className="text-xs text-muted-foreground">
                 Best for digital PDFs with selectable text. Fast and accurate extraction.
@@ -366,10 +366,10 @@ const FileUpload = ({ onUploadPdf, onUploadImage, onUploadPdfOcr }: FileUploadPr
 
         <Card className="bg-card/50 border-l-4 border-l-primary p-4">
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
+            <div className="p-2 bg-primary/10 rounded-lg flex-shrink-0">
               <FileImage className="h-5 w-5 text-primary" />
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <h4 className="font-semibold text-sm mb-1">Image OCR</h4>
               <p className="text-xs text-muted-foreground">
                 Perfect for scanned images. Uses advanced OCR to extract text from images.
@@ -380,18 +380,18 @@ const FileUpload = ({ onUploadPdf, onUploadImage, onUploadPdfOcr }: FileUploadPr
         
         <Card className="bg-card/50 border-l-4 border-l-primary p-4">
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
+            <div className="p-2 bg-primary/10 rounded-lg flex-shrink-0">
               <Wand2 className="h-5 w-5 text-primary" />
-              </div>
-              <div>
+            </div>
+            <div className="flex-1 min-w-0">
               <h4 className="font-semibold text-sm mb-1">PDF OCR</h4>
               <p className="text-xs text-muted-foreground">
                 Advanced processing for scanned PDFs. Converts pages to images first for better accuracy.
-                </p>
+              </p>
             </div>
           </div>
         </Card>
-          </div>
+      </div>
     </div>
   );
 };

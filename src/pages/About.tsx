@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Target, Users, Code, Heart, Zap, Shield } from "lucide-react";
+import { ArrowLeft, Target, Users, Code, Heart, Zap, Shield, Linkedin, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -205,6 +205,145 @@ const About = () => {
           </CardContent>
         </Card>
 
+        {/* Team Section */}
+        <div className="space-y-6 sm:space-y-8 mb-8 sm:mb-12">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center gap-2">
+                <Users className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
+                Our Team
+              </h2>
+              <p className="text-muted-foreground text-sm sm:text-base">
+                A mini project developed by KTU students
+              </p>
+            </div>
+            <Link to="/team">
+              <Button variant="outline" className="flex items-center gap-2">
+                View Full Journey
+                <ArrowLeft className="h-4 w-4 rotate-180" />
+              </Button>
+            </Link>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            {/* Sarhan Qadir KVM */}
+            <Card className="glass-card hover:border-primary/50 transition-colors">
+              <CardContent className="pt-6">
+                <div className="flex flex-col items-center text-center space-y-3">
+                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <GraduationCap className="h-8 w-8 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-base sm:text-lg">Sarhan Qadir KVM</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">SQADIRKVM</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">KTU Student</p>
+                  </div>
+                  <a 
+                    href="https://www.linkedin.com/in/sqadirkvm/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
+                  >
+                    <Linkedin className="h-4 w-4" />
+                    <span>LinkedIn</span>
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Shahin EK */}
+            <Card className="glass-card hover:border-primary/50 transition-colors">
+              <CardContent className="pt-6">
+                <div className="flex flex-col items-center text-center space-y-3">
+                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <GraduationCap className="h-8 w-8 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-base sm:text-lg">Shahin EK</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">KTU Student</p>
+                  </div>
+                  <a 
+                    href="https://www.linkedin.com/in/shahinek/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
+                  >
+                    <Linkedin className="h-4 w-4" />
+                    <span>LinkedIn</span>
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Hana K */}
+            <Card className="glass-card hover:border-primary/50 transition-colors">
+              <CardContent className="pt-6">
+                <div className="flex flex-col items-center text-center space-y-3">
+                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <GraduationCap className="h-8 w-8 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-base sm:text-lg">Hana K</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">KTU Student</p>
+                  </div>
+                  <a 
+                    href="https://www.linkedin.com/in/fathima-hana-k-678708333/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
+                  >
+                    <Linkedin className="h-4 w-4" />
+                    <span>LinkedIn</span>
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Mohammed Suhair */}
+            <Card className="glass-card hover:border-primary/50 transition-colors">
+              <CardContent className="pt-6">
+                <div className="flex flex-col items-center text-center space-y-3">
+                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <GraduationCap className="h-8 w-8 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-base sm:text-lg">Mohammed Suhair</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">KTU Student</p>
+                  </div>
+                  <a 
+                    href="https://www.linkedin.com/in/mohammed-suhair-a21224384/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
+                  >
+                    <Linkedin className="h-4 w-4" />
+                    <span>LinkedIn</span>
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Designer Credit */}
+          <Card className="glass-card">
+            <CardContent className="pt-6">
+              <div className="text-center space-y-2">
+                <p className="text-sm sm:text-base text-muted-foreground">
+                  Designed by{" "}
+                  <a 
+                    href="https://www.edot.studio/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    EdotStudio
+                  </a>
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Contact */}
         <Card className="glass-card">
           <CardHeader>
@@ -376,9 +515,29 @@ const About = () => {
             </div>
           </div>
 
-          {/* Copyright Section */}
+          {/* Credits Section */}
           <div className="border-t border-border/40 pt-6 sm:pt-8">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col items-center gap-2 sm:gap-3 text-center">
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Developed by{" "}
+                <Link to="/team" className="text-primary hover:underline">
+                  KTU students
+                </Link>
+                {" • "}
+                Designed by{" "}
+                <a 
+                  href="https://www.edot.studio/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  EdotStudio
+                </a>
+              </p>
+            </div>
+
+            {/* Copyright Section */}
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 sm:pt-8 mt-6 sm:mt-8 border-t border-border/40">
               <p className="text-xs sm:text-sm text-muted-foreground text-center">
                 © {new Date().getFullYear()} Prepzy PYQ. All rights reserved.
               </p>

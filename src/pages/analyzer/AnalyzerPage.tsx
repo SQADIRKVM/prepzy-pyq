@@ -16,7 +16,6 @@ import { cn } from "@/lib/utils";
 import ApiKeySetupDialog from "@/components/analyzer/ApiKeySetupDialog";
 import SessionCreateDialog from "@/components/analyzer/SessionCreateDialog";
 import SessionLoginDialog from "@/components/analyzer/SessionLoginDialog";
-import SessionInfoDialog from "@/components/analyzer/SessionInfoDialog";
 import SessionChoiceDialog from "@/components/analyzer/SessionChoiceDialog";
 import OnboardingDialog from "@/components/analyzer/OnboardingDialog";
 import { sessionService } from "@/services/sessionService";
@@ -57,7 +56,6 @@ const AnalyzerPage = () => {
   // Session management
   const [showSessionCreate, setShowSessionCreate] = useState(false);
   const [showSessionLogin, setShowSessionLogin] = useState(false);
-  const [showSessionInfo, setShowSessionInfo] = useState(false);
   const [showSessionChoice, setShowSessionChoice] = useState(false);
   const [session, setSession] = useState(sessionService.getCurrentSession());
   
@@ -72,9 +70,9 @@ const AnalyzerPage = () => {
     reject: () => void;
   } | null>(null);
 
-  // Check for onboarding, API key setup, and session on mount
+  // Check for onboarding and API key setup on mount
   // Show dialogs sequentially, one at a time
-  // Priority order: Onboarding > API Key > Session Info
+  // Priority order: Onboarding > API Key
   useEffect(() => {
     const onboardingCompleted = localStorage.getItem('onboardingCompleted');
     const deepseekApiKey = localStorage.getItem('deepseekApiKey');
@@ -83,9 +81,8 @@ const AnalyzerPage = () => {
     const setupCompleted = localStorage.getItem('apiKeySetupCompleted');
     const setupDismissed = localStorage.getItem('apiKeySetupDismissed');
     const currentSession = sessionService.getCurrentSession();
-    const hasSeenSessionInfo = sessionService.hasSeenSessionInfo();
     
-    // Priority order: Onboarding > API Key > Session Info
+    // Priority order: Onboarding > API Key
     // Only show one dialog at a time
     
     if (!onboardingCompleted) {
@@ -97,11 +94,6 @@ const AnalyzerPage = () => {
       // Show API key setup second
       setTimeout(() => {
         setShowApiKeySetup(true);
-      }, 500);
-    } else if (!currentSession && !hasSeenSessionInfo) {
-      // Show session info last
-      setTimeout(() => {
-        setShowSessionInfo(true);
       }, 500);
     }
     
@@ -840,12 +832,6 @@ const AnalyzerPage = () => {
         }}
       />
 
-      {/* Session Info Dialog - Shows last */}
-      <SessionInfoDialog
-        open={showSessionInfo}
-        onOpenChange={setShowSessionInfo}
-      />
-
       {/* Session Choice Dialog */}
       <SessionChoiceDialog
         open={showSessionChoice}
@@ -892,7 +878,7 @@ const AnalyzerPage = () => {
         sidebarOpen ? "md:ml-64" : "md:ml-0"
       )}>
         {/* Top Bar */}
-        <div className="h-16 border-b border-border flex items-center justify-between px-4 md:px-6 bg-card/50">
+        <div className="h-14 sm:h-16 border-b border-border flex items-center justify-between px-3 sm:px-4 md:px-6 bg-card/50 flex-shrink-0">
           <div className="flex items-center gap-2 md:gap-4">
             {/* Sidebar Toggle Button */}
             <Button
@@ -941,7 +927,7 @@ const AnalyzerPage = () => {
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-6xl mx-auto p-4 md:p-6 lg:p-8">
+          <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 pb-20 sm:pb-24 md:pb-6 lg:pb-8">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="mb-4 md:mb-6 bg-card border border-border w-full sm:w-auto">
                 <TabsTrigger 
