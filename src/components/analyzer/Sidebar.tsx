@@ -128,6 +128,7 @@ const Sidebar = ({ stats, onNewUpload, onLoadResult, onLogout, onLogin, onCreate
         className={cn(
           "fixed top-0 left-0 h-screen bg-[#0f0f0f] border-r border-border flex flex-col z-50 transition-transform duration-300 ease-in-out",
           "w-[85vw] max-w-[320px] md:w-64",
+          "max-h-screen overflow-hidden",
           isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
           // On desktop, when closed, hide completely
           !isOpen && "md:hidden"
@@ -163,8 +164,8 @@ const Sidebar = ({ stats, onNewUpload, onLoadResult, onLogout, onLogin, onCreate
           </div>
         </div>
 
-        <ScrollArea className="flex-1 min-h-0">
-          <div className="p-3 sm:p-4 space-y-4 sm:space-y-5">
+        <ScrollArea className="flex-1 min-h-0 overflow-y-auto">
+          <div className="p-3 sm:p-4 space-y-4 sm:space-y-5 pb-4">
             {/* Main Action */}
             <Button 
               className="w-full justify-start bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 text-sm h-9 sm:h-10"
@@ -318,13 +319,18 @@ const Sidebar = ({ stats, onNewUpload, onLoadResult, onLogout, onLogin, onCreate
           </ScrollArea>
 
           {/* User Section at Bottom */}
-          <div className="border-t border-border p-3 sm:p-4 flex-shrink-0">
+          <div 
+            className="border-t border-border p-2.5 sm:p-3 md:p-4 flex-shrink-0 bg-[#0f0f0f]"
+            style={{
+              paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom, 0.625rem))'
+            }}
+          >
             {session ? (
-              <div className="space-y-3">
-                <div className="bg-card/50 border border-border/50 rounded-lg p-2.5 sm:p-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                      <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+              <div className="space-y-2 sm:space-y-3">
+                <div className="bg-card/50 border border-border/50 rounded-lg p-2 sm:p-2.5 md:p-3">
+                  <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+                    <div className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <User className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0 overflow-hidden">
                       <p className="text-xs sm:text-sm font-semibold text-foreground truncate">{session.username}</p>
@@ -334,7 +340,7 @@ const Sidebar = ({ stats, onNewUpload, onLoadResult, onLogout, onLogin, onCreate
                 </div>
                 <Button
                   variant="outline"
-                  className="w-full text-sm h-9 sm:h-10"
+                  className="w-full text-xs sm:text-sm h-8 sm:h-9 md:h-10"
                   onClick={() => {
                     if (onLogout) {
                       sessionService.logout();
@@ -343,34 +349,34 @@ const Sidebar = ({ stats, onNewUpload, onLoadResult, onLogout, onLogin, onCreate
                     }
                   }}
                 >
-                  <LogOut className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2 flex-shrink-0" />
+                  <LogOut className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 mr-1.5 sm:mr-2 flex-shrink-0" />
                   <span className="truncate">Logout</span>
                 </Button>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-1.5 sm:space-y-2">
                 <Button
                   variant="default"
-                  className="w-full text-sm h-9 sm:h-10"
+                  className="w-full text-xs sm:text-sm h-8 sm:h-9 md:h-10"
                   onClick={() => {
                     if (onLogin) {
                       onLogin();
                     }
                   }}
                 >
-                  <LogIn className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2 flex-shrink-0" />
+                  <LogIn className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 mr-1.5 sm:mr-2 flex-shrink-0" />
                   <span className="truncate">Login</span>
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full text-sm h-9 sm:h-10"
+                  className="w-full text-xs sm:text-sm h-8 sm:h-9 md:h-10"
                   onClick={() => {
                     if (onCreateAccount) {
                       onCreateAccount();
                     }
                   }}
                 >
-                  <UserPlus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2 flex-shrink-0" />
+                  <UserPlus className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 mr-1.5 sm:mr-2 flex-shrink-0" />
                   <span className="truncate">Create Account</span>
                 </Button>
               </div>
