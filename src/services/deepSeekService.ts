@@ -52,11 +52,13 @@ export async function processWithDeepSeek(
       // Get saved model from localStorage, or use options.model, or default to gemini-1.5-flash
       const savedModel = localStorage.getItem('geminiModel') || 'gemini-1.5-flash';
       const selectedModel = options.model || savedModel;
+      // Gemini supports up to 16000 tokens, but respect the requested limit
+      const geminiMaxTokens = Math.min(options.max_tokens || 16000, 16000);
       const model = genAI.getGenerativeModel({ 
         model: selectedModel,
         generationConfig: {
           temperature: options.temperature ?? 0.2,
-          maxOutputTokens: options.max_tokens ?? 4000,
+          maxOutputTokens: geminiMaxTokens,
         }
       });
 
@@ -94,12 +96,19 @@ export async function processWithDeepSeek(
       }
     }
 
-    // Define default options
+    // Define default options with provider-specific limits
+    // DeepSeek max: 8192, OpenRouter/Gemini: 16000+
+    const providerMaxTokens = useGemini ? 16000 : (useOpenRouter ? 16000 : 8192);
+    const requestedMaxTokens = options.max_tokens || providerMaxTokens;
+    const finalMaxTokens = Math.min(requestedMaxTokens, providerMaxTokens);
+    
+    // Remove max_tokens from options to avoid conflicts, then set it correctly
+    const { max_tokens: _, ...optionsWithoutMaxTokens } = options;
     const defaultOptions = {
       model: useOpenRouter ? openRouterModel : "deepseek-chat",
       temperature: 0.2,
-      max_tokens: 16000, // Increased from 4000 to handle large question papers
-      ...options
+      ...optionsWithoutMaxTokens,
+      max_tokens: finalMaxTokens // Set max_tokens after spreading to ensure provider limit is respected
     };
 
     const requestBody = {
@@ -213,6 +222,25 @@ export async function processWithDeepSeek(
         toast.error(errorMessage, {
           duration: 8000,
         });
+      } else if (response.status === 400) {
+        // 400 Bad Request - often indicates invalid parameters
+        let errorMessage = `${providerName} API error: `;
+        const errorMsg = errorData?.error?.message || errorData?.details || JSON.stringify(errorData);
+        
+        if (errorMsg.includes("max_tokens") || errorMsg.includes("Invalid")) {
+          if (useOpenRouter || useGemini) {
+            errorMessage = "Token limit exceeded. Please try processing a smaller document or split it into parts.";
+          } else {
+            // DeepSeek has 8192 max
+            errorMessage = "Document too large for DeepSeek API (max 8192 tokens). Please try a smaller document, use OpenRouter/Gemini API, or split the document into parts.";
+          }
+        } else {
+          errorMessage += errorMsg;
+        }
+        
+        toast.error(errorMessage, {
+          duration: 10000,
+        });
       } else if (response.status >= 500) {
         toast.error(`${providerName} API server error. Please try again later.`);
       } else {
@@ -288,7 +316,21 @@ export async function enhanceText(text: string): Promise<string> {
   `;
   
   try {
-    const enhancedText = await processWithDeepSeek(text, prompt);
+    // Determine max tokens based on API provider (same logic as analyzeQuestions)
+    const geminiApiKey = localStorage.getItem('geminiApiKey');
+    const deepseekApiKey = localStorage.getItem('deepseekApiKey');
+    const openRouterApiKey = localStorage.getItem('openRouterApiKey');
+    const useGemini = !!geminiApiKey;
+    const useOpenRouter = !!openRouterApiKey && !useGemini;
+    const useDeepSeek = !!deepseekApiKey && !useGemini && !useOpenRouter;
+    
+    // Set max tokens based on provider limits
+    // DeepSeek: 8192 max, OpenRouter/Gemini: 16000
+    const maxTokens = useDeepSeek ? 8192 : 16000;
+    
+    const enhancedText = await processWithDeepSeek(text, prompt, {
+      max_tokens: maxTokens
+    });
     toast.success("Text enhancement complete");
     return enhancedText;
   } catch (error) {
@@ -352,9 +394,21 @@ export async function analyzeQuestions(text: string): Promise<any> {
   `;
   
   try {
+    // Determine max tokens based on API provider
+    const geminiApiKey = localStorage.getItem('geminiApiKey');
+    const deepseekApiKey = localStorage.getItem('deepseekApiKey');
+    const openRouterApiKey = localStorage.getItem('openRouterApiKey');
+    const useGemini = !!geminiApiKey;
+    const useOpenRouter = !!openRouterApiKey && !useGemini;
+    const useDeepSeek = !!deepseekApiKey && !useGemini && !useOpenRouter;
+    
+    // Set max tokens based on provider limits
+    // DeepSeek: 8192 max, OpenRouter/Gemini: 16000
+    const maxTokens = useDeepSeek ? 8192 : 16000;
+    
     const analysisText = await processWithDeepSeek(text, prompt, {
       temperature: 0.1, // Lower temperature for more consistent results
-      max_tokens: 16000 // Increased token limit for large question papers
+      max_tokens: maxTokens
     });
     
     // Remove code block markers if present

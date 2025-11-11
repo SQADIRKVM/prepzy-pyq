@@ -294,7 +294,7 @@ export default function Documentation() {
                     <div>
                       <p className="text-sm font-medium mb-1">Processing Time</p>
                       <p className="text-sm text-muted-foreground">
-                        Analysis typically takes 10-20 seconds per document. Larger files may take longer.
+                        Analysis time varies based on file size and complexity. Typically, a standard question paper takes 30-90 seconds to process. Larger files or complex documents may take longer.
                       </p>
                     </div>
                   </div>

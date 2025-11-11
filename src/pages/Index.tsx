@@ -1277,7 +1277,7 @@ export default function Index() {
                   How long does analysis take?
                 </AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
-                  Analysis typically takes 10-20 seconds per document, depending on file size and complexity. Multiple files are processed sequentially. You can track progress in real-time, and the system supports pause/resume functionality for long processing tasks.
+                  Analysis time varies based on file size and complexity. Typically, a standard question paper takes 30-90 seconds to process. Multiple files are processed sequentially. You can track progress in real-time, and the system supports pause/resume functionality for long processing tasks.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

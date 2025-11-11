@@ -24,7 +24,7 @@ Prepzy PYQ is an open-source, AI-powered web application designed to help studen
 ### Key Highlights
 
 - 🔒 **Privacy-First**: All processing happens locally in your browser. No server-side storage.
-- 🚀 **Fast & Efficient**: Analyze papers in 10-20 seconds with real-time progress tracking.
+- 🚀 **Fast & Efficient**: Analyze papers quickly with real-time progress tracking. Processing time varies based on file size and complexity.
 - 🎯 **AI-Powered**: Intelligent question classification by topics, subjects, and keywords.
 - 📱 **Fully Responsive**: Works seamlessly on desktop, tablet, and mobile devices.
 - 🔐 **Local Session Management**: Secure, browser-based session storage with no external authentication.
@@ -227,7 +227,7 @@ You can use **Gemini**, **DeepSeek**, or **OpenRouter** API key (choose one):
 
 4. **Wait for Processing**
    - Monitor real-time progress
-   - Processing typically takes 10-20 seconds per file
+   - Processing time varies based on file size and complexity (typically 30-90 seconds for standard papers)
    - Results appear automatically when complete
 
 5. **Analyze Results**
