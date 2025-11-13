@@ -1,5 +1,6 @@
 import { toast } from 'sonner';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getApiKey } from '@/config/apiConfig';
 
 interface DeepSeekOptions {
   model?: string;
@@ -15,58 +16,160 @@ interface VideoSearchResult {
 }
 
 /**
- * Process text using the DeepSeek V3 API
- * @param text The text to process
+ * Process conversation using the DeepSeek V3 API
+ * @param conversationHistory Array of conversation messages (user/assistant)
  * @param prompt The system prompt for DeepSeek
  * @param options Configuration options for the API
  * @returns Enhanced and processed text
  */
 export async function processWithDeepSeek(
-  text: string, 
+  conversationHistory: Array<{ role: 'user' | 'assistant' | 'system'; content: string }> | string,
   prompt: string,
   options: DeepSeekOptions = {}
 ): Promise<string> {
   try {
-    // Get API keys from localStorage
-    const deepseekApiKey = localStorage.getItem('deepseekApiKey');
-    const openRouterApiKey = localStorage.getItem('openRouterApiKey');
-    const openRouterModel = localStorage.getItem('openRouterModel') || 'deepseek/deepseek-chat-v3-0324:free';
-    const geminiApiKey = localStorage.getItem('geminiApiKey');
+    // Handle backward compatibility: if conversationHistory is a string, convert it to array format
+    let messages: Array<{ role: 'user' | 'assistant' | 'system'; content: string }>;
+    if (typeof conversationHistory === 'string') {
+      // Legacy format: single text string
+      messages = [
+        { role: 'user', content: conversationHistory }
+      ];
+    } else {
+      // New format: conversation history array
+      messages = conversationHistory;
+    }
     
-    // Determine which API to use (priority: Gemini > OpenRouter > DeepSeek)
-    const useGemini = !!geminiApiKey;
-    const useOpenRouter = !!openRouterApiKey && !useGemini;
-    const useDeepSeek = !!deepseekApiKey && !useGemini && !useOpenRouter;
+    // Get the model from options (this is the model selected in ModelSelector)
+    const selectedModel = options.model;
     
-    if (!useGemini && !useOpenRouter && !useDeepSeek) {
-      console.log("No API key found");
-      throw new Error("Either Gemini, DeepSeek, or OpenRouter API key is required");
+    if (!selectedModel) {
+      throw new Error("No model specified");
     }
 
-    const providerName = useGemini ? 'Gemini' : useOpenRouter ? 'OpenRouter' : 'DeepSeek';
-    console.log(`Making request using ${providerName} API`);
+    // Get API keys (getApiKey checks env vars first, then localStorage)
+    const deepseekApiKey = getApiKey('deepseek');
+    const openRouterApiKey = getApiKey('openrouter');
+    const geminiApiKey = getApiKey('gemini');
+    
+    // Debug: Log API key status (without exposing the actual key)
+    console.log('API Key Status:', {
+      gemini: geminiApiKey ? `Found (${geminiApiKey.substring(0, 10)}...)` : 'Not found',
+      deepseek: deepseekApiKey ? `Found (${deepseekApiKey.substring(0, 10)}...)` : 'Not found',
+      openrouter: openRouterApiKey ? `Found (${openRouterApiKey.substring(0, 10)}...)` : 'Not found',
+      selectedModel,
+      localStorage: {
+        gemini: localStorage.getItem('geminiApiKey') ? 'Has key' : 'No key',
+        deepseek: localStorage.getItem('deepseekApiKey') ? 'Has key' : 'No key',
+        openrouter: localStorage.getItem('openRouterApiKey') ? 'Has key' : 'No key',
+      }
+    });
+    
+    // Determine which API to use based on the selected model, not available API keys
+    let useGemini = false;
+    let useOpenRouter = false;
+    let useDeepSeek = false;
+    let providerName = 'Unknown';
+    
+    // Check which provider the model belongs to
+    if (selectedModel.startsWith('gemini-')) {
+      // Gemini model
+      useGemini = true;
+      providerName = 'Gemini';
+      
+      // Check if it's a free model (doesn't need API key)
+      const isFreeModel = selectedModel === 'gemini-2.5-flash';
+      if (!isFreeModel && !geminiApiKey) {
+        throw new Error("Gemini API key is required for this model. Please add your API key in Settings.");
+      }
+    } else if (selectedModel.includes('/') && !selectedModel.startsWith('openai/')) {
+      // OpenRouter model (format: "provider/model:free" or "provider/model")
+      useOpenRouter = true;
+      providerName = 'OpenRouter';
+      
+      // Check if it's a free model
+      const freeModels = [
+        'deepseek/deepseek-chat-v3-0324:free',
+        'deepseek/deepseek-r1-0528:free',
+        'moonshotai/kimi-k2:free'
+      ];
+      const isFreeModel = freeModels.includes(selectedModel);
+      if (!isFreeModel && !openRouterApiKey) {
+        throw new Error("OpenRouter API key is required for this model. Please add your API key in Settings.");
+      }
+    } else if (selectedModel === 'deepseek-chat') {
+      // DeepSeek model
+      useDeepSeek = true;
+      providerName = 'DeepSeek';
+      
+      if (!deepseekApiKey) {
+        throw new Error("DeepSeek API key is required. Please add your API key in Settings.");
+      }
+    } else {
+      throw new Error(`Unknown model: ${selectedModel}`);
+    }
+
+    console.log(`Making request using ${providerName} API with model: ${selectedModel}`);
 
     // Handle Gemini API
     if (useGemini) {
-      const genAI = new GoogleGenerativeAI(geminiApiKey!);
-      // Get saved model from localStorage, or use options.model, or default to gemini-1.5-flash
-      const savedModel = localStorage.getItem('geminiModel') || 'gemini-1.5-flash';
-      const selectedModel = options.model || savedModel;
+      // Check if it's a free model
+      const isFreeModel = selectedModel === 'gemini-2.5-flash';
+      
+      // Even free Gemini models require an API key (you get free tier credits)
+      // But we should provide a helpful error message
+      if (!geminiApiKey) {
+        const errorMsg = isFreeModel 
+          ? "Gemini API key is required. Even free models need an API key (you get free tier credits). Please add your API key in Settings or set VITE_GEMINI_API_KEY in your .env file. Get a free key from: https://aistudio.google.com/app/apikey"
+          : "Gemini API key is required for this model. Please add your API key in Settings or set VITE_GEMINI_API_KEY in your .env file.";
+        throw new Error(errorMsg);
+      }
+      
+      const genAI = new GoogleGenerativeAI(geminiApiKey);
+      // Use the model from options (selected in ModelSelector)
+      const modelToUse = selectedModel;
       // Gemini supports up to 16000 tokens, but respect the requested limit
       const geminiMaxTokens = Math.min(options.max_tokens || 16000, 16000);
       const model = genAI.getGenerativeModel({ 
-        model: selectedModel,
+        model: modelToUse,
         generationConfig: {
           temperature: options.temperature ?? 0.2,
           maxOutputTokens: geminiMaxTokens,
-        }
+        },
+        systemInstruction: prompt, // Use systemInstruction for system prompt
       });
 
-      // Combine system prompt and user text
-      const fullPrompt = `${prompt}\n\nUser content:\n${text}`;
+      // Build conversation history for Gemini chat
+      // Convert messages to Gemini's chat format (parts must be an array)
+      const chatHistory: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
+      
+      // Build history from previous messages (excluding the last user message which we'll send separately)
+      const previousMessages = messages.slice(0, -1);
+      previousMessages.forEach(msg => {
+        if (msg.role === 'user') {
+          chatHistory.push({
+            role: 'user',
+            parts: [{ text: msg.content }]
+          });
+        } else if (msg.role === 'assistant') {
+          chatHistory.push({
+            role: 'model',
+            parts: [{ text: msg.content }]
+          });
+        }
+      });
+      
+      // Get the current user message (last message in the array)
+      const currentUserMessage = messages[messages.length - 1];
+      const userContent = currentUserMessage.role === 'user' ? currentUserMessage.content : '';
 
       try {
-        const result = await model.generateContent(fullPrompt);
+        // Use startChat for conversation continuation
+        const chat = model.startChat({
+          history: chatHistory,
+        });
+        
+        const result = await chat.sendMessage(userContent);
         const response = await result.response;
         const generatedText = response.text();
         
@@ -105,24 +208,24 @@ export async function processWithDeepSeek(
     // Remove max_tokens from options to avoid conflicts, then set it correctly
     const { max_tokens: _, ...optionsWithoutMaxTokens } = options;
     const defaultOptions = {
-      model: useOpenRouter ? openRouterModel : "deepseek-chat",
+      model: selectedModel, // Use the model from options (selected in ModelSelector)
       temperature: 0.2,
       ...optionsWithoutMaxTokens,
       max_tokens: finalMaxTokens // Set max_tokens after spreading to ensure provider limit is respected
     };
 
+    // Build messages array with system prompt and conversation history
+    const apiMessages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
+      {
+        role: "system",
+        content: prompt
+      },
+      ...messages // Include full conversation history
+    ];
+
     const requestBody = {
         model: defaultOptions.model,
-        messages: [
-          {
-            role: "system",
-            content: prompt
-          },
-          {
-            role: "user",
-            content: text
-          }
-        ],
+        messages: apiMessages,
         temperature: defaultOptions.temperature,
         max_tokens: defaultOptions.max_tokens
     };
@@ -136,14 +239,29 @@ export async function processWithDeepSeek(
       const siteUrl = window.location.origin;
       const siteName = "Prepzy PYQ";
       
+      // Check if it's a free model
+      const freeModels = [
+        'deepseek/deepseek-chat-v3-0324:free',
+        'deepseek/deepseek-r1-0528:free',
+        'moonshotai/kimi-k2:free'
+      ];
+      const isFreeModel = freeModels.includes(selectedModel);
+      
+      // Build headers - free models don't require Authorization header
+      const headers: HeadersInit = {
+        "HTTP-Referer": siteUrl,
+        "X-Title": siteName,
+        "Content-Type": "application/json"
+      };
+      
+      // Only add Authorization header if API key is available (for paid models or if user has key)
+      if (openRouterApiKey) {
+        headers["Authorization"] = `Bearer ${openRouterApiKey}`;
+      }
+      
       response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${openRouterApiKey}`,
-          "HTTP-Referer": siteUrl,
-          "X-Title": siteName,
-          "Content-Type": "application/json"
-        },
+        headers,
         body: JSON.stringify(requestBody)
       });
     } else {
@@ -199,7 +317,7 @@ export async function processWithDeepSeek(
             toast.error(errorMessage, {
               duration: 8000,
             });
-          }
+      }
         } else {
           errorMessage += "Endpoint not found. Please check your API configuration.";
           toast.error(errorMessage);
@@ -475,7 +593,7 @@ export async function analyzeQuestions(text: string): Promise<any> {
         throw new Error("Response truncated: Question paper too large for current token limit. Please process smaller batches.");
       } else {
         toast.error("Failed to parse question analysis. The AI response format was invalid.");
-        throw jsonError;
+      throw jsonError;
       }
     }
   } catch (error) {

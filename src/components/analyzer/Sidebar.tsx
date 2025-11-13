@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { 
   Plus, 
   FileText, 
@@ -17,7 +17,8 @@ import {
   User,
   LogOut,
   LogIn,
-  UserPlus
+  UserPlus,
+  Search
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -28,7 +29,9 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { recentResultsService, RecentResult } from "@/services/recentResultsService";
 import { sessionService } from "@/services/sessionService";
+import { chatService, ChatSession } from "@/services/chatService";
 import { toast } from "sonner";
+import { MessageSquare } from "lucide-react";
 
 interface SidebarProps {
   stats?: {
@@ -38,6 +41,7 @@ interface SidebarProps {
   };
   onNewUpload?: () => void;
   onLoadResult?: (result: RecentResult) => void;
+  onLoadChat?: (chatId: string) => void;
   onLogout?: () => void;
   onLogin?: () => void;
   onCreateAccount?: () => void;
@@ -45,15 +49,22 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-const Sidebar = ({ stats, onNewUpload, onLoadResult, onLogout, onLogin, onCreateAccount, isOpen, onClose }: SidebarProps) => {
+const Sidebar = ({ stats, onNewUpload, onLoadResult, onLoadChat, onLogout, onLogin, onCreateAccount, isOpen, onClose }: SidebarProps) => {
   const [recentResults, setRecentResults] = useState<RecentResult[]>([]);
+  const [recentChats, setRecentChats] = useState<ChatSession[]>([]);
   const [session, setSession] = useState(sessionService.getCurrentSession());
+  const location = useLocation();
 
   useEffect(() => {
-    // Load recent results on mount and when sidebar opens
+    // Load recent results and chats on mount and when sidebar opens
     const loadRecentResults = () => {
       const results = recentResultsService.getRecentResults();
       setRecentResults(results);
+    };
+
+    const loadRecentChats = () => {
+      const chats = chatService.getAllChats();
+      setRecentChats(chats);
     };
 
     // Load session
@@ -62,11 +73,13 @@ const Sidebar = ({ stats, onNewUpload, onLoadResult, onLogout, onLogin, onCreate
     };
 
     loadRecentResults();
+    loadRecentChats();
     loadSession();
     
     // Refresh when storage changes (from other tabs/windows)
     const handleStorageChange = () => {
       loadRecentResults();
+      loadRecentChats();
       loadSession();
     };
     
@@ -75,6 +88,7 @@ const Sidebar = ({ stats, onNewUpload, onLoadResult, onLogout, onLogin, onCreate
     // Also check periodically for changes in same tab
     const interval = setInterval(() => {
       loadRecentResults();
+      loadRecentChats();
       loadSession();
     }, 2000);
     
@@ -96,6 +110,20 @@ const Sidebar = ({ stats, onNewUpload, onLoadResult, onLogout, onLogin, onCreate
     recentResultsService.deleteResult(resultId);
     setRecentResults(recentResultsService.getRecentResults());
     toast.success("Result deleted");
+  };
+
+  const handleLoadChat = (chatId: string) => {
+    if (onLoadChat) {
+      onLoadChat(chatId);
+      toast.success("Chat loaded");
+    }
+  };
+
+  const handleDeleteChat = (e: React.MouseEvent, chatId: string) => {
+    e.stopPropagation();
+    chatService.deleteChat(chatId);
+    setRecentChats(chatService.getAllChats());
+    toast.success("Chat deleted");
   };
 
   const formatDate = (dateString: string) => {
@@ -173,7 +201,7 @@ const Sidebar = ({ stats, onNewUpload, onLoadResult, onLogout, onLogin, onCreate
               onClick={onNewUpload}
             >
               <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="truncate">New Upload</span>
+              <span className="truncate">New Content</span>
             </Button>
 
             <Separator className="bg-border" />
@@ -207,6 +235,41 @@ const Sidebar = ({ stats, onNewUpload, onLoadResult, onLogout, onLogin, onCreate
                     <p className="text-lg sm:text-xl font-bold text-foreground">{stats.totalTopics}</p>
                   </Card>
                 )}
+              </div>
+            </div>
+
+            <Separator className="bg-border" />
+
+            {/* Browse Links */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between px-2">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Browse</span>
+              </div>
+              <div className="space-y-1">
+                <Link to="/browse-notes">
+                  <Button
+                    variant={location.pathname === '/browse-notes' ? 'secondary' : 'ghost'}
+                    className={cn(
+                      "w-full justify-start text-sm h-9",
+                      location.pathname === '/browse-notes' && "bg-primary/10 text-primary"
+                    )}
+                  >
+                    <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">Notes</span>
+                  </Button>
+                </Link>
+                <Link to="/browse-papers">
+                  <Button
+                    variant={location.pathname === '/browse-papers' ? 'secondary' : 'ghost'}
+                    className={cn(
+                      "w-full justify-start text-sm h-9",
+                      location.pathname === '/browse-papers' && "bg-primary/10 text-primary"
+                    )}
+                  >
+                    <Search className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">Question Papers</span>
+                  </Button>
+                </Link>
               </div>
             </div>
 
@@ -246,6 +309,63 @@ const Sidebar = ({ stats, onNewUpload, onLoadResult, onLogout, onLogin, onCreate
                   </div>
                 </div>
               </div>
+            </div>
+
+            <Separator className="bg-border" />
+
+            {/* Recent Chats */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between px-2">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Recent Chats</span>
+              </div>
+              {recentChats.length > 0 ? (
+                <div className="space-y-1">
+                  {recentChats.slice(0, 5).map((chat) => (
+                    <div
+                      key={chat.id}
+                      className="group relative"
+                    >
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-muted-foreground hover:text-foreground text-sm h-auto py-2 px-2 pr-8"
+                        onClick={() => handleLoadChat(chat.id)}
+                      >
+                        <div className="flex items-start gap-2 flex-1 min-w-0 overflow-hidden">
+                          <MessageSquare className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1 min-w-0 text-left overflow-hidden">
+                            <p className="truncate text-xs font-medium">{chat.title}</p>
+                            <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                              <span className="text-xs text-muted-foreground whitespace-nowrap">{chat.messageCount} messages</span>
+                              {chat.hasFiles && (
+                                <span className="text-xs text-muted-foreground whitespace-nowrap">• Files</span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1 mt-0.5">
+                              <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                              <span className="text-xs text-muted-foreground truncate">{formatDate(chat.lastAccessed)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => handleDeleteChat(e, chat.id)}
+                      >
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-3 rounded-lg bg-card/30 border border-border/50">
+                  <div className="flex items-center gap-2">
+                    <Info className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-xs text-muted-foreground">No recent chats</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <Separator className="bg-border" />

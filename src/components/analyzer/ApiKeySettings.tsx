@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Settings, Trash2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 import { recentResultsService } from '@/services/recentResultsService';
 import {
   AlertDialog,
@@ -50,7 +51,7 @@ const ApiKeySettings = () => {
     const savedDeepseekKey = localStorage.getItem('deepseekApiKey') || '';
     const savedOpenRouterKey = localStorage.getItem('openRouterApiKey') || '';
     const savedGeminiKey = localStorage.getItem('geminiApiKey') || '';
-    const savedGeminiModel = localStorage.getItem('geminiModel') || 'gemini-1.5-flash';
+    const savedGeminiModel = localStorage.getItem('geminiModel') || 'gemini-2.5-flash';
     const savedOpenRouterModel = localStorage.getItem('openRouterModel') || 'deepseek/deepseek-chat-v3-0324:free';
     setYoutubeApiKey(savedYoutubeKey);
     setDeepseekApiKey(savedDeepseekKey);
@@ -70,11 +71,8 @@ const ApiKeySettings = () => {
   }, []);
 
   const handleSave = () => {
-    // At least one AI API key (Gemini, DeepSeek, or OpenRouter) should be present
-    if (!geminiApiKey.trim() && !deepseekApiKey.trim() && !openRouterApiKey.trim()) {
-      toast.error("At least one AI API key (Gemini, DeepSeek, or OpenRouter) is required");
-      return;
-    }
+    // No validation required - users can save API keys as needed
+    // Free models (ChatGPT, Gemini 2.5 Flash, free OpenRouter models) don't require API keys
     
     // Save API keys to localStorage
     if (youtubeApiKey) {
@@ -121,7 +119,7 @@ const ApiKeySettings = () => {
         <DialogHeader>
           <DialogTitle>API Settings</DialogTitle>
           <DialogDescription>
-            Configure your API keys to enable AI-powered features. At least one AI API key (Gemini, DeepSeek, or OpenRouter) is required for processing documents.
+            Configure your API keys to enable AI-powered features. ChatGPT models are free and don't require an API key. You can add API keys for Gemini, DeepSeek, or OpenRouter as needed.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
@@ -208,20 +206,25 @@ const ApiKeySettings = () => {
                     <SelectValue placeholder="Select a model" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="gemini-1.5-flash">
-                      Gemini 1.5 Flash (Fast & Efficient)
-                    </SelectItem>
                     <SelectItem value="gemini-2.5-flash">
-                      Gemini 2.5 Flash (Latest Flash)
-                    </SelectItem>
-                    <SelectItem value="gemini-flash-latest">
-                      Gemini Flash Latest (Auto-updated)
+                      <div className="flex items-center gap-2">
+                        <span>Gemini 2.5 Flash</span>
+                        <Badge variant="secondary" className="h-4 px-1.5 text-[9px] bg-primary/10 text-primary border-0">
+                          Free
+                        </Badge>
+                      </div>
                     </SelectItem>
                     <SelectItem value="gemini-2.5-pro">
-                      Gemini 2.5 Pro (Most Capable)
+                      Gemini 2.5 Pro (Most Advanced)
                     </SelectItem>
-                    <SelectItem value="gemini-1.5-pro">
-                      Gemini 1.5 Pro (High Quality)
+                    <SelectItem value="gemini-2.5-flash-lite">
+                      Gemini 2.5 Flash Lite (Fastest)
+                    </SelectItem>
+                    <SelectItem value="gemini-2.0-flash">
+                      Gemini 2.0 Flash
+                    </SelectItem>
+                    <SelectItem value="gemini-2.0-flash-lite">
+                      Gemini 2.0 Flash Lite
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -308,7 +311,7 @@ const ApiKeySettings = () => {
                     <SelectItem value="qwen/qwen3-30b-a3b:free">
                       Qwen 3 30B A3B (Free)
                     </SelectItem>
-                    <SelectItem value="google/gemini-2.0-flash-exp:free">
+                    <SelectItem value="google/gemini-2.0-flash:free">
                       Google Gemini 2.0 Flash (Free)
                     </SelectItem>
                     <SelectItem value="meta-llama/llama-3.2-3b-instruct:free">

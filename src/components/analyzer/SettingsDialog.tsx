@@ -49,6 +49,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface SettingsDialogProps {
@@ -61,7 +62,7 @@ const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogPro
   const [open, setOpen] = useState(false);
   const [youtubeApiKey, setYoutubeApiKey] = useState('');
   const [geminiApiKey, setGeminiApiKey] = useState('');
-  const [geminiModel, setGeminiModel] = useState('gemini-1.5-flash');
+  const [geminiModel, setGeminiModel] = useState('gemini-2.5-flash');
   const [deepseekApiKey, setDeepseekApiKey] = useState('');
   const [openRouterApiKey, setOpenRouterApiKey] = useState('');
   const [openRouterModel, setOpenRouterModel] = useState('deepseek/deepseek-chat-v3-0324:free');
@@ -85,7 +86,7 @@ const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogPro
     if (open) {
       const savedYoutubeKey = localStorage.getItem('youtubeApiKey') || '';
       const savedGeminiKey = localStorage.getItem('geminiApiKey') || '';
-      const savedGeminiModel = localStorage.getItem('geminiModel') || 'gemini-1.5-flash';
+      const savedGeminiModel = localStorage.getItem('geminiModel') || 'gemini-2.5-flash';
       const savedDeepseekKey = localStorage.getItem('deepseekApiKey') || '';
       const savedOpenRouterKey = localStorage.getItem('openRouterApiKey') || '';
       const savedOpenRouterModel = localStorage.getItem('openRouterModel') || 'deepseek/deepseek-chat-v3-0324:free';
@@ -129,40 +130,46 @@ const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogPro
   }, [session]);
 
   const handleSaveApiKeys = () => {
-    // At least one AI API key (Gemini, DeepSeek, or OpenRouter) should be present
-    if (!geminiApiKey.trim() && !deepseekApiKey.trim() && !openRouterApiKey.trim()) {
-      toast.error("At least one AI API key (Gemini, DeepSeek, or OpenRouter) is required");
-      return;
-    }
+    // No validation required - users can save API keys as needed
+    // Free models (ChatGPT, Gemini 2.5 Flash, free OpenRouter models) don't require API keys
     
-    // Save API keys to localStorage
-    if (youtubeApiKey) {
-      localStorage.setItem('youtubeApiKey', youtubeApiKey);
+    // Save API keys to localStorage (use trim() to handle whitespace-only strings)
+    if (youtubeApiKey && youtubeApiKey.trim()) {
+      localStorage.setItem('youtubeApiKey', youtubeApiKey.trim());
     } else {
       localStorage.removeItem('youtubeApiKey');
     }
     
-    if (geminiApiKey) {
-      localStorage.setItem('geminiApiKey', geminiApiKey);
+    if (geminiApiKey && geminiApiKey.trim()) {
+      const trimmedKey = geminiApiKey.trim();
+      localStorage.setItem('geminiApiKey', trimmedKey);
       localStorage.setItem('geminiModel', geminiModel);
+      console.log('Saved Gemini API key to localStorage:', trimmedKey.substring(0, 10) + '...');
     } else {
       localStorage.removeItem('geminiApiKey');
       localStorage.removeItem('geminiModel');
+      console.log('Removed Gemini API key from localStorage');
     }
     
-    if (deepseekApiKey) {
-      localStorage.setItem('deepseekApiKey', deepseekApiKey);
+    if (deepseekApiKey && deepseekApiKey.trim()) {
+      localStorage.setItem('deepseekApiKey', deepseekApiKey.trim());
+      console.log('Saved DeepSeek API key to localStorage');
     } else {
       localStorage.removeItem('deepseekApiKey');
     }
     
-    if (openRouterApiKey) {
-      localStorage.setItem('openRouterApiKey', openRouterApiKey);
+    if (openRouterApiKey && openRouterApiKey.trim()) {
+      localStorage.setItem('openRouterApiKey', openRouterApiKey.trim());
       localStorage.setItem('openRouterModel', openRouterModel);
+      console.log('Saved OpenRouter API key to localStorage');
     } else {
       localStorage.removeItem('openRouterApiKey');
       localStorage.removeItem('openRouterModel');
     }
+    
+    // Verify the save worked
+    const savedGeminiKey = localStorage.getItem('geminiApiKey');
+    console.log('Verification - Gemini key in localStorage:', savedGeminiKey ? `Found (${savedGeminiKey.substring(0, 10)}...)` : 'Not found');
     
     toast.success('API settings saved');
   };
@@ -915,20 +922,25 @@ const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogPro
                               <SelectValue placeholder="Select a model" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="gemini-1.5-flash">
-                                Gemini 1.5 Flash (Fast & Efficient)
-                              </SelectItem>
                               <SelectItem value="gemini-2.5-flash">
-                                Gemini 2.5 Flash (Latest Flash)
-                              </SelectItem>
-                              <SelectItem value="gemini-flash-latest">
-                                Gemini Flash Latest (Auto-updated)
+                                <div className="flex items-center gap-2">
+                                  <span>Gemini 2.5 Flash</span>
+                                  <Badge variant="secondary" className="h-4 px-1.5 text-[9px] bg-primary/10 text-primary border-0">
+                                    Free
+                                  </Badge>
+                                </div>
                               </SelectItem>
                               <SelectItem value="gemini-2.5-pro">
-                                Gemini 2.5 Pro (Most Capable)
+                                Gemini 2.5 Pro (Most Advanced)
                               </SelectItem>
-                              <SelectItem value="gemini-1.5-pro">
-                                Gemini 1.5 Pro (High Quality)
+                              <SelectItem value="gemini-2.5-flash-lite">
+                                Gemini 2.5 Flash Lite (Fastest)
+                              </SelectItem>
+                              <SelectItem value="gemini-2.0-flash">
+                                Gemini 2.0 Flash
+                              </SelectItem>
+                              <SelectItem value="gemini-2.0-flash-lite">
+                                Gemini 2.0 Flash Lite
                               </SelectItem>
                             </SelectContent>
                           </Select>
@@ -1039,7 +1051,7 @@ const SettingsDialog = ({ onResultRename, onLogout, onLogin }: SettingsDialogPro
                             <SelectItem value="qwen/qwen3-30b-a3b:free">
                               Qwen 3 30B A3B (Free)
                             </SelectItem>
-                            <SelectItem value="google/gemini-2.0-flash-exp:free">
+                            <SelectItem value="google/gemini-2.0-flash:free">
                               Google Gemini 2.0 Flash (Free)
                             </SelectItem>
                             <SelectItem value="meta-llama/llama-3.2-3b-instruct:free">

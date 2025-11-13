@@ -8,6 +8,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Analyzer from "./pages/Analyzer";
+import BrowsePapers from "./pages/BrowsePapers";
+import BrowseNotes from "./pages/BrowseNotes";
 import Documentation from "./pages/Documentation";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
@@ -29,6 +31,8 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/analyzer" element={<Analyzer />} />
+            <Route path="/browse-papers" element={<BrowsePapers />} />
+            <Route path="/browse-notes" element={<BrowseNotes />} />
             <Route path="/documentation" element={<Documentation />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />

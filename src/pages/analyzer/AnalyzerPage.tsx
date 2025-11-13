@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -21,6 +22,7 @@ import OnboardingDialog from "@/components/analyzer/OnboardingDialog";
 import { sessionService } from "@/services/sessionService";
 
 const AnalyzerPage = () => {
+  const location = useLocation();
   const [status, setStatus] = useState<ProcessStatus>("idle");
   const [progress, setProgress] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
@@ -39,6 +41,7 @@ const AnalyzerPage = () => {
     keyword: "",
   });
   const [hasSavedToRecent, setHasSavedToRecent] = useState(false);
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     // Load from localStorage, default to true on desktop, false on mobile
     if (typeof window !== 'undefined') {
@@ -52,6 +55,7 @@ const AnalyzerPage = () => {
   
   // Check if API key setup is needed
   const [showApiKeySetup, setShowApiKeySetup] = useState(false);
+  const [apiKeyProvider, setApiKeyProvider] = useState<'gemini' | 'deepseek' | 'openrouter'>('gemini');
   
   // Session management
   const [showSessionCreate, setShowSessionCreate] = useState(false);
@@ -69,6 +73,64 @@ const AnalyzerPage = () => {
     resolve: () => void;
     reject: () => void;
   } | null>(null);
+
+  // Handle files passed from BrowsePapers
+  useEffect(() => {
+    const state = location.state as { filesToProcess?: File[]; fromBrowse?: boolean } | null;
+    if (state?.filesToProcess && state.filesToProcess.length > 0) {
+      // Clear location state to prevent reprocessing on re-render
+      window.history.replaceState({}, document.title);
+      
+      // Process the files - use the same logic as handlePdfUpload
+      const files = state.filesToProcess;
+      if (files.length === 0) return;
+      
+      // Check if API key exists
+      const geminiApiKey = localStorage.getItem('geminiApiKey');
+      const deepseekApiKey = localStorage.getItem('deepseekApiKey');
+      const openRouterApiKey = localStorage.getItem('openRouterApiKey');
+      if (!geminiApiKey && !deepseekApiKey && !openRouterApiKey) {
+        setShowApiKeySetup(true);
+        toast.error("Please configure your API key (Gemini, DeepSeek, or OpenRouter) first");
+        return;
+      }
+      
+      try {
+        setStatus("uploading");
+        setProgress(0);
+        setCurrentStep("");
+        
+        const uploadInterval = setInterval(() => {
+          setProgress((prev) => {
+            if (prev >= 90) {
+              clearInterval(uploadInterval);
+              return 90;
+            }
+            return prev + 10;
+          });
+        }, 100);
+        
+        setTimeout(() => {
+          clearInterval(uploadInterval);
+          setStatus("processing");
+          setProgress(0);
+          
+          if (files.length === 1) {
+            processPdfFile(files[0]);
+          } else {
+            processMultiplePdfFiles(files);
+          }
+        }, 1000);
+        
+      } catch (error) {
+        console.error("Error uploading files:", error);
+        setStatus("error");
+        setErrorMessage("Failed to upload the files. Please try again.");
+        toast.error("Failed to upload the files");
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state]);
 
   // Check for onboarding and API key setup on mount
   // Show dialogs sequentially, one at a time
@@ -91,12 +153,8 @@ const AnalyzerPage = () => {
       setTimeout(() => {
         setShowOnboarding(true);
       }, 500);
-    } else if (!hasApiKey && !setupCompleted && !setupDismissed) {
-      // Show API key setup second
-      setTimeout(() => {
-        setShowApiKeySetup(true);
-      }, 500);
     }
+    // Removed automatic API key setup - users can add API keys as needed
     
     // Always set session state
     setSession(currentSession);
@@ -151,6 +209,7 @@ const AnalyzerPage = () => {
     setStatus("idle");
     setProgress(0);
     setCurrentStep("");
+    setCurrentChatId(null); // Clear chat when starting new upload
     setErrorMessage("");
     setQuestions([]);
     setTopics([]);
@@ -802,6 +861,7 @@ const AnalyzerPage = () => {
     setHasSavedToRecent(true); // Don't save again since it's already in recent results
     setStatus("completed");
     setActiveTab("results");
+    setCurrentChatId(null); // Clear chat when loading result
     setFilters({
       year: "all_years",
       topic: "all_topics",
@@ -809,6 +869,17 @@ const AnalyzerPage = () => {
     });
     // Also save to current session
     databaseService.saveQuestions(result.data, result.filename);
+  };
+
+  const handleLoadChat = (chatId: string) => {
+    setCurrentChatId(chatId);
+    setStatus("idle");
+    setActiveTab("upload");
+    // Clear results when loading chat
+    setQuestions([]);
+    setTopics([]);
+    setOriginalQuestions([]);
+    setOriginalTopics([]);
   };
 
   const handleSessionSelected = (resultId: string) => {
@@ -927,8 +998,10 @@ const AnalyzerPage = () => {
             }
           }
         }}
+        defaultProvider={apiKeyProvider}
         onSave={() => {
-          toast.success("API keys saved! You can now process documents.");
+          setShowApiKeySetup(false);
+          toast.success("API keys saved!");
         }}
       />
 
@@ -965,6 +1038,7 @@ const AnalyzerPage = () => {
         stats={stats} 
         onNewUpload={handleNewUpload}
         onLoadResult={handleLoadResult}
+        onLoadChat={handleLoadChat}
         onLogout={handleLogout}
         onLogin={() => setShowSessionLogin(true)}
         onCreateAccount={() => setShowSessionCreate(true)}
@@ -1028,53 +1102,81 @@ const AnalyzerPage = () => {
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 pb-20 sm:pb-24 md:pb-6 lg:pb-8">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="mb-4 md:mb-6 bg-card border border-border w-full sm:w-auto">
-                <TabsTrigger 
-                  value="upload" 
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm flex-1 sm:flex-initial"
-                >
-                  Upload & Process
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="results" 
-                  disabled={questions.length === 0}
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground disabled:opacity-50 text-xs sm:text-sm flex-1 sm:flex-initial"
-                >
-                  View Results
-                </TabsTrigger>
-              </TabsList>
+            {questions.length > 0 ? (
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="mb-4 md:mb-6 bg-card border border-border w-full sm:w-auto">
+                  <TabsTrigger 
+                    value="upload" 
+                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm flex-1 sm:flex-initial"
+                  >
+                    Upload & Process
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="results" 
+                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm flex-1 sm:flex-initial"
+                  >
+                    View Results
+                  </TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="upload" className="mt-0">
+                <TabsContent value="upload" className="mt-0">
+                  <UploadSection 
+                    status={status}
+                    progress={progress}
+                    errorMessage={errorMessage}
+                    currentStep={currentStep}
+                    questionCount={status === "completed" ? questions.length : undefined}
+                    currentFile={currentFile}
+                    totalFiles={totalFiles}
+                    onUploadPdf={handlePdfUpload}
+                    onUploadImage={handleImageUpload}
+                    onUploadPdfOcr={handlePdfOcrUpload}
+                    onAddApiKey={() => setShowApiKeySetup(true)}
+                    onApiKeyRequired={(provider) => {
+                      setApiKeyProvider(provider === 'openai' ? 'gemini' : provider); // ChatGPT doesn't need API key, default to gemini
+                      setShowApiKeySetup(true);
+                    }}
+                    onPause={handlePause}
+                    onResume={handleResume}
+                    onCancel={handleCancel}
+                    initialChatId={currentChatId}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="results" className="mt-0">
+                  <ResultsSection 
+                    questions={questions}
+                    topics={topics}
+                    years={getUniqueYears()}
+                    topicNames={getUniqueTopics()}
+                    filters={filters}
+                    onFilterChange={handleFilterChange}
+                  />
+                </TabsContent>
+              </Tabs>
+            ) : (
               <UploadSection 
                 status={status}
                 progress={progress}
                 errorMessage={errorMessage}
                 currentStep={currentStep}
                 questionCount={status === "completed" ? questions.length : undefined}
-                  currentFile={currentFile}
-                  totalFiles={totalFiles}
+                currentFile={currentFile}
+                totalFiles={totalFiles}
                 onUploadPdf={handlePdfUpload}
                 onUploadImage={handleImageUpload}
                 onUploadPdfOcr={handlePdfOcrUpload}
                 onAddApiKey={() => setShowApiKeySetup(true)}
-                  onPause={handlePause}
-                  onResume={handleResume}
-                  onCancel={handleCancel}
-              />
-        </TabsContent>
-        
-              <TabsContent value="results" className="mt-0">
-          <ResultsSection 
-            questions={questions}
-            topics={topics}
-            years={getUniqueYears()}
-                  topicNames={getUniqueTopics()}
-            filters={filters}
-            onFilterChange={handleFilterChange}
+                onApiKeyRequired={(provider) => {
+                  setApiKeyProvider(provider === 'openai' ? 'gemini' : provider); // ChatGPT doesn't need API key, default to gemini
+                  setShowApiKeySetup(true);
+                }}
+                onPause={handlePause}
+                onResume={handleResume}
+                onCancel={handleCancel}
+                initialChatId={currentChatId}
           />
-        </TabsContent>
-      </Tabs>
+            )}
           </div>
         </div>
       </div>

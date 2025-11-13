@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import FileUpload from "@/components/analyzer/FileUpload";
 import ProcessingStatus from "@/components/analyzer/ProcessingStatus";
@@ -18,7 +17,12 @@ interface UploadSectionProps {
   onUploadPdf: (files: File[]) => void;
   onUploadImage: (files: File[]) => void;
   onUploadPdfOcr?: (files: File[]) => void;
+  onPause?: () => void;
+  onResume?: () => void;
+  onCancel?: () => void;
   onAddApiKey?: () => void;
+  onApiKeyRequired?: (provider: 'gemini' | 'deepseek' | 'openrouter' | 'openai') => void;
+  initialChatId?: string;
 }
 
 const UploadSection = ({ 
@@ -35,71 +39,41 @@ const UploadSection = ({
   onPause,
   onResume,
   onCancel,
-  onAddApiKey
+  onAddApiKey,
+  onApiKeyRequired,
+  initialChatId
 }: UploadSectionProps) => {
-  const [hasApiKey, setHasApiKey] = useState(true);
-
-  useEffect(() => {
-    const checkApiKey = () => {
-      const geminiKey = localStorage.getItem('geminiApiKey');
-      const deepseekKey = localStorage.getItem('deepseekApiKey');
-      const openRouterKey = localStorage.getItem('openRouterApiKey');
-      setHasApiKey(!!geminiKey || !!deepseekKey || !!openRouterKey);
-    };
-
-    checkApiKey();
-    // Check every second to catch when user adds the key
-    const interval = setInterval(checkApiKey, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <div className="space-y-6 sm:space-y-8 pb-4 sm:pb-0">
-      {!hasApiKey && status === "idle" && (
-        <Alert className="border-amber-500/50 bg-amber-500/10">
-          <AlertCircle className="h-5 w-5 text-amber-500" />
-          <div className="flex-1">
-            <AlertTitle className="text-amber-400 font-semibold">API Key Required</AlertTitle>
-            <AlertDescription className="text-amber-300/80 mt-1">
-              Please configure your Gemini, DeepSeek, or OpenRouter API key in settings to enable AI-powered analysis.
-            </AlertDescription>
-            {onAddApiKey && (
-              <div className="mt-3">
-                <Button
-                  onClick={onAddApiKey}
-                  size="sm"
-                  className="bg-amber-500 hover:bg-amber-600 text-white"
-                >
-                  <Key className="h-4 w-4 mr-2" />
-                  Add API Key
-                </Button>
-              </div>
-            )}
-      </div>
-        </Alert>
-      )}
-      
+    <div className="flex flex-col h-full w-full">
+      {/* ChatGPT-Style Chat Interface */}
       {status === "idle" && (
-        <FileUpload 
-          onUploadPdf={onUploadPdf}
-          onUploadImage={onUploadImage}
-          onUploadPdfOcr={onUploadPdfOcr}
-        />
+        <div className="flex-1 flex flex-col min-h-0">
+          <FileUpload 
+            onUploadPdf={onUploadPdf}
+            onUploadImage={onUploadImage}
+            onUploadPdfOcr={onUploadPdfOcr}
+            onApiKeyRequired={onApiKeyRequired}
+            initialChatId={initialChatId}
+          />
+        </div>
       )}
       
+      {/* Processing Status */}
       {status !== "idle" && (
-        <ProcessingStatus 
-          status={status}
-          progress={progress}
-          errorMessage={errorMessage}
-          currentStep={currentStep}
-          questionCount={questionCount}
-          currentFile={currentFile}
-          totalFiles={totalFiles}
-          onPause={onPause}
-          onResume={onResume}
-          onCancel={onCancel}
-        />
+        <div className="flex-1">
+          <ProcessingStatus 
+            status={status}
+            progress={progress}
+            errorMessage={errorMessage}
+            currentStep={currentStep}
+            questionCount={questionCount}
+            currentFile={currentFile}
+            totalFiles={totalFiles}
+            onPause={onPause}
+            onResume={onResume}
+            onCancel={onCancel}
+          />
+        </div>
       )}
     </div>
   );

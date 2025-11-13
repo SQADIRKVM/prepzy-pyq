@@ -9,13 +9,24 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     proxy: mode === "development"
-      ? {
-          "/api": {
-            target: "https://pyq-ai.onrender.com", // Replace with your actual Render API URL
-            changeOrigin: true,
-            secure: false,
+      ? [
+          // More specific routes first
+          {
+            "/api/proxy": {
+              target: "http://localhost:3001",
+              changeOrigin: true,
+              secure: false,
+            },
           },
-        }
+          // Less specific routes after
+          {
+            "/api": {
+              target: "https://pyq-ai.onrender.com",
+              changeOrigin: true,
+              secure: false,
+            },
+          },
+        ].reduce((acc, curr) => ({ ...acc, ...curr }), {})
       : undefined,
   },
   plugins: [
