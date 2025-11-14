@@ -20,10 +20,10 @@ export default defineConfig(({ mode }) => ({
           },
           // Less specific routes after
           {
-            "/api": {
+          "/api": {
               target: "https://pyq-ai.onrender.com",
-              changeOrigin: true,
-              secure: false,
+            changeOrigin: true,
+            secure: false,
             },
           },
         ].reduce((acc, curr) => ({ ...acc, ...curr }), {})

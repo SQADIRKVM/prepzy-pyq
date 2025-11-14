@@ -783,116 +783,123 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
       <div className="fixed bottom-0 left-0 right-0 border-t border-border/50 bg-background/95 backdrop-blur-sm z-10 w-full safe-area-inset-bottom">
         <div className="w-full flex justify-center px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3">
           <div className="w-full max-w-4xl">
-          {/* Selected Files Preview */}
-              {attachedFiles.length > 0 && (
-                <div className="mb-1.5 sm:mb-2 md:mb-3 flex flex-wrap gap-1 sm:gap-1.5 md:gap-2">
-              {attachedFiles.map((attached, index) => (
-                <div
-                  key={index}
-                  className={cn(
-                    "flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 md:px-3 py-1 sm:py-1.5 bg-muted/50 rounded-md sm:rounded-lg border border-border/50 text-[10px] sm:text-xs",
-                    attached.file.type === 'application/pdf' && "cursor-pointer hover:bg-muted/70 transition-colors"
-                  )}
-                  onClick={() => attached.file.type === 'application/pdf' && handleViewPdf(attached.file)}
-                >
-                  {attached.isExtracting ? (
-                    <div className="h-3 w-3 sm:h-4 sm:w-4 animate-spin rounded-full border-2 border-primary border-t-transparent flex-shrink-0" />
-                  ) : (
-                    <div className="flex-shrink-0">{getFileIcon(attached.file)}</div>
-                  )}
-                  <span className="max-w-[100px] sm:max-w-[120px] md:max-w-[150px] truncate">{attached.file.name}</span>
-                  <span className="text-muted-foreground hidden sm:inline">{formatFileSize(attached.file)}</span>
-                  {attached.file.type === 'application/pdf' && (
+            {/* Selected Files Preview */}
+            {attachedFiles.length > 0 && (
+              <div className="mb-1.5 sm:mb-2 md:mb-3 flex flex-wrap gap-1 sm:gap-1.5 md:gap-2">
+                {attachedFiles.map((attached, index) => (
+                  <div
+                    key={index}
+                    className={cn(
+                      "flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 md:px-3 py-1 sm:py-1.5 bg-muted/50 rounded-md sm:rounded-lg border border-border/50 text-[10px] sm:text-xs",
+                      attached.file.type === 'application/pdf' && "cursor-pointer hover:bg-muted/70 transition-colors"
+                    )}
+                    onClick={() => attached.file.type === 'application/pdf' && handleViewPdf(attached.file)}
+                  >
+                    {attached.isExtracting ? (
+                      <div className="h-3 w-3 sm:h-4 sm:w-4 animate-spin rounded-full border-2 border-primary border-t-transparent flex-shrink-0" />
+                    ) : (
+                      <div className="flex-shrink-0">{getFileIcon(attached.file)}</div>
+                    )}
+                    <span className="max-w-[100px] sm:max-w-[120px] md:max-w-[150px] truncate">{attached.file.name}</span>
+                    <span className="text-muted-foreground hidden sm:inline">{formatFileSize(attached.file)}</span>
+                    {attached.file.type === 'application/pdf' && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground hover:text-foreground flex-shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewPdf(attached.file);
+                        }}
+                        title="View PDF"
+                      >
+                        <Eye className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground hover:text-foreground flex-shrink-0"
+                      className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground hover:text-destructive flex-shrink-0"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleViewPdf(attached.file);
+                        removeFile(index);
                       }}
-                      title="View PDF"
+                      title="Remove file"
                     >
-                      <Eye className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                      <X className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                     </Button>
-                  )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Input Container */}
+            <Card className="border border-border/50 bg-background/50 backdrop-blur-sm shadow-lg">
+              <div className="flex flex-col gap-1.5 sm:gap-2 p-1.5 sm:p-2 md:p-3">
+                <div className="flex flex-wrap items-end gap-1 sm:gap-1.5 md:gap-2">
+                  {/* File Upload Button */}
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground hover:text-destructive flex-shrink-0"
+                    className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 flex-shrink-0"
                     onClick={(e) => {
                       e.stopPropagation();
-                      removeFile(index);
+                      open();
                     }}
-                    title="Remove file"
                   >
-                    <X className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                    <Paperclip className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
+                  </Button>
+
+                  {/* Text Input */}
+                  <textarea
+                    ref={inputRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Message Prepzy..."
+                    className="flex-1 w-full min-w-0 min-h-[32px] sm:min-h-[36px] md:min-h-[40px] max-h-[150px] sm:max-h-[200px] resize-none bg-transparent border-0 outline-none text-xs sm:text-sm placeholder:text-muted-foreground py-1 sm:py-1.5 md:py-2 leading-relaxed"
+                    rows={1}
+                    style={{
+                      height: 'auto',
+                      minHeight: '32px',
+                    }}
+                    onInput={(e) => {
+                      const target = e.target as HTMLTextAreaElement;
+                      target.style.height = 'auto';
+                      target.style.height = `${Math.min(target.scrollHeight, window.innerWidth < 640 ? 150 : 200)}px`;
+                    }}
+                    disabled={isTyping}
+                  />
+
+                  {/* Desktop Model Selector */}
+                  <div className="hidden md:flex">
+                    <ModelSelector onApiKeyRequired={onApiKeyRequired} />
+                  </div>
+
+                  {/* Send Button */}
+                  <Button
+                    onClick={handleSend}
+                    disabled={(attachedFiles.length === 0 && !input.trim()) || isTyping || isExtractingPdf}
+                    size="icon"
+                    className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 bg-primary hover:bg-primary/90 text-primary-foreground flex-shrink-0 disabled:opacity-50"
+                  >
+                    <Send className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
                   </Button>
                 </div>
-              ))}
+
+                {/* Mobile Model Selector */}
+                <div className="md:hidden">
+                  <ModelSelector onApiKeyRequired={onApiKeyRequired} fullWidth className="mt-0" />
+                </div>
               </div>
-          )}
-
-          {/* Input Container */}
-          <Card className="border border-border/50 bg-background/50 backdrop-blur-sm shadow-lg">
-            <div className="flex items-end gap-1 sm:gap-1.5 md:gap-2 p-1.5 sm:p-2 md:p-3">
-              {/* File Upload Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 flex-shrink-0"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  open();
-                }}
-              >
-                <Paperclip className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
-              </Button>
-
-              {/* Text Input */}
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Message Prepzy..."
-                className="flex-1 min-h-[32px] sm:min-h-[36px] md:min-h-[40px] max-h-[150px] sm:max-h-[200px] resize-none bg-transparent border-0 outline-none text-xs sm:text-sm placeholder:text-muted-foreground py-1 sm:py-1.5 md:py-2 leading-relaxed"
-                rows={1}
-                style={{
-                  height: 'auto',
-                  minHeight: '32px',
-                }}
-                onInput={(e) => {
-                  const target = e.target as HTMLTextAreaElement;
-                  target.style.height = 'auto';
-                  target.style.height = `${Math.min(target.scrollHeight, window.innerWidth < 640 ? 150 : 200)}px`;
-                }}
-                disabled={isTyping}
-              />
-
-                  {/* Model Selector */}
-                  <div className="hidden md:block">
-                    <ModelSelector onApiKeyRequired={onApiKeyRequired} />
-              </div>
-
-              {/* Send Button */}
-              <Button
-                onClick={handleSend}
-                disabled={(attachedFiles.length === 0 && !input.trim()) || isTyping || isExtractingPdf}
-                size="icon"
-                className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 bg-primary hover:bg-primary/90 text-primary-foreground flex-shrink-0 disabled:opacity-50"
-              >
-                <Send className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
-              </Button>
-            </div>
-          </Card>
+            </Card>
 
             <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground text-center mt-1 sm:mt-1.5 md:mt-2 px-2">
               Powered by AI • Upload files or ask questions to get started
             </p>
           </div>
         </div>
-          </div>
+      </div>
     </div>
   );
 };

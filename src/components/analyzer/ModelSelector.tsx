@@ -14,9 +14,10 @@ import { getModelConfig } from "@/config/apiConfig";
 interface ModelSelectorProps {
   className?: string;
   onApiKeyRequired?: (provider: 'gemini' | 'deepseek' | 'openrouter' | 'openai') => void;
+  fullWidth?: boolean;
 }
 
-const ModelSelector = ({ className, onApiKeyRequired }: ModelSelectorProps) => {
+const ModelSelector = ({ className, onApiKeyRequired, fullWidth = false }: ModelSelectorProps) => {
   const [apiProvider, setApiProvider] = useState<'gemini' | 'deepseek' | 'openrouter' | 'openai'>('gemini');
   const [geminiModel, setGeminiModel] = useState('gemini-2.5-flash');
   const [openRouterModel, setOpenRouterModel] = useState('deepseek/deepseek-chat-v3-0324:free');
@@ -79,11 +80,7 @@ const ModelSelector = ({ className, onApiKeyRequired }: ModelSelectorProps) => {
   }, []);
 
   const handleModelChange = (value: string) => {
-    // Detect which provider this model belongs to
-    let detectedProvider: 'gemini' | 'openai' | 'openrouter' | 'deepseek' = apiProvider;
-    
     if (value.startsWith('gemini-')) {
-      detectedProvider = 'gemini';
       setGeminiModel(value);
       localStorage.setItem('geminiModel', value);
       // Check if API key is needed (gemini-2.5-flash is free, others require BYOK)
@@ -99,7 +96,6 @@ const ModelSelector = ({ className, onApiKeyRequired }: ModelSelectorProps) => {
       setApiProvider('gemini');
       localStorage.setItem('lastSelectedProvider', 'gemini');
     } else if (value.startsWith('openai/')) {
-      detectedProvider = 'openai';
       setOpenaiModel(value);
       localStorage.setItem('openaiModel', value);
       // ChatGPT models are free, no API key needed
@@ -108,7 +104,6 @@ const ModelSelector = ({ className, onApiKeyRequired }: ModelSelectorProps) => {
       localStorage.setItem('lastSelectedProvider', 'openai');
     } else if (value.includes('/') && !value.startsWith('openai/')) {
       // OpenRouter models have format like "deepseek/deepseek-chat-v3-0324:free"
-      detectedProvider = 'openrouter';
       setOpenRouterModel(value);
       localStorage.setItem('openRouterModel', value);
       // Check if model is free (DeepSeek V3, DeepSeek R1, Kimi K2 are free)
@@ -129,7 +124,6 @@ const ModelSelector = ({ className, onApiKeyRequired }: ModelSelectorProps) => {
       setApiProvider('openrouter');
       localStorage.setItem('lastSelectedProvider', 'openrouter');
     } else if (value === 'deepseek-chat') {
-      detectedProvider = 'deepseek';
       // DeepSeek always requires API key
       const hasKey = !!localStorage.getItem('deepseekApiKey');
       if (!hasKey && onApiKeyRequired) {
@@ -186,13 +180,20 @@ const ModelSelector = ({ className, onApiKeyRequired }: ModelSelectorProps) => {
     return <Sparkles className="h-3 w-3" />;
   };
 
+  const triggerClasses = cn(
+    "h-7 sm:h-8 px-1.5 sm:px-2 gap-1 sm:gap-1.5 text-[10px] sm:text-xs border-border/50 bg-background/50 hover:bg-background/80 [&>span]:text-foreground",
+    fullWidth
+      ? "w-full min-w-0"
+      : "w-auto min-w-[140px] sm:min-w-[180px] max-w-[220px] sm:max-w-[260px]"
+  );
+
   return (
-    <div className={cn("flex items-center", className)}>
+    <div className={cn("flex items-center", className, fullWidth && "w-full") }>
       <Select
         value={apiProvider === 'gemini' ? geminiModel : apiProvider === 'openai' ? openaiModel : apiProvider === 'openrouter' ? openRouterModel : 'deepseek-chat'}
         onValueChange={handleModelChange}
       >
-        <SelectTrigger className="h-7 sm:h-8 px-1.5 sm:px-2 gap-1 sm:gap-1.5 text-[10px] sm:text-xs border-border/50 bg-background/50 hover:bg-background/80 w-auto min-w-[140px] sm:min-w-[180px] max-w-[220px] sm:max-w-[260px] [&>span]:text-foreground">
+        <SelectTrigger className={triggerClasses}>
           <div className="flex items-center gap-1 sm:gap-1.5 flex-1 min-w-0 overflow-hidden">
             {getProviderIcon()}
             <SelectValue className="flex-1 min-w-0">

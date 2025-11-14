@@ -139,6 +139,10 @@ app.get('/api/proxy', async (req, res) => {
     // Special handling for Google Drive links
     const isGoogleDrive = decodedUrl.includes('drive.google.com');
     
+    // Special handling for GitHub raw URLs (both github.com/.../raw/ and raw.githubusercontent.com)
+    const isGitHubRaw = (decodedUrl.includes('github.com') && decodedUrl.includes('/raw/')) || 
+                        decodedUrl.includes('raw.githubusercontent.com');
+    
     if (isGoogleDrive) {
       // For Google Drive, use a cookie to bypass the virus scan warning
       // Add confirm parameter to skip the warning page
@@ -159,13 +163,13 @@ app.get('/api/proxy', async (req, res) => {
     const fetchOptions = {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': isGoogleDrive ? 'application/pdf,*/*;q=0.9' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept': isGoogleDrive ? 'application/pdf,*/*;q=0.9' : (isGitHubRaw ? 'application/pdf,*/*;q=0.9' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'),
         'Accept-Language': 'en-US,en;q=0.5',
         'Accept-Encoding': 'gzip, deflate, br',
         'Connection': 'keep-alive',
         'Upgrade-Insecure-Requests': '1',
-        'Referer': isGoogleDrive ? 'https://drive.google.com/' : 'https://www.ktunotes.in/',
-        'Sec-Fetch-Dest': isGoogleDrive ? 'document' : 'document',
+        'Referer': isGoogleDrive ? 'https://drive.google.com/' : (isGitHubRaw ? 'https://github.com/' : 'https://www.ktunotes.in/'),
+        'Sec-Fetch-Dest': isGoogleDrive ? 'document' : (isGitHubRaw ? 'document' : 'document'),
         'Sec-Fetch-Mode': 'navigate',
         'Sec-Fetch-Site': 'cross-site'
       },
@@ -230,8 +234,13 @@ app.get('/api/proxy', async (req, res) => {
     }
 
     // Determine content type
-    const contentType = response.headers.get('content-type') || 'application/octet-stream';
+    let contentType = response.headers.get('content-type') || 'application/octet-stream';
     const upstreamDisposition = response.headers.get('content-disposition');
+    
+    // For GitHub raw URLs, detect PDF from URL extension if content-type is generic
+    if (isGitHubRaw && contentType === 'application/octet-stream' && decodedUrl.toLowerCase().endsWith('.pdf')) {
+      contentType = 'application/pdf';
+    }
     
     // Set appropriate headers
     res.setHeader('Content-Type', contentType);
@@ -251,7 +260,8 @@ app.get('/api/proxy', async (req, res) => {
     // For PDFs or binary content, stream the binary data
     if (contentType.includes('application/pdf') || 
         contentType.includes('application/octet-stream') ||
-        isGoogleDrive) {
+        isGoogleDrive ||
+        (isGitHubRaw && decodedUrl.toLowerCase().endsWith('.pdf'))) {
       const arrayBuffer = await response.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       return res.send(buffer);

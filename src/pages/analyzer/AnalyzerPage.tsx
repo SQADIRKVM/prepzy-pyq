@@ -947,7 +947,7 @@ const AnalyzerPage = () => {
   }, []);
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
+    <div className="flex min-h-screen bg-background overflow-hidden w-full">
       {/* Onboarding Dialog - Shows first for new users */}
       <OnboardingDialog
         open={showOnboarding}
@@ -1048,11 +1048,11 @@ const AnalyzerPage = () => {
 
       {/* Main Content */}
       <div className={cn(
-        "flex-1 flex flex-col overflow-hidden transition-all duration-300",
+        "flex-1 flex flex-col overflow-hidden transition-all duration-300 w-full",
         sidebarOpen ? "md:ml-64" : "md:ml-0"
       )}>
         {/* Top Bar */}
-        <div className="h-14 sm:h-16 border-b border-border flex items-center justify-between px-3 sm:px-4 md:px-6 bg-card/50 flex-shrink-0">
+        <div className="h-14 sm:h-16 border-b border-border flex items-center justify-between px-3 sm:px-4 md:px-6 bg-card/50 flex-shrink-0 sticky top-0 z-20">
           <div className="flex items-center gap-2 md:gap-4">
             {/* Sidebar Toggle Button */}
             <Button
@@ -1101,19 +1101,19 @@ const AnalyzerPage = () => {
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 pb-20 sm:pb-24 md:pb-6 lg:pb-8">
+          <div className="max-w-6xl mx-auto w-full p-3 sm:p-4 md:p-6 lg:p-8 pb-20 sm:pb-24 md:pb-6 lg:pb-8">
             {questions.length > 0 ? (
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="mb-4 md:mb-6 bg-card border border-border w-full sm:w-auto">
+                <TabsList className="mb-4 md:mb-6 bg-card border border-border rounded-lg w-full sm:w-auto flex gap-2 sm:gap-0 overflow-x-auto sm:overflow-visible p-1 sm:p-0">
                   <TabsTrigger 
                     value="upload" 
-                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm flex-1 sm:flex-initial"
+                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm flex-1 sm:flex-initial whitespace-nowrap px-3 py-1.5"
                   >
                     Upload & Process
                   </TabsTrigger>
                   <TabsTrigger 
                     value="results" 
-                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm flex-1 sm:flex-initial"
+                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm flex-1 sm:flex-initial whitespace-nowrap px-3 py-1.5"
                   >
                     View Results
                   </TabsTrigger>
