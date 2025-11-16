@@ -14,6 +14,7 @@ import PDFThumbnail from "@/components/analyzer/PDFThumbnail";
 import { cn } from "@/lib/utils";
 import { PanelLeft } from "lucide-react";
 import { PDFDocument } from "pdf-lib";
+import ModelSelectionDialog from "@/components/analyzer/ModelSelectionDialog";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -41,6 +42,8 @@ const BrowsePapers = () => {
     }
     return true;
   });
+  const [showModelDialog, setShowModelDialog] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   // Filter chips - dynamically generated from papers
   const [availableFilters, setAvailableFilters] = useState<string[]>([]);
@@ -368,17 +371,29 @@ const BrowsePapers = () => {
         return;
       }
 
-      // Navigate to analyzer and trigger processing
-      navigate('/analyzer', { 
-        state: { 
-          filesToProcess: files,
-          fromBrowse: true 
-        } 
-      });
+      // Store files and show model selection dialog
+      setPendingFiles(files);
+      setShowModelDialog(true);
     } catch (error) {
       console.error("Error analyzing papers:", error);
       toast.error("Failed to process papers");
     }
+  };
+
+  const handleModelConfirm = (selectedModel: string) => {
+    // Save the selected model to localStorage
+    localStorage.setItem('selectedModel', selectedModel);
+    
+    // Navigate to analyzer with the files and selected model
+    navigate('/analyzer', { 
+      state: { 
+        filesToProcess: pendingFiles,
+        fromBrowse: true,
+        selectedModel: selectedModel
+      } 
+    });
+    
+    toast.success(`Starting analysis with ${selectedModel}...`);
   };
 
   const toggleSidebar = () => {
@@ -1222,6 +1237,14 @@ const BrowsePapers = () => {
           </div>
         </div>
       </div>
+
+      {/* Model Selection Dialog */}
+      <ModelSelectionDialog
+        open={showModelDialog}
+        onClose={() => setShowModelDialog(false)}
+        onConfirm={handleModelConfirm}
+        paperCount={selectedPapers.size}
+      />
     </div>
   );
 };
