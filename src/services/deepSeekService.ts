@@ -446,7 +446,11 @@ export async function enhanceText(text: string): Promise<string> {
     // DeepSeek: 8192 max, OpenRouter/Gemini: 16000
     const maxTokens = useDeepSeek ? 8192 : 16000;
     
+    // Get the selected model from localStorage
+    const selectedModel = localStorage.getItem('selectedModel') || 'gemini-2.5-flash';
+    
     const enhancedText = await processWithDeepSeek(text, prompt, {
+      model: selectedModel,
       max_tokens: maxTokens
     });
     toast.success("Text enhancement complete");
@@ -524,7 +528,11 @@ export async function analyzeQuestions(text: string): Promise<any> {
     // DeepSeek: 8192 max, OpenRouter/Gemini: 16000
     const maxTokens = useDeepSeek ? 8192 : 16000;
     
+    // Get the selected model from localStorage
+    const selectedModel = localStorage.getItem('selectedModel') || 'gemini-2.5-flash';
+    
     const analysisText = await processWithDeepSeek(text, prompt, {
+      model: selectedModel,
       temperature: 0.1, // Lower temperature for more consistent results
       max_tokens: maxTokens
     });

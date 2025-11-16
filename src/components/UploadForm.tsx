@@ -2,7 +2,9 @@ import { useDropzone } from 'react-dropzone';
 import { useState } from 'react';
 
 const { getRootProps, getInputProps } = useDropzone({
-  accept: '.pdf',
+  accept: {
+    'application/pdf': ['.pdf']
+  },
   multiple: true,
   onDrop: (acceptedFiles) => {
     setFiles(prevFiles => [...prevFiles, ...acceptedFiles]);
