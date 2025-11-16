@@ -427,8 +427,7 @@ const AnalyzerPage = () => {
           }
           setProgress(progress);
           setCurrentStep(step);
-        },
-        controller.signal
+        }
       );
       
       if (controller.signal.aborted) {
@@ -528,8 +527,7 @@ const AnalyzerPage = () => {
           } else {
             setCurrentStep(step);
           }
-        },
-        controller.signal
+        }
       );
       
       if (controller.signal.aborted) {
@@ -971,7 +969,7 @@ const AnalyzerPage = () => {
               const hasSeenSessionInfo = sessionService.hasSeenSessionInfo();
               if (!currentSession && !hasSeenSessionInfo) {
                 setTimeout(() => {
-                  setShowSessionInfo(true);
+                  setShowSessionLogin(true);
                 }, 500);
               }
             }
@@ -993,7 +991,7 @@ const AnalyzerPage = () => {
             const hasSeenSessionInfo = sessionService.hasSeenSessionInfo();
             if (!currentSession && !hasSeenSessionInfo) {
               setTimeout(() => {
-                setShowSessionInfo(true);
+                setShowSessionLogin(true);
               }, 500);
             }
           }
