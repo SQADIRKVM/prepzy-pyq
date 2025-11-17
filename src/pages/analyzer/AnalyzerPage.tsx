@@ -163,32 +163,35 @@ const AnalyzerPage = () => {
   useEffect(() => {
     const loadSavedQuestions = async () => {
       try {
+        // Only load saved questions if we're not currently processing
+        if (status !== "idle" && status !== "completed") {
+          return;
+        }
+        
         const savedResult = await apiService.getQuestions();
-        if (savedResult.questions.length > 0) {
+        if (savedResult.questions.length > 0 && status === "idle") {
           setOriginalQuestions(savedResult.questions);
           setOriginalTopics(savedResult.topics);
           setQuestions(savedResult.questions);
           setTopics(savedResult.topics);
-          if (status === "idle") {
             setStatus("completed");
-            
-            // Check if this result is already in recent results
-            const recentResults = recentResultsService.getRecentResults();
-            const hasRecentResult = recentResults.some(r => 
-              r.data.questions.length === savedResult.questions.length &&
-              r.data.questions[0]?.id === savedResult.questions[0]?.id
-            );
-            
-            // If not in recent results, save it (filename will be auto-generated from question details)
-            if (!hasRecentResult) {
-              recentResultsService.saveResult('', savedResult);
-              setHasSavedToRecent(true);
-            } else {
-              setHasSavedToRecent(true);
-            }
-            
-            toast.info(`Loaded ${savedResult.questions.length} questions from your previous session`);
+          
+          // Check if this result is already in recent results
+          const recentResults = recentResultsService.getRecentResults();
+          const hasRecentResult = recentResults.some(r => 
+            r.data.questions.length === savedResult.questions.length &&
+            r.data.questions[0]?.id === savedResult.questions[0]?.id
+          );
+          
+          // If not in recent results, save it (filename will be auto-generated from question details)
+          if (!hasRecentResult) {
+            recentResultsService.saveResult('', savedResult);
+            setHasSavedToRecent(true);
+          } else {
+            setHasSavedToRecent(true);
           }
+          
+          toast.info(`Loaded ${savedResult.questions.length} questions from your previous session`);
         }
       } catch (error) {
         console.error("Error loading saved questions:", error);

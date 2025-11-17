@@ -1,6 +1,7 @@
 import { toast } from 'sonner';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getApiKey } from '@/config/apiConfig';
+import { processWithBytez } from './bytezService';
 
 interface DeepSeekOptions {
   model?: string;
@@ -434,25 +435,46 @@ export async function enhanceText(text: string): Promise<string> {
   `;
   
   try {
-    // Determine max tokens based on API provider (same logic as analyzeQuestions)
-    const geminiApiKey = localStorage.getItem('geminiApiKey');
-    const deepseekApiKey = localStorage.getItem('deepseekApiKey');
-    const openRouterApiKey = localStorage.getItem('openRouterApiKey');
-    const useGemini = !!geminiApiKey;
-    const useOpenRouter = !!openRouterApiKey && !useGemini;
-    const useDeepSeek = !!deepseekApiKey && !useGemini && !useOpenRouter;
+    // Get the selected model from localStorage (same logic as FileUpload)
+    const lastProvider = localStorage.getItem('lastSelectedProvider') || 'gemini';
+    const geminiModel = localStorage.getItem('geminiModel') || 'gemini-2.5-flash';
+    const openRouterModel = localStorage.getItem('openRouterModel') || 'deepseek/deepseek-chat-v3-0324:free';
+    const openaiModel = localStorage.getItem('openaiModel') || 'openai/gpt-4o';
     
-    // Set max tokens based on provider limits
-    // DeepSeek: 8192 max, OpenRouter/Gemini: 16000
-    const maxTokens = useDeepSeek ? 8192 : 16000;
+    let selectedModel: string;
+    if (lastProvider === 'openai') {
+      selectedModel = openaiModel;
+    } else if (lastProvider === 'gemini') {
+      selectedModel = geminiModel;
+    } else if (lastProvider === 'openrouter') {
+      selectedModel = openRouterModel;
+    } else if (lastProvider === 'deepseek') {
+      selectedModel = 'deepseek-chat';
+    } else {
+      selectedModel = geminiModel; // Default to Gemini 2.5 Flash (free)
+    }
+    // Check if it's a ChatGPT model (needs Bytez)
+    const isChatGPT = selectedModel.startsWith('openai/');
     
-    // Get the selected model from localStorage
-    const selectedModel = localStorage.getItem('selectedModel') || 'gemini-2.5-flash';
-    
-    const enhancedText = await processWithDeepSeek(text, prompt, {
-      model: selectedModel,
-      max_tokens: maxTokens
-    });
+    let enhancedText: string;
+    if (isChatGPT) {
+      // Use Bytez service for ChatGPT models
+      enhancedText = await processWithBytez(text, prompt, {
+        model: selectedModel,
+        max_tokens: 16000
+      });
+    } else {
+      // Use DeepSeek service for other models
+      // Set max tokens based on provider limits
+      // DeepSeek: 8192 max, OpenRouter/Gemini: 16000
+      const isDeepSeek = selectedModel === 'deepseek-chat';
+      const maxTokens = isDeepSeek ? 8192 : 16000;
+      
+      enhancedText = await processWithDeepSeek(text, prompt, {
+        model: selectedModel,
+        max_tokens: maxTokens
+      });
+    }
     toast.success("Text enhancement complete");
     return enhancedText;
   } catch (error) {
@@ -472,7 +494,7 @@ export async function analyzeQuestions(text: string): Promise<any> {
   toast.info("Analyzing questions with AI...");
   
   const prompt = `
-    You are an expert at analyzing academic question papers across all subjects. Your task is to:
+    You are an expert at analyzing academic question papers across all subjects. Your task is to identify and extract ALL questions, focusing on those that are commonly repeated, tricky, or frequently asked.
     
     1. First, identify the exam year from the question paper header/metadata
     
@@ -485,11 +507,12 @@ export async function analyzeQuestions(text: string): Promise<any> {
        - Business & Economics
        - And other academic fields
     
-    3. For each question:
-       - Extract the complete question text with its numbering
+    3. For EACH question in the paper:
+       - Extract the COMPLETE question text with its numbering (do not skip any questions)
        - Identify the specific subject and sub-discipline
        - Extract the main concepts being tested (NOT action words)
        - Identify key technical terms and concepts
+       - Mark questions that are tricky or commonly repeated (look for patterns, similar wording across years)
     
     4. Group and classify topics by:
        - Core concepts of the subject
@@ -498,11 +521,13 @@ export async function analyzeQuestions(text: string): Promise<any> {
        - Methods and applications
     
     IMPORTANT:
+    - Extract ALL questions from the paper (do not skip any)
     - Extract the year from the question paper (look for year patterns like 2021, 2022-23, etc.)
     - NEVER include action words (explain, describe, write, etc.) as topics
     - Group related concepts under consistent names
     - Use subject-appropriate terminology
     - Focus on actual concepts being tested, not question words
+    - Pay special attention to questions that appear frequently or are tricky (prove, derive, calculate, solve, etc.)
     
     Return ONLY a valid JSON array where each item follows this EXACT format:
     {
@@ -513,32 +538,160 @@ export async function analyzeQuestions(text: string): Promise<any> {
       "keywords": ["3-5 key technical terms"],
       "year": "The extracted year from the question paper"
     }
+    
+    Make sure to include ALL questions from the paper in the array.
   `;
   
   try {
-    // Determine max tokens based on API provider
-    const geminiApiKey = localStorage.getItem('geminiApiKey');
-    const deepseekApiKey = localStorage.getItem('deepseekApiKey');
-    const openRouterApiKey = localStorage.getItem('openRouterApiKey');
-    const useGemini = !!geminiApiKey;
-    const useOpenRouter = !!openRouterApiKey && !useGemini;
-    const useDeepSeek = !!deepseekApiKey && !useGemini && !useOpenRouter;
+    // Get the selected model from localStorage (same logic as FileUpload)
+    const lastProvider = localStorage.getItem('lastSelectedProvider') || 'gemini';
+    const geminiModel = localStorage.getItem('geminiModel') || 'gemini-2.5-flash';
+    const openRouterModel = localStorage.getItem('openRouterModel') || 'deepseek/deepseek-chat-v3-0324:free';
+    const openaiModel = localStorage.getItem('openaiModel') || 'openai/gpt-4o';
     
-    // Set max tokens based on provider limits
-    // DeepSeek: 8192 max, OpenRouter/Gemini: 16000
-    const maxTokens = useDeepSeek ? 8192 : 16000;
+    let selectedModel: string;
+    if (lastProvider === 'openai') {
+      selectedModel = openaiModel;
+    } else if (lastProvider === 'gemini') {
+      selectedModel = geminiModel;
+    } else if (lastProvider === 'openrouter') {
+      selectedModel = openRouterModel;
+    } else if (lastProvider === 'deepseek') {
+      selectedModel = 'deepseek-chat';
+    } else {
+      selectedModel = geminiModel; // Default to Gemini 2.5 Flash (free)
+    }
+    // Check if it's a ChatGPT model (needs Bytez)
+    const isChatGPT = selectedModel.startsWith('openai/');
     
-    // Get the selected model from localStorage
-    const selectedModel = localStorage.getItem('selectedModel') || 'gemini-2.5-flash';
-    
-    const analysisText = await processWithDeepSeek(text, prompt, {
-      model: selectedModel,
-      temperature: 0.1, // Lower temperature for more consistent results
-      max_tokens: maxTokens
-    });
+    let analysisText: string;
+    if (isChatGPT) {
+      // Use Bytez service for ChatGPT models
+      analysisText = await processWithBytez(text, prompt, {
+        model: selectedModel,
+        temperature: 0.1, // Lower temperature for more consistent results
+        max_tokens: 16000
+      });
+    } else {
+      // Use DeepSeek service for other models
+      // Set max tokens based on provider limits
+      // DeepSeek: 8192 max, OpenRouter/Gemini: 16000
+      const isDeepSeek = selectedModel === 'deepseek-chat';
+      const maxTokens = isDeepSeek ? 8192 : 16000;
+      
+      analysisText = await processWithDeepSeek(text, prompt, {
+        model: selectedModel,
+        temperature: 0.1, // Lower temperature for more consistent results
+        max_tokens: maxTokens
+      });
+    }
     
     // Remove code block markers if present
-    const cleanedAnalysisText = analysisText.replace(/```json|```/g, '').trim();
+    let cleanedAnalysisText = analysisText.replace(/```json|```/g, '').trim();
+    
+    // Fix common JSON issues
+    // 1. Remove any leading/trailing whitespace and newlines
+    cleanedAnalysisText = cleanedAnalysisText.trim();
+    
+    // 2. Fix invalid escape sequences - this needs to be done carefully
+    // Valid JSON escape sequences: \", \\, \/, \b, \f, \n, \r, \t, \uXXXX
+    // We'll process this character by character to avoid breaking valid sequences
+    let escapeFixed = '';
+    let i = 0;
+    while (i < cleanedAnalysisText.length) {
+      if (cleanedAnalysisText[i] === '\\' && i + 1 < cleanedAnalysisText.length) {
+        const nextChar = cleanedAnalysisText[i + 1];
+        // Check if it's a valid escape sequence
+        if (nextChar === 'u' && i + 5 < cleanedAnalysisText.length) {
+          // Check if it's a valid \uXXXX sequence
+          const hexDigits = cleanedAnalysisText.substring(i + 2, i + 6);
+          if (/^[0-9a-fA-F]{4}$/.test(hexDigits)) {
+            // Valid \uXXXX sequence
+            escapeFixed += cleanedAnalysisText.substring(i, i + 6);
+            i += 6;
+            continue;
+          }
+        } else if (['"', '\\', '/', 'b', 'f', 'n', 'r', 't'].includes(nextChar)) {
+          // Valid escape sequence
+          escapeFixed += cleanedAnalysisText.substring(i, i + 2);
+          i += 2;
+          continue;
+        }
+        // Invalid escape sequence - escape the backslash
+        escapeFixed += '\\\\' + nextChar;
+        i += 2;
+      } else {
+        escapeFixed += cleanedAnalysisText[i];
+        i++;
+      }
+    }
+    cleanedAnalysisText = escapeFixed;
+    
+    // 3. Fix unescaped newlines, tabs, and control characters inside string values
+    // Process character by character to avoid double-escaping
+    // Only fix characters that are NOT already escaped
+    let fixedJson = '';
+    let inString = false;
+    let escapeNext = false;
+    
+    for (let i = 0; i < cleanedAnalysisText.length; i++) {
+      const char = cleanedAnalysisText[i];
+      
+      if (escapeNext) {
+        // Previous char was backslash, this is the escaped character
+        // The backslash was already added, just add the character
+        fixedJson += char;
+        escapeNext = false;
+      } else if (char === '\\') {
+        // Check if this is a valid escape sequence
+        if (i + 1 < cleanedAnalysisText.length) {
+          const nextChar = cleanedAnalysisText[i + 1];
+          if (nextChar === 'u' && i + 5 < cleanedAnalysisText.length) {
+            // \uXXXX sequence - copy it as-is
+            fixedJson += cleanedAnalysisText.substring(i, i + 6);
+            i += 5; // Will increment by 1 at end of loop
+            continue;
+          } else if (['"', '\\', '/', 'b', 'f', 'n', 'r', 't'].includes(nextChar)) {
+            // Valid escape sequence - mark that we're escaping
+            escapeNext = true;
+            fixedJson += char;
+          } else {
+            // This shouldn't happen after step 2, but handle it anyway
+            escapeNext = true;
+            fixedJson += char;
+          }
+        } else {
+          // Backslash at end of string - escape it
+          fixedJson += '\\\\';
+        }
+      } else if (char === '"') {
+        // Toggle string state (but not if it's escaped)
+        inString = !inString;
+        fixedJson += char;
+      } else if (inString && !escapeNext) {
+        // We're inside a string and not escaping
+        // Replace unescaped control characters
+        const charCode = char.charCodeAt(0);
+        if (charCode === 0x0A) fixedJson += '\\n';      // \n
+        else if (charCode === 0x0D) fixedJson += '\\r'; // \r
+        else if (charCode === 0x09) fixedJson += '\\t'; // \t
+        else if (charCode === 0x08) fixedJson += '\\b'; // \b
+        else if (charCode === 0x0C) fixedJson += '\\f'; // \f
+        else if (charCode < 0x20 || charCode === 0x7F) {
+          // Other control characters - remove or replace with space
+          fixedJson += ' ';
+        } else {
+          fixedJson += char;
+        }
+      } else {
+        fixedJson += char;
+      }
+    }
+    
+    cleanedAnalysisText = fixedJson;
+    
+    // 4. Remove any trailing commas before closing brackets/braces
+    cleanedAnalysisText = cleanedAnalysisText.replace(/,(\s*[}\]])/g, '$1');
     
     // Check if the response looks truncated (incomplete JSON)
     if (cleanedAnalysisText.trim().endsWith(',') || 
@@ -560,7 +713,104 @@ export async function analyzeQuestions(text: string): Promise<any> {
         }
       }
       
-      analysis = JSON.parse(jsonText);
+      // Try to parse the JSON
+      try {
+        analysis = JSON.parse(jsonText);
+      } catch (parseError: any) {
+        // If parsing fails, try more aggressive cleaning
+        console.warn("Direct JSON parse failed, attempting aggressive cleaning:", parseError.message);
+        
+        // Extract position from error message if available
+        const positionMatch = parseError.message.match(/position (\d+)/);
+        const errorPosition = positionMatch ? parseInt(positionMatch[1]) : -1;
+        
+        if (errorPosition > 0 && errorPosition < jsonText.length) {
+          // Log the problematic area
+          const start = Math.max(0, errorPosition - 50);
+          const end = Math.min(jsonText.length, errorPosition + 50);
+          console.warn("Problematic JSON area:", jsonText.substring(start, end));
+          console.warn("Character at error position:", jsonText[errorPosition], "Code:", jsonText.charCodeAt(errorPosition));
+        }
+        
+        // More aggressive cleaning: fix all potential issues
+        let fixedJson = jsonText
+          // Remove any control characters except those that are properly escaped
+          .replace(/[\x00-\x1F\x7F]/g, (match, offset, string) => {
+            // Check if we're inside a string
+            let inString = false;
+            let escapeNext = false;
+            for (let i = 0; i < offset; i++) {
+              if (escapeNext) {
+                escapeNext = false;
+                continue;
+              }
+              if (string[i] === '\\') {
+                escapeNext = true;
+                continue;
+              }
+              if (string[i] === '"') {
+                inString = !inString;
+              }
+            }
+            
+            if (inString) {
+              // We're in a string, escape the control character
+              const charCode = match.charCodeAt(0);
+              if (charCode === 0x0A) return '\\n'; // \n
+              if (charCode === 0x0D) return '\\r'; // \r
+              if (charCode === 0x09) return '\\t'; // \t
+              if (charCode === 0x08) return '\\b'; // \b
+              if (charCode === 0x0C) return '\\f'; // \f
+              // For other control characters, remove them or replace with space
+              return ' ';
+            }
+            return ''; // Remove control characters outside strings
+          })
+          // Fix any remaining invalid escape sequences
+          .replace(/\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})/g, '\\\\')
+          // Remove trailing commas
+          .replace(/,(\s*[}\]])/g, '$1');
+        
+        try {
+          analysis = JSON.parse(fixedJson);
+        } catch (secondError: any) {
+          // Try to extract JSON array using regex
+          console.warn("Second parse attempt failed, trying regex extraction:", secondError.message);
+          
+          const arrayMatch = fixedJson.match(/\[[\s\S]*\]/);
+          if (arrayMatch) {
+            try {
+              analysis = JSON.parse(arrayMatch[0]);
+            } catch (regexError) {
+              // Last resort: try to use a JSON repair approach
+              // Remove any characters that are definitely invalid in JSON
+              let repairedJson = arrayMatch[0]
+                // Remove any remaining control characters
+                .replace(/[\x00-\x1F\x7F]/g, ' ')
+                // Fix any double-escaped sequences
+                .replace(/\\\\\\/g, '\\\\')
+                // Ensure all quotes in string values are escaped
+                .replace(/":\s*"([^"]*(?:"[^",}\]]*)*)"/g, (match, value) => {
+                  const escaped = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+                  return `": "${escaped}"`;
+                });
+              
+              try {
+                analysis = JSON.parse(repairedJson);
+              } catch (finalError) {
+                console.error("All JSON parsing attempts failed:", finalError);
+                console.error("Error position:", errorPosition);
+                if (errorPosition > 0) {
+                  console.error("Context around error:", jsonText.substring(Math.max(0, errorPosition - 100), Math.min(jsonText.length, errorPosition + 100)));
+                }
+                throw new Error(`Failed to parse JSON response: ${parseError.message}. Raw text preview: ${jsonText.substring(0, 500)}...`);
+              }
+            }
+          } else {
+            throw new Error(`No JSON array found in response. Raw text preview: ${jsonText.substring(0, 500)}...`);
+          }
+        }
+      }
       if (!Array.isArray(analysis)) {
         throw new Error("Response is not an array");
       }

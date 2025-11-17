@@ -244,8 +244,9 @@ export async function searchYouTubeVideos(
     searchCache[cacheKey] = videos;
     return videos;
   } catch (error) {
-    console.error('YouTube search error:', error);
-    toast.error("Failed to fetch related videos");
+    // Don't show error toast - just log and return empty array
+    // YouTube API errors shouldn't block question processing
+    console.warn('YouTube search error (non-blocking):', error);
     return [];
   }
 }
@@ -254,6 +255,7 @@ export async function searchYouTubeVideos(
  * Find related videos for a question
  */
 export async function findRelatedVideos(question: Question): Promise<Question> {
+  // If YouTube API is not available or fails, return question without videos
   try {
     // Extract topics and keywords from the question
     const topics = question.topics || [];
@@ -269,8 +271,12 @@ export async function findRelatedVideos(question: Question): Promise<Question> {
       relatedVideos: videos
     };
   } catch (error) {
-    console.error('Error finding related videos:', error);
-    return question;
+    // Silently fail - don't block processing if YouTube API fails
+    console.warn('Error finding related videos (non-blocking):', error);
+    return {
+      ...question,
+      relatedVideos: [] // Return question with empty videos array
+    };
   }
 }
 
@@ -279,8 +285,9 @@ async function fetchFromYouTubeAPI(query: string, maxResults: number): Promise<Y
   const youtubeApiKey = localStorage.getItem('youtubeApiKey');
   
   if (!youtubeApiKey) {
-    toast.error("YouTube API key is required for video recommendations");
-    throw new Error("YouTube API key is required");
+    // Don't throw error - just return empty array so processing can continue
+    console.warn("YouTube API key not found. Video recommendations will be skipped.");
+    return [];
   }
 
   try {
@@ -296,7 +303,9 @@ async function fetchFromYouTubeAPI(query: string, maxResults: number): Promise<Y
     );
     
     if (!response.ok) {
-      throw new Error(`YouTube API error: ${response.status}`);
+      // Log the error but don't throw - return empty array instead
+      console.warn(`YouTube API error: ${response.status}. Video search will be skipped.`);
+      return [];
     }
     
     const data = await response.json();

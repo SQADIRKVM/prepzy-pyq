@@ -1,0 +1,130 @@
+{
+  "repositories": {
+    "KTUNotes.in": {
+      "name": "KTU Notes",
+      "baseUrl": "https://www.ktunotes.in",
+      "type": "scheme-based",
+      "schemes": {
+        "2024": "https://www.ktunotes.in/ktu-2024-scheme-notes/",
+        "2019": "https://www.ktunotes.in/ktu-2019-new-scheme-notes/",
+        "2015": "https://www.ktunotes.in/ktu-2015-scheme-notes/"
+      }
+    },
+    "RTPNotes": {
+      "name": "RTP Notes",
+      "baseUrl": "https://rtpnotes.vercel.app",
+      "type": "semester-based",
+      "branch": "CSE",
+      "semesters": {
+        "5": "https://rtpnotes.vercel.app/s5",
+        "6": "https://rtpnotes.vercel.app/s6",
+        "7": "https://rtpnotes.vercel.app/s7",
+        "8": "https://rtpnotes.vercel.app/s8"
+      }
+    },
+    "KTUStudents.in": {
+      "name": "KTU Students",
+      "baseUrl": "https://www.ktustudents.in",
+      "type": "scheme-based",
+      "schemes": {
+        "2019": "https://www.ktustudents.in/p/notes.html",
+        "2015": "https://www.ktustudents.in/p/notes.html"
+      },
+      "specialPages": {
+        "2019_S1_S2": "https://www.ktustudents.in/p/s1-s2.html"
+      }
+    },
+    "KeralaNotes.com": {
+      "name": "Kerala Notes",
+      "baseUrl": "https://www.keralanotes.com",
+      "type": "scheme-based",
+      "schemes": {
+        "2019": "https://www.keralanotes.com/p/ktu-study-materials.html"
+      }
+    },
+    "KTUAssist.in": {
+      "name": "KTU Assist",
+      "baseUrl": "https://www.ktuassist.in",
+      "type": "scheme-based",
+      "schemes": {
+        "2019": "https://www.ktuassist.in/",
+        "2015": "https://www.ktuassist.in/"
+      }
+    }
+  },
+  "subjectMappings": {
+    "RTPNotes": {
+      "Semester 5": {
+        "CST301": ["formal languages", "automata theory", "automata", "flat", "toc", "theory of computation"],
+        "CST303": ["computer network", "computer networks", "cn", "networks"],
+        "CST305": ["system software", "systems software", "ss"],
+        "CST307": ["mpmc", "microprocessors", "microprocessor", "microcontrollers", "microcontroller"],
+        "CST309": ["mss", "management of software systems", "management support systems", "management", "software systems"],
+        "MCN301": ["disaster management", "disaster"],
+        "CSL331": ["system software lab", "microprocessors lab", "ss and mpmc lab"],
+        "CSL333": ["database management systems lab", "dbms lab", "database lab"]
+      },
+      "Semester 6": {
+        "CST302": ["compiler", "compiler design", "cd"],
+        "CST304": ["computer-graphic", "computer graphics", "cg", "graphics", "image processing"],
+        "CST306": ["algorithm-analysis", "algorithm", "algorithms", "algorithm analysis and design", "design and analysis of algorithms", "daa"],
+        "CST322": ["data analytics", "analytics"],
+        "CST332": ["foundations of security", "security in computing", "security"],
+        "CST342": ["automated verification", "verification"],
+        "CST352": ["ia32 architecture", "architecture"],
+        "CST362": ["python", "python programming", "programming in python"],
+        "CST372": ["data and computer communication", "computer communication", "data communication"],
+        "HUT300": ["industrial-economic", "industrial economics", "foreign trade", "economics"],
+        "CST308": ["comprehensive", "comprehensive course work", "comprehensive exam"],
+        "CSL332": ["computer-network-lab", "computer network lab", "networking lab", "cn lab", "networks lab"],
+        "CSD334": ["miniproject", "mini project"]
+      },
+      "Semester 7": {
+        "CST401": ["ai", "artificial intelligence", "intelligence"],
+        "CST413": ["machine learning", "ml"],
+        "CST423": ["cloud computing", "cloud"],
+        "CST433": ["security in computing", "security"],
+        "CST443": ["model based software development", "model based software", "software development"],
+        "CST453": ["advanced topics in ia32 architecture", "ia32 architecture", "architecture"],
+        "CST463": ["web-programming", "web programming", "web", "web technologies", "wt"],
+        "CST473": ["natural language processing", "nlp"],
+        "CST421": ["mobile computing", "introduction to mobile computing"],
+        "CST425": ["deep learning", "introduction to deep learning", "dl", "neural networks"],
+        "CST435": ["computer graphics", "cg", "graphics"],
+        "CST445": ["python for engineers", "python"],
+        "CST455": ["object oriented concepts", "object oriented", "ooc", "oop"],
+        "MCN401": ["industrial-safety", "industrial safety engineering", "industrial safety", "safety"],
+        "CSL411": ["compiler lab", "compiler"],
+        "CSQ413": ["seminar"],
+        "CSD415": ["project", "miniproject"]
+      },
+      "Semester 8": {
+        "CST402": ["distributed-computing", "distributed computing", "dc", "distributed"],
+        "CST412": ["deep-learning", "deep learning", "dl", "neural networks"],
+        "CST424": ["programming paradigms", "paradigms"],
+        "CST434": ["cryptography", "crypto"],
+        "CST444": ["soft computing", "soft computing techniques"],
+        "CST454": ["fuzzy set theory", "fuzzy set theory and applications", "fuzzy"],
+        "CST464": ["embedded systems", "embedded"],
+        "CST474": ["computer vision", "vision"],
+        "CST414": ["formal methods", "formal methods and tools in software engineering", "software engineering"],
+        "CST426": ["client server architecture", "client server", "csa"],
+        "CST436": ["parallel computing", "parallel"],
+        "CST446": ["data compression", "data compression techniques", "compression"],
+        "CST456": ["unified extended firmware interface", "uefi", "firmware"],
+        "CST466": ["data-mining", "data mining", "mining"],
+        "CST476": ["mobile computing", "mobile"],
+        "CST418": ["high performance computing", "hpc", "performance computing"],
+        "CST428": ["block chain", "blockchain technologies", "blockchain", "block chain"],
+        "CST438": ["image processing", "image processing technique", "image processing techniques"],
+        "CST448": ["internet of things", "iot"],
+        "CST458": ["software-testing", "software testing", "testing"],
+        "CST468": ["bioinformatics", "bio"],
+        "CST478": ["computational linguistics", "linguistics"],
+        "CST404": ["comprehensive course viva", "comprehensive viva", "viva"],
+        "CSD416": ["project phase ii", "project phase 2", "project"]
+      }
+    }
+  }
+}
+

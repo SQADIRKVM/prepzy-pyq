@@ -100,19 +100,26 @@ export const apiService = {
       }
     }
     
-    // Convert topics map to array
+    // Deduplicate questions (remove exact duplicates and very similar ones)
+    const deduplicatedQuestions = deduplicateQuestions(allQuestions);
+    
+    // Filter to only show repeated/common questions
+    const commonQuestions = filterCommonQuestions(deduplicatedQuestions);
+    
+    // Convert topics map to array (only for common questions)
+    const commonQuestionIds = new Set(commonQuestions.map(q => q.id));
     const topicsArray: QuestionTopic[] = Array.from(allTopicsMap.entries())
       .map(([name, data]) => ({
         name,
         count: data.count,
-        questions: Array.from(new Set(data.questions)) // Remove duplicates
+        questions: Array.from(new Set(data.questions.filter(id => commonQuestionIds.has(id)))) // Only include common questions
       }))
-      .filter(topic => topic.count > 1)
+      .filter(topic => topic.count > 1 && topic.questions.length > 0)
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
     
     const result: AnalysisResult = {
-      questions: allQuestions,
+      questions: commonQuestions,
       topics: topicsArray
     };
     
@@ -281,12 +288,18 @@ export const apiService = {
         onProgress(85 + progressIncrement, `Processing question ${i+1} of ${extractedQuestions.length}`);
       }
       
-      // 5. Identify common topics across questions
-      const topics = extractCommonTopics(enhancedQuestions);
+      // 5. Deduplicate questions (remove exact duplicates and very similar ones)
+      const deduplicatedQuestions = deduplicateQuestions(enhancedQuestions);
       
-      // 6. Save to database
+      // 6. Filter to only show repeated/common questions
+      const commonQuestions = filterCommonQuestions(deduplicatedQuestions);
+      
+      // 7. Identify common topics across questions (only for common questions)
+      const topics = extractCommonTopics(commonQuestions);
+      
+      // 8. Save to database
       const result: AnalysisResult = {
-        questions: enhancedQuestions,
+        questions: commonQuestions,
         topics
       };
       
@@ -362,12 +375,18 @@ export const apiService = {
         onProgress(75 + progressIncrement, `Processing question ${i+1} of ${extractedQuestions.length}`);
       }
       
-      // 4. Identify common topics across questions
-      const topics = extractCommonTopics(enhancedQuestions);
+      // 4. Deduplicate questions (remove exact duplicates and very similar ones)
+      const deduplicatedQuestions = deduplicateQuestions(enhancedQuestions);
       
-      // 5. Save to database
+      // 5. Filter to only show repeated/common questions
+      const commonQuestions = filterCommonQuestions(deduplicatedQuestions);
+      
+      // 6. Identify common topics across questions (only for common questions)
+      const topics = extractCommonTopics(commonQuestions);
+      
+      // 7. Save to database
       const result: AnalysisResult = {
-        questions: enhancedQuestions,
+        questions: commonQuestions,
         topics
       };
       
@@ -402,6 +421,137 @@ export const apiService = {
     );
   }
 };
+
+/**
+ * Deduplicate questions by removing exact duplicates and very similar questions
+ */
+function deduplicateQuestions(questions: Question[]): Question[] {
+  const seen = new Map<string, Question>();
+  const normalizedTexts = new Set<string>();
+  
+  for (const question of questions) {
+    // Normalize text for comparison (lowercase, remove extra spaces, remove question numbers)
+    const normalized = question.text
+      .toLowerCase()
+      .replace(/^\d+[\.\)]\s*/g, '') // Remove question numbers
+      .replace(/\s+/g, ' ')
+      .trim();
+    
+    // Skip if we've seen this exact normalized text
+    if (normalizedTexts.has(normalized)) {
+      continue;
+    }
+    
+    // Check for similar questions (80% similarity threshold)
+    let isDuplicate = false;
+    for (const [existingNormalized, existingQuestion] of seen.entries()) {
+      const similarity = calculateSimilarity(normalized, existingNormalized);
+      if (similarity > 0.8) {
+        isDuplicate = true;
+        // Keep the one with more topics/keywords (more complete)
+        if ((question.topics?.length || 0) + (question.keywords?.length || 0) > 
+            (existingQuestion.topics?.length || 0) + (existingQuestion.keywords?.length || 0)) {
+          seen.delete(existingNormalized);
+          seen.set(normalized, question);
+          normalizedTexts.delete(existingNormalized);
+          normalizedTexts.add(normalized);
+        }
+        break;
+      }
+    }
+    
+    if (!isDuplicate) {
+      seen.set(normalized, question);
+      normalizedTexts.add(normalized);
+    }
+  }
+  
+  return Array.from(seen.values());
+}
+
+/**
+ * Calculate similarity between two strings using Jaccard similarity
+ */
+function calculateSimilarity(str1: string, str2: string): number {
+  const words1 = new Set(str1.split(/\s+/).filter(w => w.length > 2));
+  const words2 = new Set(str2.split(/\s+/).filter(w => w.length > 2));
+  
+  const intersection = new Set([...words1].filter(x => words2.has(x)));
+  const union = new Set([...words1, ...words2]);
+  
+  return union.size > 0 ? intersection.size / union.size : 0;
+}
+
+/**
+ * Filter to only show repeated/common/tricky questions
+ * A question is considered common if:
+ * 1. It appears in multiple topics (repeated across different contexts)
+ * 2. It has common topics/keywords that appear in other questions
+ * 3. It's marked as tricky by having certain keywords
+ */
+function filterCommonQuestions(questions: Question[]): Question[] {
+  if (questions.length === 0) return [];
+  
+  // Build a map of topic/keyword frequency
+  const topicFrequency = new Map<string, number>();
+  const keywordFrequency = new Map<string, number>();
+  
+  questions.forEach(q => {
+    q.topics?.forEach(topic => {
+      topicFrequency.set(topic, (topicFrequency.get(topic) || 0) + 1);
+    });
+    q.keywords?.forEach(keyword => {
+      keywordFrequency.set(keyword, (keywordFrequency.get(keyword) || 0) + 1);
+    });
+  });
+  
+  // Build a map to track question similarity (questions that share topics/keywords)
+  const questionSimilarity = new Map<string, number>();
+  
+  questions.forEach(q => {
+    let similarityScore = 0;
+    
+    // Count how many other questions share the same topics/keywords
+    q.topics?.forEach(topic => {
+      const freq = topicFrequency.get(topic) || 0;
+      if (freq > 1) similarityScore += freq - 1; // -1 because we don't count the question itself
+    });
+    
+    q.keywords?.forEach(keyword => {
+      const freq = keywordFrequency.get(keyword) || 0;
+      if (freq > 1) similarityScore += freq - 1;
+    });
+    
+    questionSimilarity.set(q.id, similarityScore);
+  });
+  
+  // Filter questions that are common/repeated
+  const commonQuestions = questions.filter(q => {
+    // Check if question has topics/keywords that appear in multiple questions
+    const hasCommonTopics = q.topics?.some(topic => (topicFrequency.get(topic) || 0) > 1) || false;
+    const hasCommonKeywords = q.keywords?.some(keyword => (keywordFrequency.get(keyword) || 0) > 1) || false;
+    
+    // Check for tricky/common question indicators
+    const trickyKeywords = ['prove', 'derive', 'show that', 'verify', 'demonstrate', 'calculate', 'solve', 'find', 'determine', 'evaluate', 'compute', 'obtain'];
+    const isTricky = trickyKeywords.some(keyword => q.text.toLowerCase().includes(keyword));
+    
+    // Get similarity score (how many other questions share topics/keywords)
+    const similarityScore = questionSimilarity.get(q.id) || 0;
+    
+    // A question is common if:
+    // 1. It has common topics/keywords (appears in multiple contexts) - similarityScore > 0
+    // 2. It's a tricky question (has problem-solving keywords)
+    // 3. It has multiple topics/keywords (well-categorized) and appears in at least 2 contexts
+    return similarityScore > 0 || isTricky || ((q.topics?.length || 0) + (q.keywords?.length || 0) >= 3 && (hasCommonTopics || hasCommonKeywords));
+  });
+  
+  // If no common questions found, return all questions (fallback)
+  if (commonQuestions.length === 0) {
+    return questions;
+  }
+  
+  return commonQuestions;
+}
 
 /**
  * Extract common topics across multiple questions

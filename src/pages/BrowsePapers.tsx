@@ -42,7 +42,7 @@ const BrowsePapers = () => {
     }
     return true;
   });
-  const [showModelDialog, setShowModelDialog] = useState(false);
+  const [showModelSelection, setShowModelSelection] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   // Filter chips - dynamically generated from papers
@@ -373,27 +373,36 @@ const BrowsePapers = () => {
 
       // Store files and show model selection dialog
       setPendingFiles(files);
-      setShowModelDialog(true);
+      setShowModelSelection(true);
     } catch (error) {
       console.error("Error analyzing papers:", error);
       toast.error("Failed to process papers");
     }
   };
 
-  const handleModelConfirm = (selectedModel: string) => {
-    // Save the selected model to localStorage
-    localStorage.setItem('selectedModel', selectedModel);
+  const handleModelSelected = (model: string, provider: 'gemini' | 'openai' | 'openrouter' | 'deepseek') => {
+    // Save model selection to localStorage
+    localStorage.setItem('lastSelectedProvider', provider);
+    if (provider === 'gemini') {
+      localStorage.setItem('geminiModel', model);
+    } else if (provider === 'openai') {
+      localStorage.setItem('openaiModel', model);
+    } else if (provider === 'openrouter') {
+      localStorage.setItem('openRouterModel', model);
+    }
     
-    // Navigate to analyzer with the files and selected model
+    // Navigate to analyzer with files and model info
     navigate('/analyzer', { 
       state: { 
         filesToProcess: pendingFiles,
         fromBrowse: true,
-        selectedModel: selectedModel
+        selectedModel: model,
+        selectedProvider: provider
       } 
     });
     
-    toast.success(`Starting analysis with ${selectedModel}...`);
+    setShowModelSelection(false);
+    setPendingFiles([]);
   };
 
   const toggleSidebar = () => {
@@ -410,6 +419,13 @@ const BrowsePapers = () => {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
+      {/* Model Selection Dialog */}
+      <ModelSelectionDialog
+        open={showModelSelection}
+        onOpenChange={setShowModelSelection}
+        onSelect={handleModelSelected}
+      />
+
       {/* PDF Viewer Dialog */}
       <Dialog open={!!viewingPaper} onOpenChange={(open) => !open && setViewingPaper(null)}>
         <DialogContent className="max-w-[95vw] w-full max-h-[95vh] p-0 flex flex-col">
@@ -1237,14 +1253,6 @@ const BrowsePapers = () => {
           </div>
         </div>
       </div>
-
-      {/* Model Selection Dialog */}
-      <ModelSelectionDialog
-        open={showModelDialog}
-        onClose={() => setShowModelDialog(false)}
-        onConfirm={handleModelConfirm}
-        paperCount={selectedPapers.size}
-      />
     </div>
   );
 };
