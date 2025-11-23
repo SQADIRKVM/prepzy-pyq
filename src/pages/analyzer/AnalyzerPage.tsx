@@ -842,11 +842,11 @@ const AnalyzerPage = () => {
     return Array.from(topicNames).sort();
   };
 
-  // Calculate stats
+  // Calculate stats from original (unfiltered) data
   const stats = {
-    totalQuestions: questions.length,
-    totalSubjects: new Set(questions.map(q => q.subject)).size,
-    totalTopics: topics.length
+    totalQuestions: originalQuestions.length,
+    totalSubjects: new Set(originalQuestions.map(q => q.subject)).size,
+    totalTopics: originalTopics.length
   };
 
   const handleNewUpload = () => {
@@ -876,11 +876,8 @@ const AnalyzerPage = () => {
     setCurrentChatId(chatId);
     setStatus("idle");
     setActiveTab("upload");
-    // Clear results when loading chat
-    setQuestions([]);
-    setTopics([]);
-    setOriginalQuestions([]);
-    setOriginalTopics([]);
+    // Don't clear results - preserve them so user can switch between chat and results
+    // Results remain available in the results tab
   };
 
   const handleSessionSelected = (resultId: string) => {
@@ -1065,28 +1062,33 @@ const AnalyzerPage = () => {
               <PanelLeft className="h-4 w-4 md:h-5 md:w-5" />
               <span className="sr-only">Toggle Sidebar</span>
             </Button>
-            {questions.length > 0 && (
+            {originalQuestions.length > 0 && (
               <>
                 <div className="px-2 md:px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs md:text-sm font-medium">
-                  {questions.length} Questions
+                  {originalQuestions.length} Questions
                 </div>
                 <div className="h-4 w-px bg-border hidden sm:block" />
                 <div className="text-xs md:text-sm text-muted-foreground hidden sm:block">
-                  {new Set(questions.map(q => q.subject)).size} Subject{new Set(questions.map(q => q.subject)).size !== 1 ? 's' : ''}
+                  {new Set(originalQuestions.map(q => q.subject)).size} Subject{new Set(originalQuestions.map(q => q.subject)).size !== 1 ? 's' : ''}
                 </div>
-                {topics.length > 0 && (
+                {originalTopics.length > 0 && (
                   <>
                     <div className="h-4 w-px bg-border hidden sm:block" />
                     <div className="text-xs md:text-sm text-muted-foreground hidden sm:block">
-                      {topics.length} Topic{topics.length !== 1 ? 's' : ''}
+                      {originalTopics.length} Topic{originalTopics.length !== 1 ? 's' : ''}
                     </div>
                   </>
                 )}
               </>
             )}
+            {currentChatId && originalQuestions.length === 0 && (
+              <div className="px-2 md:px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs md:text-sm font-medium">
+                Chat Active
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-3">
-              {status === "completed" && (
+              {(status === "completed" || currentChatId || originalQuestions.length > 0) && (
                   <Button 
                     onClick={resetForNewUpload} 
                     variant="outline" 
@@ -1103,21 +1105,23 @@ const AnalyzerPage = () => {
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-6xl mx-auto w-full p-3 sm:p-4 md:p-6 lg:p-8 pb-20 sm:pb-24 md:pb-6 lg:pb-8">
-            {questions.length > 0 ? (
+            {(originalQuestions.length > 0 || currentChatId) ? (
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="mb-4 md:mb-6 bg-card border border-border rounded-lg w-full sm:w-auto flex gap-2 sm:gap-0 overflow-x-auto sm:overflow-visible p-1 sm:p-0">
+                <TabsList className="mb-4 md:mb-6 bg-card border border-border rounded-lg w-full sm:w-auto flex gap-1 sm:gap-2 overflow-x-auto sm:overflow-visible p-1 sm:p-1 scrollbar-hide">
                   <TabsTrigger 
                     value="upload" 
-                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm flex-1 sm:flex-initial whitespace-nowrap px-3 py-1.5"
+                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm flex-1 sm:flex-initial whitespace-nowrap px-2 sm:px-3 py-1.5 min-w-fit"
                   >
                     Upload & Process
                   </TabsTrigger>
-                  <TabsTrigger 
-                    value="results" 
-                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm flex-1 sm:flex-initial whitespace-nowrap px-3 py-1.5"
-                  >
-                    View Results
-                  </TabsTrigger>
+                  {originalQuestions.length > 0 && (
+                    <TabsTrigger 
+                      value="results" 
+                      className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm flex-1 sm:flex-initial whitespace-nowrap px-2 sm:px-3 py-1.5 min-w-fit"
+                    >
+                      View Results
+                    </TabsTrigger>
+                  )}
                 </TabsList>
 
                 <TabsContent value="upload" className="mt-0">
@@ -1144,16 +1148,18 @@ const AnalyzerPage = () => {
                   />
                 </TabsContent>
                 
-                <TabsContent value="results" className="mt-0">
-                  <ResultsSection 
-                    questions={questions}
-                    topics={topics}
-                    years={getUniqueYears()}
-                    topicNames={getUniqueTopics()}
-                    filters={filters}
-                    onFilterChange={handleFilterChange}
-                  />
-                </TabsContent>
+                {originalQuestions.length > 0 && (
+                  <TabsContent value="results" className="mt-0">
+                    <ResultsSection 
+                      questions={questions}
+                      topics={topics}
+                      years={getUniqueYears()}
+                      topicNames={getUniqueTopics()}
+                      filters={filters}
+                      onFilterChange={handleFilterChange}
+                    />
+                  </TabsContent>
+                )}
               </Tabs>
             ) : (
               <UploadSection 

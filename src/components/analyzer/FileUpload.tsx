@@ -59,7 +59,7 @@ const FileUpload = ({ onUploadPdf, onUploadImage, onUploadPdfOcr, onApiKeyRequir
 
   // Load chat if initialChatId is provided
   useEffect(() => {
-    if (initialChatId && messages.length === 0) {
+    if (initialChatId) {
       const chat = chatService.getChatById(initialChatId);
       if (chat) {
         setMessages(chat.messages);
@@ -67,8 +67,11 @@ const FileUpload = ({ onUploadPdf, onUploadImage, onUploadPdfOcr, onApiKeyRequir
         setHasStarted(true);
       }
     } else if (!initialChatId && currentChatId) {
-      // Clear chat ID when starting fresh
+      // Clear chat when initialChatId is removed (new upload started)
       setCurrentChatId(null);
+      setMessages([]);
+      setHasStarted(false);
+      setAttachedFiles([]);
     }
   }, [initialChatId]);
 
@@ -240,8 +243,12 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
       setMessages(prev => {
         const updated = [...prev, assistantMessage];
         // Save chat after assistant responds
-        if (currentChatId) {
-          chatService.updateChat(currentChatId, updated);
+        const chatIdToUse = currentChatId || initialChatId;
+        if (chatIdToUse) {
+          chatService.updateChat(chatIdToUse, updated);
+          if (!currentChatId) {
+            setCurrentChatId(chatIdToUse);
+          }
         } else {
           const newChatId = chatService.saveChat(updated);
           if (newChatId) {
@@ -261,8 +268,12 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
       setMessages(prev => {
         const updated = [...prev, errorMessage];
         // Save chat even on error
-        if (currentChatId) {
-          chatService.updateChat(currentChatId, updated);
+        const chatIdToUse = currentChatId || initialChatId;
+        if (chatIdToUse) {
+          chatService.updateChat(chatIdToUse, updated);
+          if (!currentChatId) {
+            setCurrentChatId(chatIdToUse);
+          }
         } else {
           const newChatId = chatService.saveChat(updated);
           if (newChatId) {
@@ -449,8 +460,12 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
     setMessages(prev => {
       const updated = [...prev, userMessage];
       // Save chat when user sends a message
-      if (currentChatId) {
-        chatService.updateChat(currentChatId, updated);
+      const chatIdToUse = currentChatId || initialChatId;
+      if (chatIdToUse) {
+        chatService.updateChat(chatIdToUse, updated);
+        if (!currentChatId) {
+          setCurrentChatId(chatIdToUse);
+        }
       } else {
         const newChatId = chatService.saveChat(updated);
         if (newChatId) {
