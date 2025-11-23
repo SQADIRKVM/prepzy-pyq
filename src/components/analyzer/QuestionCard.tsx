@@ -38,21 +38,21 @@ const QuestionCard = ({ question }: QuestionCardProps) => {
         {question.keywords && question.keywords.length > 0 && (
           <div className="flex flex-wrap gap-2 pt-2">
             {question.keywords.slice(0, 6).map((keyword, idx) => (
-              <Badge 
-                key={idx} 
-                variant="outline" 
+              <Badge
+                key={idx}
+                variant="outline"
                 className="bg-primary/5 border-primary/20 text-primary/80 text-xs px-2 py-0.5"
               >
                 <Hash className="h-3 w-3 mr-1" />
-              {keyword}
-            </Badge>
-          ))}
+                {keyword}
+              </Badge>
+            ))}
             {question.keywords.length > 6 && (
               <Badge variant="outline" className="text-xs px-2 py-0.5">
                 +{question.keywords.length - 6} more
               </Badge>
             )}
-        </div>
+          </div>
         )}
       </CardContent>
       {question.relatedVideos && question.relatedVideos.length > 0 && (
@@ -75,7 +75,7 @@ const QuestionCard = ({ question }: QuestionCardProps) => {
               <ChevronDown className="h-4 w-4 md:h-5 md:w-5" />
             )}
           </Button>
-          
+
           {showVideos && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 pt-2">
               {question.relatedVideos.map((video) => (

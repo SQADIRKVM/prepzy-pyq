@@ -40,10 +40,10 @@ export async function processWithDeepSeek(
       // New format: conversation history array
       messages = conversationHistory;
     }
-    
+
     // Get the model from options (this is the model selected in ModelSelector)
     const selectedModel = options.model;
-    
+
     if (!selectedModel) {
       throw new Error("No model specified");
     }
@@ -52,7 +52,7 @@ export async function processWithDeepSeek(
     const deepseekApiKey = getApiKey('deepseek');
     const openRouterApiKey = getApiKey('openrouter');
     const geminiApiKey = getApiKey('gemini');
-    
+
     // Debug: Log API key status (without exposing the actual key)
     console.log('API Key Status:', {
       gemini: geminiApiKey ? `Found (${geminiApiKey.substring(0, 10)}...)` : 'Not found',
@@ -65,19 +65,19 @@ export async function processWithDeepSeek(
         openrouter: localStorage.getItem('openRouterApiKey') ? 'Has key' : 'No key',
       }
     });
-    
+
     // Determine which API to use based on the selected model, not available API keys
     let useGemini = false;
     let useOpenRouter = false;
     let useDeepSeek = false;
     let providerName = 'Unknown';
-    
+
     // Check which provider the model belongs to
     if (selectedModel.startsWith('gemini-')) {
       // Gemini model
       useGemini = true;
       providerName = 'Gemini';
-      
+
       // Check if it's a free model (doesn't need API key)
       const isFreeModel = selectedModel === 'gemini-2.5-flash';
       if (!isFreeModel && !geminiApiKey) {
@@ -87,7 +87,7 @@ export async function processWithDeepSeek(
       // OpenRouter model (format: "provider/model:free" or "provider/model")
       useOpenRouter = true;
       providerName = 'OpenRouter';
-      
+
       // Check if it's a free model
       const freeModels = [
         'deepseek/deepseek-chat-v3-0324:free',
@@ -102,7 +102,7 @@ export async function processWithDeepSeek(
       // DeepSeek model
       useDeepSeek = true;
       providerName = 'DeepSeek';
-      
+
       if (!deepseekApiKey) {
         throw new Error("DeepSeek API key is required. Please add your API key in Settings.");
       }
@@ -116,22 +116,22 @@ export async function processWithDeepSeek(
     if (useGemini) {
       // Check if it's a free model
       const isFreeModel = selectedModel === 'gemini-2.5-flash';
-      
+
       // Even free Gemini models require an API key (you get free tier credits)
       // But we should provide a helpful error message
       if (!geminiApiKey) {
-        const errorMsg = isFreeModel 
+        const errorMsg = isFreeModel
           ? "Gemini API key is required. Even free models need an API key (you get free tier credits). Please add your API key in Settings or set VITE_GEMINI_API_KEY in your .env file. Get a free key from: https://aistudio.google.com/app/apikey"
           : "Gemini API key is required for this model. Please add your API key in Settings or set VITE_GEMINI_API_KEY in your .env file.";
         throw new Error(errorMsg);
       }
-      
+
       const genAI = new GoogleGenerativeAI(geminiApiKey);
       // Use the model from options (selected in ModelSelector)
       const modelToUse = selectedModel;
       // Gemini supports up to 16000 tokens, but respect the requested limit
       const geminiMaxTokens = Math.min(options.max_tokens || 16000, 16000);
-      const model = genAI.getGenerativeModel({ 
+      const model = genAI.getGenerativeModel({
         model: modelToUse,
         generationConfig: {
           temperature: options.temperature ?? 0.2,
@@ -143,7 +143,7 @@ export async function processWithDeepSeek(
       // Build conversation history for Gemini chat
       // Convert messages to Gemini's chat format (parts must be an array)
       const chatHistory: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
-      
+
       // Build history from previous messages (excluding the last user message which we'll send separately)
       const previousMessages = messages.slice(0, -1);
       previousMessages.forEach(msg => {
@@ -159,7 +159,7 @@ export async function processWithDeepSeek(
           });
         }
       });
-      
+
       // Get the current user message (last message in the array)
       const currentUserMessage = messages[messages.length - 1];
       const userContent = currentUserMessage.role === 'user' ? currentUserMessage.content : '';
@@ -169,19 +169,19 @@ export async function processWithDeepSeek(
         const chat = model.startChat({
           history: chatHistory,
         });
-        
+
         const result = await chat.sendMessage(userContent);
         const response = await result.response;
         const generatedText = response.text();
-        
+
         if (!generatedText) {
           throw new Error("Gemini API returned empty response");
         }
-        
+
         return generatedText;
       } catch (error: any) {
         console.error("Gemini API error:", error);
-        
+
         // Handle Gemini-specific errors
         if (error.message?.includes("API_KEY_INVALID") || error.message?.includes("401")) {
           toast.error("Invalid Gemini API key. Please check your settings.");
@@ -195,7 +195,7 @@ export async function processWithDeepSeek(
           toast.error("Gemini API server error. Please try again later.");
           throw new Error(`API error: ${error.status || 500} - Gemini API server error`);
         }
-        
+
         throw error;
       }
     }
@@ -205,7 +205,7 @@ export async function processWithDeepSeek(
     const providerMaxTokens = useGemini ? 16000 : (useOpenRouter ? 16000 : 8192);
     const requestedMaxTokens = options.max_tokens || providerMaxTokens;
     const finalMaxTokens = Math.min(requestedMaxTokens, providerMaxTokens);
-    
+
     // Remove max_tokens from options to avoid conflicts, then set it correctly
     const { max_tokens: _, ...optionsWithoutMaxTokens } = options;
     const defaultOptions = {
@@ -225,21 +225,21 @@ export async function processWithDeepSeek(
     ];
 
     const requestBody = {
-        model: defaultOptions.model,
-        messages: apiMessages,
-        temperature: defaultOptions.temperature,
-        max_tokens: defaultOptions.max_tokens
+      model: defaultOptions.model,
+      messages: apiMessages,
+      temperature: defaultOptions.temperature,
+      max_tokens: defaultOptions.max_tokens
     };
 
     console.log("Request body:", JSON.stringify(requestBody, null, 2));
 
     let response;
-    
+
     if (useOpenRouter) {
       // Use OpenRouter API directly
       const siteUrl = window.location.origin;
       const siteName = "Prepzy PYQ";
-      
+
       // Check if it's a free model
       const freeModels = [
         'deepseek/deepseek-chat-v3-0324:free',
@@ -247,19 +247,19 @@ export async function processWithDeepSeek(
         'moonshotai/kimi-k2:free'
       ];
       const isFreeModel = freeModels.includes(selectedModel);
-      
+
       // Build headers - free models don't require Authorization header
       const headers: HeadersInit = {
         "HTTP-Referer": siteUrl,
         "X-Title": siteName,
         "Content-Type": "application/json"
       };
-      
+
       // Only add Authorization header if API key is available (for paid models or if user has key)
       if (openRouterApiKey) {
         headers["Authorization"] = `Bearer ${openRouterApiKey}`;
       }
-      
+
       response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers,
@@ -267,18 +267,18 @@ export async function processWithDeepSeek(
       });
     } else {
       // Use DeepSeek API via proxy server (Vercel serverless function in production)
-      const proxyUrl = import.meta.env.PROD 
+      const proxyUrl = import.meta.env.PROD
         ? "/api/deepseek"  // Vercel serverless function
         : "http://localhost:3001/api/deepseek";  // Local development
-      
+
       response = await fetch(proxyUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
           "X-DeepSeek-API-Key": deepseekApiKey!
-      },
-      body: JSON.stringify(requestBody)
-    });
+        },
+        body: JSON.stringify(requestBody)
+      });
     }
 
     console.log("API response status:", response.status);
@@ -291,14 +291,14 @@ export async function processWithDeepSeek(
         errorData = await response.text();
       }
       console.error("API error response:", errorData);
-      
+
       // Handle specific error cases
       if (response.status === 401 || response.status === 403) {
         toast.error(`Invalid ${providerName} API key. Please check your settings.`);
       } else if (response.status === 404) {
         // 404 errors from OpenRouter often indicate privacy/data policy issues
         let errorMessage = `${providerName} API error: `;
-        
+
         if (useOpenRouter) {
           const errorMsg = errorData?.error?.message || JSON.stringify(errorData);
           if (errorMsg.includes("data policy") || errorMsg.includes("Free model publication")) {
@@ -318,7 +318,7 @@ export async function processWithDeepSeek(
             toast.error(errorMessage, {
               duration: 8000,
             });
-      }
+          }
         } else {
           errorMessage += "Endpoint not found. Please check your API configuration.";
           toast.error(errorMessage);
@@ -326,7 +326,7 @@ export async function processWithDeepSeek(
       } else if (response.status === 429) {
         // Rate limit error
         let errorMessage = `${providerName} API rate limit exceeded. `;
-        
+
         if (useOpenRouter && errorData?.error?.metadata?.raw) {
           const rawError = errorData.error.metadata.raw;
           if (rawError.includes('rate-limited upstream')) {
@@ -337,7 +337,7 @@ export async function processWithDeepSeek(
         } else {
           errorMessage += "Please wait a few minutes and try again.";
         }
-        
+
         toast.error(errorMessage, {
           duration: 8000,
         });
@@ -345,7 +345,7 @@ export async function processWithDeepSeek(
         // 400 Bad Request - often indicates invalid parameters
         let errorMessage = `${providerName} API error: `;
         const errorMsg = errorData?.error?.message || errorData?.details || JSON.stringify(errorData);
-        
+
         if (errorMsg.includes("max_tokens") || errorMsg.includes("Invalid")) {
           if (useOpenRouter || useGemini) {
             errorMessage = "Token limit exceeded. Please try processing a smaller document or split it into parts.";
@@ -356,7 +356,7 @@ export async function processWithDeepSeek(
         } else {
           errorMessage += errorMsg;
         }
-        
+
         toast.error(errorMessage, {
           duration: 10000,
         });
@@ -369,26 +369,26 @@ export async function processWithDeepSeek(
           duration: 8000,
         });
       }
-      
+
       throw new Error(`API error: ${response.status} - ${JSON.stringify(errorData)}`);
     }
 
     const data = await response.json();
-    
+
     // Log the response for debugging
     console.log("API response data:", JSON.stringify(data, null, 2));
 
     // Validate response structure
     if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
       console.error("Invalid API response structure:", data);
-      
+
       // If we got an error message from the API, show it
       if (data.error || data.error_msg) {
         toast.error(`${providerName} API error: ${data.error || data.error_msg}`);
       } else {
         toast.error("Unexpected API response format");
       }
-      
+
       throw new Error("Invalid API response structure");
     }
 
@@ -414,7 +414,7 @@ export async function processWithDeepSeek(
  */
 export async function enhanceText(text: string): Promise<string> {
   toast.info("Enhancing extracted text with AI...");
-  
+
   const prompt = `
     You are an expert at enhancing and correcting text extracted from academic question papers. 
     Your tasks:
@@ -433,14 +433,14 @@ export async function enhanceText(text: string): Promise<string> {
     Format the text to look exactly like a professional academic question paper.
     Return only the enhanced text without any explanations or comments.
   `;
-  
+
   try {
     // Get the selected model from localStorage (same logic as FileUpload)
     const lastProvider = localStorage.getItem('lastSelectedProvider') || 'gemini';
     const geminiModel = localStorage.getItem('geminiModel') || 'gemini-2.5-flash';
     const openRouterModel = localStorage.getItem('openRouterModel') || 'deepseek/deepseek-chat-v3-0324:free';
     const openaiModel = localStorage.getItem('openaiModel') || 'openai/gpt-4o';
-    
+
     let selectedModel: string;
     if (lastProvider === 'openai') {
       selectedModel = openaiModel;
@@ -455,7 +455,7 @@ export async function enhanceText(text: string): Promise<string> {
     }
     // Check if it's a ChatGPT model (needs Bytez)
     const isChatGPT = selectedModel.startsWith('openai/');
-    
+
     let enhancedText: string;
     if (isChatGPT) {
       // Use Bytez service for ChatGPT models
@@ -469,7 +469,7 @@ export async function enhanceText(text: string): Promise<string> {
       // DeepSeek: 8192 max, OpenRouter/Gemini: 16000
       const isDeepSeek = selectedModel === 'deepseek-chat';
       const maxTokens = isDeepSeek ? 8192 : 16000;
-      
+
       enhancedText = await processWithDeepSeek(text, prompt, {
         model: selectedModel,
         max_tokens: maxTokens
@@ -492,7 +492,7 @@ export async function enhanceText(text: string): Promise<string> {
  */
 export async function analyzeQuestions(text: string): Promise<any> {
   toast.info("Analyzing questions with AI...");
-  
+
   const prompt = `
     You are an expert at analyzing academic question papers across all subjects. Your task is to identify and extract ALL questions, focusing on those that are commonly repeated, tricky, or frequently asked.
     
@@ -541,14 +541,14 @@ export async function analyzeQuestions(text: string): Promise<any> {
     
     Make sure to include ALL questions from the paper in the array.
   `;
-  
+
   try {
     // Get the selected model from localStorage (same logic as FileUpload)
     const lastProvider = localStorage.getItem('lastSelectedProvider') || 'gemini';
     const geminiModel = localStorage.getItem('geminiModel') || 'gemini-2.5-flash';
     const openRouterModel = localStorage.getItem('openRouterModel') || 'deepseek/deepseek-chat-v3-0324:free';
     const openaiModel = localStorage.getItem('openaiModel') || 'openai/gpt-4o';
-    
+
     let selectedModel: string;
     if (lastProvider === 'openai') {
       selectedModel = openaiModel;
@@ -563,7 +563,7 @@ export async function analyzeQuestions(text: string): Promise<any> {
     }
     // Check if it's a ChatGPT model (needs Bytez)
     const isChatGPT = selectedModel.startsWith('openai/');
-    
+
     let analysisText: string;
     if (isChatGPT) {
       // Use Bytez service for ChatGPT models
@@ -578,21 +578,21 @@ export async function analyzeQuestions(text: string): Promise<any> {
       // DeepSeek: 8192 max, OpenRouter/Gemini: 16000
       const isDeepSeek = selectedModel === 'deepseek-chat';
       const maxTokens = isDeepSeek ? 8192 : 16000;
-      
+
       analysisText = await processWithDeepSeek(text, prompt, {
         model: selectedModel,
         temperature: 0.1, // Lower temperature for more consistent results
         max_tokens: maxTokens
       });
     }
-    
+
     // Remove code block markers if present
     let cleanedAnalysisText = analysisText.replace(/```json|```/g, '').trim();
-    
+
     // Fix common JSON issues
     // 1. Remove any leading/trailing whitespace and newlines
     cleanedAnalysisText = cleanedAnalysisText.trim();
-    
+
     // 2. Fix invalid escape sequences - this needs to be done carefully
     // Valid JSON escape sequences: \", \\, \/, \b, \f, \n, \r, \t, \uXXXX
     // We'll process this character by character to avoid breaking valid sequences
@@ -626,17 +626,17 @@ export async function analyzeQuestions(text: string): Promise<any> {
       }
     }
     cleanedAnalysisText = escapeFixed;
-    
+
     // 3. Fix unescaped newlines, tabs, and control characters inside string values
     // Process character by character to avoid double-escaping
     // Only fix characters that are NOT already escaped
     let fixedJson = '';
     let inString = false;
     let escapeNext = false;
-    
+
     for (let i = 0; i < cleanedAnalysisText.length; i++) {
       const char = cleanedAnalysisText[i];
-      
+
       if (escapeNext) {
         // Previous char was backslash, this is the escaped character
         // The backslash was already added, just add the character
@@ -687,19 +687,19 @@ export async function analyzeQuestions(text: string): Promise<any> {
         fixedJson += char;
       }
     }
-    
+
     cleanedAnalysisText = fixedJson;
-    
+
     // 4. Remove any trailing commas before closing brackets/braces
     cleanedAnalysisText = cleanedAnalysisText.replace(/,(\s*[}\]])/g, '$1');
-    
+
     // Check if the response looks truncated (incomplete JSON)
-    if (cleanedAnalysisText.trim().endsWith(',') || 
-        (cleanedAnalysisText.includes('[') && !cleanedAnalysisText.trim().endsWith(']'))) {
+    if (cleanedAnalysisText.trim().endsWith(',') ||
+      (cleanedAnalysisText.includes('[') && !cleanedAnalysisText.trim().endsWith(']'))) {
       console.warn("Response appears to be truncated");
       toast.warning("Response was truncated. Attempting to parse partial data...");
     }
-    
+
     let analysis;
     try {
       // Try to fix incomplete JSON if it's truncated
@@ -712,18 +712,18 @@ export async function analyzeQuestions(text: string): Promise<any> {
           console.log("Attempting to fix truncated JSON");
         }
       }
-      
+
       // Try to parse the JSON
       try {
         analysis = JSON.parse(jsonText);
       } catch (parseError: any) {
         // If parsing fails, try more aggressive cleaning
         console.warn("Direct JSON parse failed, attempting aggressive cleaning:", parseError.message);
-        
+
         // Extract position from error message if available
         const positionMatch = parseError.message.match(/position (\d+)/);
         const errorPosition = positionMatch ? parseInt(positionMatch[1]) : -1;
-        
+
         if (errorPosition > 0 && errorPosition < jsonText.length) {
           // Log the problematic area
           const start = Math.max(0, errorPosition - 50);
@@ -731,7 +731,7 @@ export async function analyzeQuestions(text: string): Promise<any> {
           console.warn("Problematic JSON area:", jsonText.substring(start, end));
           console.warn("Character at error position:", jsonText[errorPosition], "Code:", jsonText.charCodeAt(errorPosition));
         }
-        
+
         // More aggressive cleaning: fix all potential issues
         let fixedJson = jsonText
           // Remove any control characters except those that are properly escaped
@@ -752,7 +752,7 @@ export async function analyzeQuestions(text: string): Promise<any> {
                 inString = !inString;
               }
             }
-            
+
             if (inString) {
               // We're in a string, escape the control character
               const charCode = match.charCodeAt(0);
@@ -770,13 +770,13 @@ export async function analyzeQuestions(text: string): Promise<any> {
           .replace(/\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})/g, '\\\\')
           // Remove trailing commas
           .replace(/,(\s*[}\]])/g, '$1');
-        
+
         try {
           analysis = JSON.parse(fixedJson);
         } catch (secondError: any) {
           // Try to extract JSON array using regex
           console.warn("Second parse attempt failed, trying regex extraction:", secondError.message);
-          
+
           const arrayMatch = fixedJson.match(/\[[\s\S]*\]/);
           if (arrayMatch) {
             try {
@@ -794,7 +794,7 @@ export async function analyzeQuestions(text: string): Promise<any> {
                   const escaped = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
                   return `": "${escaped}"`;
                 });
-              
+
               try {
                 analysis = JSON.parse(repairedJson);
               } catch (finalError) {
@@ -814,14 +814,14 @@ export async function analyzeQuestions(text: string): Promise<any> {
       if (!Array.isArray(analysis)) {
         throw new Error("Response is not an array");
       }
-      
+
       // Extract year from the question paper text
       const extractedYear = extractYearFromText(text);
-      
+
       // Filter out any non-question entries and standardize the data
       analysis = analysis.filter(item => {
         return (
-          item.questionText && 
+          item.questionText &&
           item.questionText.length > 20 &&
           !item.questionText.toLowerCase().includes("reg.no") &&
           !item.questionText.toLowerCase().includes("technology") &&
@@ -839,19 +839,19 @@ export async function analyzeQuestions(text: string): Promise<any> {
         };
         return standardizedItem;
       });
-      
+
       toast.success("Question analysis complete");
       return analysis;
     } catch (jsonError) {
       console.error("JSON parsing error:", jsonError, "Raw text:", cleanedAnalysisText.substring(0, 500));
-      
+
       // Provide more helpful error message
       if (jsonError instanceof SyntaxError && jsonError.message.includes("Unexpected end")) {
         toast.error("Response was truncated. The question paper is too large. Please try processing a smaller section or increase the API token limit.");
         throw new Error("Response truncated: Question paper too large for current token limit. Please process smaller batches.");
       } else {
         toast.error("Failed to parse question analysis. The AI response format was invalid.");
-      throw jsonError;
+        throw jsonError;
       }
     }
   } catch (error) {
@@ -890,11 +890,11 @@ function standardizeTopics(topics: string[]): string[] {
   // Remove action verbs and common words
   const actionVerbs = ['explain', 'describe', 'write', 'list', 'illustrate', 'outline', 'discuss', 'define', 'analyze', 'compare'];
   const commonWords = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for'];
-  
+
   const cleanedTopics = topics.filter(topic => {
     const lowerTopic = topic.toLowerCase();
     return !actionVerbs.some(verb => lowerTopic.startsWith(verb)) &&
-           !commonWords.some(word => word === lowerTopic);
+      !commonWords.some(word => word === lowerTopic);
   });
 
   // Remove duplicates and standardize
@@ -958,7 +958,7 @@ export async function getRelevantVideos(question: {
     }
 
     const data = await response.json();
-    
+
     // Transform YouTube API response into our format
     const videos: VideoSearchResult[] = data.items.map(item => ({
       videoId: item.id.videoId,
@@ -984,7 +984,7 @@ export async function getRelevantVideos(question: {
 export async function analyzeQuestionsWithVideos(text: string): Promise<any> {
   // First analyze the questions
   const analysis = await analyzeQuestions(text);
-  
+
   // Then fetch relevant videos for each question
   const analysisWithVideos = await Promise.all(
     analysis.map(async (question) => {

@@ -48,31 +48,31 @@ const UploadSection = ({
       {/* ChatGPT-Style Chat Interface */}
       {status === "idle" && (
         <div className="flex-1 flex flex-col min-h-0">
-          <FileUpload 
-            onUploadPdf={onUploadPdf}
-            onUploadImage={onUploadImage}
-            onUploadPdfOcr={onUploadPdfOcr}
+        <FileUpload 
+          onUploadPdf={onUploadPdf}
+          onUploadImage={onUploadImage}
+          onUploadPdfOcr={onUploadPdfOcr}
             onApiKeyRequired={onApiKeyRequired}
             initialChatId={initialChatId}
-          />
+        />
         </div>
       )}
       
       {/* Processing Status */}
       {status !== "idle" && (
         <div className="flex-1">
-          <ProcessingStatus 
-            status={status}
-            progress={progress}
-            errorMessage={errorMessage}
-            currentStep={currentStep}
-            questionCount={questionCount}
+        <ProcessingStatus 
+          status={status}
+          progress={progress}
+          errorMessage={errorMessage}
+          currentStep={currentStep}
+          questionCount={questionCount}
             currentFile={currentFile}
             totalFiles={totalFiles}
             onPause={onPause}
             onResume={onResume}
             onCancel={onCancel}
-          />
+        />
         </div>
       )}
     </div>

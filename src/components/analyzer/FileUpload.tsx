@@ -88,18 +88,18 @@ const FileUpload = ({ onUploadPdf, onUploadImage, onUploadPdfOcr, onApiKeyRequir
   const handleAIChat = async (userMessage: string, fileContents?: { [fileName: string]: string }) => {
     try {
       setIsTyping(true);
-      
+
       // Get the selected model from ModelSelector's localStorage values
       // Use the last selected provider to determine which model to use
       const lastProvider = localStorage.getItem('lastSelectedProvider') || 'gemini'; // Default to Gemini (free)
       const geminiModel = localStorage.getItem('geminiModel') || 'gemini-2.5-flash';
       const openRouterModel = localStorage.getItem('openRouterModel') || 'deepseek/deepseek-chat-v3-0324:free';
       const openaiModel = localStorage.getItem('openaiModel') || 'openai/gpt-4o';
-      
+
       // Determine which model to use based on last selected provider
       let selectedModel: string | undefined;
       let useBytez = false;
-      
+
       if (lastProvider === 'openai') {
         // ChatGPT models are free, no API key needed
         selectedModel = openaiModel;
@@ -139,7 +139,7 @@ const FileUpload = ({ onUploadPdf, onUploadImage, onUploadPdfOcr, onApiKeyRequir
         // Default to free Gemini model
         selectedModel = geminiModel; // Default to Gemini 2.5 Flash (free)
       }
-      
+
       // Build context from attached files (use current attachedFiles if fileContents not provided)
       let fileContext = '';
       const filesToUse = fileContents || (() => {
@@ -151,14 +151,14 @@ const FileUpload = ({ onUploadPdf, onUploadImage, onUploadPdfOcr, onApiKeyRequir
         });
         return contents;
       })();
-      
+
       if (Object.keys(filesToUse).length > 0) {
         fileContext = '\n\nAttached Documents:\n';
         Object.entries(filesToUse).forEach(([fileName, content]) => {
           fileContext += `\n--- ${fileName} ---\n${content.substring(0, 8000)}\n`; // Limit content to avoid token limits
         });
       }
-      
+
       const systemPrompt = `You are Prepzy AI, the intelligent assistant for Prepzy PYQ - a comprehensive study platform for analyzing academic question papers.
 
 CRITICAL RULES - YOU MUST FOLLOW THESE:
@@ -182,7 +182,7 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
       // Build conversation history from previous messages
       // Convert messages to API format (exclude the current user message we're about to send)
       const conversationHistory: Array<{ role: 'user' | 'assistant' | 'system'; content: string }> = [];
-      
+
       // Add all previous messages to conversation history
       messages.forEach(msg => {
         if (msg.type === 'user') {
@@ -197,7 +197,7 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
           });
         }
       });
-      
+
       // Add the current user message
       conversationHistory.push({
         role: 'user',
@@ -275,7 +275,7 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
       setIsTyping(false);
     }
   };
-  
+
   const extractPdfText = async (file: File): Promise<string> => {
     try {
       const extractedPages = await extractTextFromPDF(file);
@@ -289,16 +289,16 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
 
   const onDropPdf = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0) return;
-    
+
     const oversizedFiles = acceptedFiles.filter(file => file.size > 10 * 1024 * 1024);
     if (oversizedFiles.length > 0) {
       toast.error(`${oversizedFiles.length} file(s) exceed the 10MB limit.`);
       return;
     }
-    
+
     setIsExtractingPdf(true);
     setIsDragActive(false);
-    
+
     // Extract text from PDFs and add to attached files
     const newAttachedFiles: AttachedFile[] = [];
     for (const file of acceptedFiles) {
@@ -316,7 +316,7 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
         });
       }
     }
-    
+
     setAttachedFiles(prev => [...prev, ...newAttachedFiles]);
     setIsExtractingPdf(false);
     toast.success(`${acceptedFiles.length} file(s) attached`);
@@ -324,13 +324,13 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
 
   const onDropImage = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0) return;
-    
+
     const file = acceptedFiles[0];
     if (file.size > 10 * 1024 * 1024) {
       toast.error("File is too large. Maximum size is 10MB.");
       return;
     }
-    
+
     const newAttachedFiles: AttachedFile[] = acceptedFiles.map(file => ({
       file,
       isExtracting: false
@@ -342,16 +342,16 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
 
   const onDropPdfOcr = useCallback(async (acceptedFiles: File[]) => {
     if (!onUploadPdfOcr || acceptedFiles.length === 0) return;
-    
+
     const file = acceptedFiles[0];
     if (file.size > 10 * 1024 * 1024) {
       toast.error("File is too large. Maximum size is 10MB.");
       return;
     }
-    
+
     setIsExtractingPdf(true);
     setIsDragActive(false);
-    
+
     // For PDF OCR, extract text and add to attached files
     const newAttachedFiles: AttachedFile[] = [];
     for (const file of acceptedFiles) {
@@ -362,15 +362,15 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
         isExtracting: false
       });
     }
-    
+
     setAttachedFiles(prev => [...prev, ...newAttachedFiles]);
     setIsExtractingPdf(false);
     toast.success(`${acceptedFiles.length} PDF(s) attached`);
   }, [onUploadPdfOcr]);
 
-  const { 
-    getRootProps: getPdfRootProps, 
-    getInputProps: getPdfInputProps, 
+  const {
+    getRootProps: getPdfRootProps,
+    getInputProps: getPdfInputProps,
     isDragActive: isPdfDragActive,
     open: openPdf
   } = useDropzone({
@@ -384,9 +384,9 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
     noClick: true,
   });
 
-  const { 
-    getRootProps: getImageRootProps, 
-    getInputProps: getImageInputProps, 
+  const {
+    getRootProps: getImageRootProps,
+    getInputProps: getImageInputProps,
     isDragActive: isImageDragActive,
     open: openImage
   } = useDropzone({
@@ -401,9 +401,9 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
     noClick: true,
   });
 
-  const { 
-    getRootProps: getPdfOcrRootProps, 
-    getInputProps: getPdfOcrInputProps, 
+  const {
+    getRootProps: getPdfOcrRootProps,
+    getInputProps: getPdfOcrInputProps,
     isDragActive: isPdfOcrDragActive,
     open: openPdfOcr
   } = useDropzone({
@@ -461,10 +461,10 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
     });
     const userInput = input.trim() || `Please analyze the attached file(s)`;
     setInput('');
-    
+
     // Keep files attached for context in subsequent messages
     // Don't clear attachedFiles - they stay for the conversation
-    
+
     // Get AI response with file context
     await handleAIChat(userInput, fileContents);
   };
@@ -514,10 +514,10 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
 
     // Remove the assistant message and regenerate
     setMessages(prev => prev.slice(0, messageIndex));
-    
+
     // Get file contents from the user message
     const fileContents = userMessage.fileContents;
-    
+
     // Regenerate response
     await handleAIChat(userMessage.content, fileContents);
   };
@@ -549,7 +549,7 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
               <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-semibold">What do you want to analyze?</h2>
               <p className="text-xs sm:text-sm md:text-base text-muted-foreground">Choose an upload method to get started</p>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3 md:gap-4 px-2">
               {/* PDF Extract */}
               <Card
@@ -596,8 +596,8 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
                     <div className="text-center space-y-0.5 sm:space-y-1">
                       <h3 className="text-sm sm:text-base font-semibold">PDF OCR</h3>
                       <p className="text-[10px] sm:text-xs text-muted-foreground">Advanced OCR</p>
-              </div>
-              </div>
+                    </div>
+                  </div>
                 </Card>
               )}
             </div>
@@ -618,106 +618,106 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
                     message.type === 'user' ? 'justify-end' : 'justify-start'
                   )}
                 >
-              {message.type === 'assistant' && (
-                <div className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Bot className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 text-primary" />
-          </div>
-              )}
-              
-              <div className={cn(
-                "flex flex-col gap-1 sm:gap-1.5 md:gap-2 max-w-[90%] sm:max-w-[85%] md:max-w-[80%]",
-                message.type === 'user' && 'items-end'
-              )}>
-                <div className={cn(
-                  "group relative rounded-lg sm:rounded-xl md:rounded-2xl px-2.5 py-1.5 sm:px-3 sm:py-2 md:px-4 md:py-3",
-                  message.type === 'user'
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted/50 border border-border/50"
-                )}>
-                  {message.type === 'assistant' ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-semibold prose-p:my-1.5 sm:prose-p:my-2 prose-ul:my-1.5 sm:prose-ul:my-2 prose-ol:my-1.5 sm:prose-ol:my-2 prose-li:my-0 prose-code:text-[10px] sm:prose-code:text-xs prose-pre:text-[10px] sm:prose-pre:text-xs prose-pre:bg-background/50 prose-pre:border prose-pre:border-border/50 prose-pre:rounded-lg prose-pre:p-1.5 sm:prose-pre:p-2 prose-pre:overflow-x-auto">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {message.content}
-                      </ReactMarkdown>
-                    </div>
-                  ) : (
-                    <p className="text-xs sm:text-sm whitespace-pre-wrap break-words">{message.content}</p>
-                  )}
-                  
-                  {/* File attachments */}
-                  {message.files && message.files.length > 0 && (
-                    <div className="mt-3 space-y-2">
-                      {message.files.map((file, idx) => (
-                        <div
-                          key={idx}
-                          className={cn(
-                            "flex items-center gap-2 p-2 rounded-lg text-xs cursor-pointer hover:bg-opacity-80 transition-colors",
-                            message.type === 'user'
-                              ? "bg-primary-foreground/10 hover:bg-primary-foreground/15"
-                              : "bg-background/50 hover:bg-background/70"
-                          )}
-                          onClick={() => file.type === 'application/pdf' && handleViewPdf(file)}
-                        >
-                          {getFileIcon(file)}
-                          <span className="flex-1 truncate">{file.name}</span>
-                          <span className="text-muted-foreground hidden sm:inline">{formatFileSize(file)}</span>
-                          {file.type === 'application/pdf' && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-5 w-5 text-muted-foreground hover:text-foreground flex-shrink-0"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleViewPdf(file);
-                              }}
-                              title="View PDF"
-                            >
-                              <Eye className="h-3 w-3" />
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                  {/* Copy and Regenerate Buttons - Below the message */}
                   {message.type === 'assistant' && (
-                    <div className="flex gap-1 sm:gap-1.5 mt-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 sm:h-8 px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 opacity-70 hover:opacity-100 transition-opacity"
-                        onClick={() => handleCopyMessage(message.content)}
-                        title="Copy message"
-                      >
-                        <Copy className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1.5" />
-                        Copy
-                      </Button>
-                      {messages.indexOf(message) > 0 && messages[messages.indexOf(message) - 1]?.type === 'user' && (
+                    <div className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Bot className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 text-primary" />
+                    </div>
+                  )}
+
+                  <div className={cn(
+                    "flex flex-col gap-1 sm:gap-1.5 md:gap-2 max-w-[90%] sm:max-w-[85%] md:max-w-[80%]",
+                    message.type === 'user' && 'items-end'
+                  )}>
+                    <div className={cn(
+                      "group relative rounded-lg sm:rounded-xl md:rounded-2xl px-2.5 py-1.5 sm:px-3 sm:py-2 md:px-4 md:py-3",
+                      message.type === 'user'
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted/50 border border-border/50"
+                    )}>
+                      {message.type === 'assistant' ? (
+                        <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-semibold prose-p:my-1.5 sm:prose-p:my-2 prose-ul:my-1.5 sm:prose-ul:my-2 prose-ol:my-1.5 sm:prose-ol:my-2 prose-li:my-0 prose-code:text-[10px] sm:prose-code:text-xs prose-pre:text-[10px] sm:prose-pre:text-xs prose-pre:bg-background/50 prose-pre:border prose-pre:border-border/50 prose-pre:rounded-lg prose-pre:p-1.5 sm:prose-pre:p-2 prose-pre:overflow-x-auto">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {message.content}
+                          </ReactMarkdown>
+                        </div>
+                      ) : (
+                        <p className="text-xs sm:text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                      )}
+
+                      {/* File attachments */}
+                      {message.files && message.files.length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          {message.files.map((file, idx) => (
+                            <div
+                              key={idx}
+                              className={cn(
+                                "flex items-center gap-2 p-2 rounded-lg text-xs cursor-pointer hover:bg-opacity-80 transition-colors",
+                                message.type === 'user'
+                                  ? "bg-primary-foreground/10 hover:bg-primary-foreground/15"
+                                  : "bg-background/50 hover:bg-background/70"
+                              )}
+                              onClick={() => file.type === 'application/pdf' && handleViewPdf(file)}
+                            >
+                              {getFileIcon(file)}
+                              <span className="flex-1 truncate">{file.name}</span>
+                              <span className="text-muted-foreground hidden sm:inline">{formatFileSize(file)}</span>
+                              {file.type === 'application/pdf' && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-5 w-5 text-muted-foreground hover:text-foreground flex-shrink-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleViewPdf(file);
+                                  }}
+                                  title="View PDF"
+                                >
+                                  <Eye className="h-3 w-3" />
+                                </Button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Copy and Regenerate Buttons - Below the message */}
+                    {message.type === 'assistant' && (
+                      <div className="flex gap-1 sm:gap-1.5 mt-1">
                         <Button
                           variant="ghost"
                           size="sm"
                           className="h-7 sm:h-8 px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 opacity-70 hover:opacity-100 transition-opacity"
-                          onClick={() => handleRegenerate(messages.indexOf(message))}
-                          title="Regenerate response"
+                          onClick={() => handleCopyMessage(message.content)}
+                          title="Copy message"
                         >
-                          <RotateCw className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1.5" />
-                          Regenerate
+                          <Copy className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1.5" />
+                          Copy
                         </Button>
-                      )}
+                        {messages.indexOf(message) > 0 && messages[messages.indexOf(message) - 1]?.type === 'user' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 sm:h-8 px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 opacity-70 hover:opacity-100 transition-opacity"
+                            onClick={() => handleRegenerate(messages.indexOf(message))}
+                            title="Regenerate response"
+                          >
+                            <RotateCw className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1.5" />
+                            Regenerate
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {message.type === 'user' && (
+                    <div className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <User className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 text-primary" />
                     </div>
                   )}
-              </div>
-
-              {message.type === 'user' && (
-                <div className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <User className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 text-primary" />
-                </div>
-              )}
                 </div>
               ))}
-              
+
               {/* Typing Indicator */}
               {isTyping && (
                 <div className="flex gap-2 sm:gap-3 md:gap-4 w-full justify-start">
@@ -731,9 +731,9 @@ Be helpful, concise, and accurate. If the user asks about uploaded files, refer 
                       <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                     </div>
                   </div>
-              </div>
+                </div>
               )}
-              
+
               <div ref={messagesEndRef} />
             </div>
           </div>

@@ -20,20 +20,20 @@ interface ResultsSectionProps {
   onFilterChange: (name: string, value: string) => void;
 }
 
-const ResultsSection = ({ 
-  questions, 
+const ResultsSection = ({
+  questions,
   topics = [],
-  years, 
-  topicNames, 
-  filters, 
-  onFilterChange 
+  years,
+  topicNames,
+  filters,
+  onFilterChange
 }: ResultsSectionProps) => {
   const uniqueSubjects = new Set(questions.map(q => q.subject)).size;
 
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Stats Cards */}
-      <StatsCard 
+      <StatsCard
         questions={questions.length}
         subjects={uniqueSubjects}
         topics={topics.length}
@@ -46,7 +46,7 @@ const ResultsSection = ({
         onFilterChange={onFilterChange}
         filters={filters}
       />
-      
+
       {/* Topics Display */}
       {topics.length > 0 && (
         <div className="space-y-3 md:space-y-4">
@@ -58,7 +58,7 @@ const ResultsSection = ({
           <Separator className="my-4 md:my-6" />
         </div>
       )}
-      
+
       {/* Questions List */}
       <div className="space-y-3 md:space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
